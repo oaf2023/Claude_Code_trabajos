@@ -54,6 +54,8 @@ export const WakeWordService = {
         onKeywordDetected: (keyword: string) => {
           console.log(`[WakeWordService] Palabra detectada: ${keyword}`);
           // Disparamos lógica de alerta
+          const { setAlertPhase } = useGuardStore.getState();
+          setAlertPhase('capturando');
         },
         onError: (error: any) => {
           console.error('[WakeWordService] DaVoice Error:', error);
