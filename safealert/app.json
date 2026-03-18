@@ -1,0 +1,91 @@
+{
+  "expo": {
+    "name": "SafeAlert",
+    "slug": "safealert",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "safealert",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#DC2626"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.safealert.app",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio", "fetch", "location", "remote-notification"],
+        "NSMicrophoneUsageDescription": "SafeAlert escucha tu palabra clave de emergencia para enviar alertas a tus contactos de confianza. El audio se procesa localmente en tu dispositivo.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SafeAlert necesita tu ubicación para enviarla a tus contactos de confianza en caso de emergencia.",
+        "NSLocationWhenInUseUsageDescription": "SafeAlert usa tu ubicación para enviarla a tus contactos de confianza en caso de emergencia.",
+        "NSLocationAlwaysUsageDescription": "SafeAlert necesita acceso continuo a tu ubicación para funcionar en segundo plano.",
+        "NSSpeechRecognitionUsageDescription": "SafeAlert usa detección de palabras clave para activar alertas de emergencia.",
+        "UIRequiresPersistentWiFi": false
+      }
+    },
+    "android": {
+      "package": "com.safealert.app",
+      "googleServicesFile": "./android/app/google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#DC2626"
+      },
+      "permissions": [
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MICROPHONE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "expo-router",
+      "expo-location",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "SafeAlert usa el micrófono para detectar tu palabra clave de emergencia y grabar mensajes de voz."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#DC2626"
+        }
+      ],
+      [
+        "react-native-permissions",
+        {
+          "iosPermissions": [
+            "Microphone",
+            "LocationAlways",
+            "LocationWhenInUse",
+            "SpeechRecognition"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}
