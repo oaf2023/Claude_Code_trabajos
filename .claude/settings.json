@@ -4,5 +4,24 @@
         "ANTHROPIC_AUTH_TOKEN": "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",
         "ANTHROPIC_API_KEY": "",
         "ANTHROPIC_MODEL": "openrouter/free"
+    },
+    "permissions": {
+        "allow": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "LS",
+            "MultiEdit",
+            "Read",
+            "Write"
+        ],
+        "deny": [
+            "Read(safealert/.env)",
+            "Read(safealert/.env*.local)",
+            "Read(safealert/functions/.env)",
+            "Read(safealert/google-services.json)",
+            "Read(safealert/GoogleService-Info.plist)"
+        ]
     }
 }
