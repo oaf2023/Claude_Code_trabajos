@@ -6,6 +6,7 @@ import {
   RESULTS,
   openSettings,
 } from 'react-native-permissions';
+import * as Notifications from 'expo-notifications';
 
 export type PermissionKey =
   | 'microphone'
@@ -42,7 +43,7 @@ function mapResult(result: string): PermissionStatus {
 
 export const PermissionsService = {
   async checkAll(): Promise<PermissionsStatus> {
-    const [mic, locFg, locBg] = await Promise.all([
+    const [mic, locFg, locBg, notifs] = await Promise.all([
       check(
         Platform.OS === 'ios'
           ? PERMISSIONS.IOS.MICROPHONE
@@ -58,13 +59,16 @@ export const PermissionsService = {
           ? PERMISSIONS.IOS.LOCATION_ALWAYS
           : PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION
       ),
+      Notifications.getPermissionsAsync(),
     ]);
+
+    const notifStatus = notifs.status === 'granted' || notifs.granted ? 'granted' : 'denied';
 
     return {
       microphone: mapResult(mic),
       locationForeground: mapResult(locFg),
       locationBackground: mapResult(locBg),
-      notifications: 'granted', // simplified; use expo-notifications for real check
+      notifications: notifStatus as PermissionStatus,
     };
   },
 
@@ -95,6 +99,11 @@ export const PermissionsService = {
     return mapResult(result);
   },
 
+  async requestNotifications(): Promise<PermissionStatus> {
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted' ? 'granted' : 'denied';
+  },
+
   openAppSettings(): void {
     openSettings();
   },
@@ -102,7 +111,8 @@ export const PermissionsService = {
   areAllCriticalGranted(status: PermissionsStatus): boolean {
     return (
       status.microphone === 'granted' &&
-      status.locationForeground === 'granted'
+      status.locationForeground === 'granted' &&
+      status.notifications === 'granted'
     );
   },
 };

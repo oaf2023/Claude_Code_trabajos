@@ -1,4 +1,5 @@
 import firestore from '@react-native-firebase/firestore';
+import * as Linking from 'expo-linking';
 import { Alert as AppAlert, AlertContact } from '../types/Alert';
 import { Contact } from '../types/Contact';
 import { LocationService } from './LocationService';
@@ -33,11 +34,12 @@ function buildMessage(
 
 export const AlertService = {
   /**
-   * Main alert flow:
-   * 1. Capture GPS location
-   * 2. Start audio recording (async, don't block SMS)
-   * 3. Write alert to Firestore → triggers Cloud Function → Twilio SMS
-   * 4. Upload audio asynchronously → second SMS with audio link
+   * Ciclo principal de alerta:
+   * 1. Capturar ubicación GPS
+   * 2. Iniciar grabación de audio (asíncrono)
+   * 3. Escribir alerta en Firestore → dispara Cloud Function → Twilio SMS
+   * 4. Subir audio asíncronamente → segundo SMS con link de audio
+   * 5. Llamada telefónica automática al primer contacto
    */
   async send(
     triggerWord: string,
@@ -51,9 +53,9 @@ export const AlertService = {
       throw new Error('No hay contactos activos');
     }
 
-    guardStore.setAlertPhase('capturing');
+    guardStore.setAlertPhase('capturando');
 
-    // Phase 1: Capture location
+    // Fase 1: Capturar ubicación
     let location;
     try {
       location = await LocationService.getCurrentLocation();
@@ -81,8 +83,8 @@ export const AlertService = {
     const prefix = isTest ? SMS_TEST_PREFIX : SMS_PREFIX;
     const finalMessage = `${prefix} ${messageText}`;
 
-    // Phase 2: Write alert doc to Firestore (triggers Cloud Function → SMS)
-    guardStore.setAlertPhase('sending');
+    // Fase 2: Escribir doc de alerta en Firestore (dispara Cloud Function → SMS)
+    guardStore.setAlertPhase('enviando');
 
     const alertData: Omit<AppAlert, 'id'> = {
       userId,
@@ -90,7 +92,7 @@ export const AlertService = {
       triggerWord,
       location,
       mapsLink,
-      audioUrl: null, // filled in async phase
+      audioUrl: null, // se completa en fase asíncrona
       messageTemplate: finalMessage,
       contacts: alertContacts,
       status: 'pending',
@@ -100,22 +102,31 @@ export const AlertService = {
     const ref = await alertsCol(userId).add(alertData);
     const alertId = ref.id;
 
-    guardStore.setAlertPhase('sent');
+    guardStore.setAlertPhase('enviado');
     guardStore.setLastAlert({ id: alertId, ...alertData });
 
-    // Phase 3: Record and upload audio asynchronously (does NOT block SMS)
+    // Fase 3: Grabar y subir audio asíncronamente (NO bloquea el SMS)
     if (settings.audioEnabled && !isTest) {
       AudioRecordingService.recordAndUpload(alertId)
         .then(async (audioUrl) => {
           if (audioUrl) {
-            // Update alert document with audio URL
+            // Actualizar documento con URL de audio
             await alertsCol(userId).doc(alertId).update({ audioUrl });
-            // Cloud Function will detect this update and send a follow-up SMS with audio link
           }
         })
         .catch((e) =>
-          console.warn('[AlertService] Audio upload failed:', e)
+          console.warn('[AlertService] Error al subir audio:', e)
         );
+    }
+
+    // Fase 4: Llamada automática al primer contacto de emergencia
+    if (contacts.length > 0 && !isTest) {
+      const firstContact = contacts[0];
+      try {
+        await Linking.openURL(`tel:${firstContact.phone}`);
+      } catch (e) {
+        console.warn('[AlertService] Error al iniciar llamada:', e);
+      }
     }
 
     return { alertId };

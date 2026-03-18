@@ -1,45 +1,45 @@
 import { create } from 'zustand';
-import { Alert as AppAlert, AlertLocation } from '../types/Alert';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from '../types/Alert';
 
-type AlertPhase =
-  | 'idle'
-  | 'countdown' // showing cancel overlay
-  | 'capturing' // getting location + recording audio
-  | 'sending' // writing to Firestore
-  | 'sent'
+export type AlertPhase =
+  | 'inactivo'
+  | 'capturando'
+  | 'enviando'
+  | 'enviado'
   | 'error';
 
 interface GuardState {
   isArmed: boolean;
   alertPhase: AlertPhase;
-  countdownSeconds: number;
-  lastAlert: AppAlert | null;
-  lastLocation: AlertLocation | null;
-  detectedKeyword: string | null;
-
-  setArmed: (armed: boolean) => void;
+  lastAlert: Alert | null;
+  
+  // Actions
+  toggleArmed: () => void;
+  setArmed: (value: boolean) => void;
   setAlertPhase: (phase: AlertPhase) => void;
-  setCountdownSeconds: (seconds: number) => void;
-  setLastAlert: (alert: AppAlert) => void;
-  setLastLocation: (location: AlertLocation) => void;
-  setDetectedKeyword: (keyword: string | null) => void;
+  setLastAlert: (alert: Alert) => void;
   reset: () => void;
 }
 
-export const useGuardStore = create<GuardState>((set) => ({
-  isArmed: false,
-  alertPhase: 'idle',
-  countdownSeconds: 3,
-  lastAlert: null,
-  lastLocation: null,
-  detectedKeyword: null,
+export const useGuardStore = create<GuardState>()(
+  persist(
+    (set) => ({
+      isArmed: false,
+      alertPhase: 'inactivo',
+      lastAlert: null,
 
-  setArmed: (isArmed) => set({ isArmed }),
-  setAlertPhase: (alertPhase) => set({ alertPhase }),
-  setCountdownSeconds: (countdownSeconds) => set({ countdownSeconds }),
-  setLastAlert: (lastAlert) => set({ lastAlert }),
-  setLastLocation: (lastLocation) => set({ lastLocation }),
-  setDetectedKeyword: (detectedKeyword) => set({ detectedKeyword }),
-  reset: () =>
-    set({ alertPhase: 'idle', countdownSeconds: 3, detectedKeyword: null }),
-}));
+      toggleArmed: () => set((state) => ({ isArmed: !state.isArmed })),
+      setArmed: (value) => set({ isArmed: value }),
+      setAlertPhase: (phase) => set({ alertPhase: phase }),
+      setLastAlert: (alert) => set({ lastAlert: alert }),
+      reset: () => set({ alertPhase: 'inactivo', lastAlert: null }),
+    }),
+    {
+      name: 'guard-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ isArmed: state.isArmed }), // Solo persistimos isArmed
+    }
+  )
+);

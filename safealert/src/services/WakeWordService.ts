@@ -1,79 +1,106 @@
-import { EventEmitter } from 'eventemitter3';
+/* ============================================================================
+* Archivo         : WakeWordService.ts
+* Descripción     : Servicio para la detección de palabras de activación (Wake Word) usando Picovoice Porcupine.
+* Autor           : oafon
+* Fecha           : 2026-03-18
+* Versión         : 1.1.0
+* Lenguaje        : TypeScript 5.0
+* Uso             : WakeWordService.start() para iniciar la escucha activa.
+* ============================================================================ */
+
+import {
+  PorcupineManager,
+  PorcupineErrors,
+} from '@picovoice/porcupine-react-native';
+import { Platform } from 'react-native';
 import { useGuardStore } from '../stores/useGuardStore';
-import { AlertService } from './AlertService';
-import { ALERT_COUNTDOWN_SECONDS } from '../config/constants';
+import { useSettingsStore } from '../stores/useSettingsStore';
+import { PORCUPINE_SENSITIVITY } from '../config/constants';
 
-// Event emitter for wake word detection events
-export const WakeWordEvents = new EventEmitter();
+let porcupineManager: PorcupineManager | null = null;
 
-class WakeWordServiceClass {
-  private isRunning = false;
-  private countdownTimer: ReturnType<typeof setInterval> | null = null;
-  private alertTriggered = false;
+export const WakeWordService = {
+  /* ============================================================================
+  * Función         : start
+  * Descripción     : Inicializa y comienza la escucha de palabras clave (ayuda, socorro).
+  * Fecha           : 2026-03-18
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.0
+  * Conexiones      : Conecta con Picovoice SDK y GuardStore.
+  * Ingesta         : N/A (Lee de SettingsStore internamente)
+  * Devolución      : Promise<void>
+  * Uso             : await WakeWordService.start()
+  * ============================================================================ */
+  async start() {
+    if (porcupineManager) return;
 
-  /**
-   * Start wake word detection.
-   * TODO: Integrar Porcupine cuando esté disponible el Access Key.
-   * Por ahora solo se usa el botón manual de pánico.
-   */
-  async start(): Promise<void> {
-    if (this.isRunning) return;
-    this.isRunning = true;
-    console.log('[WakeWordService] Modo guardia activado (solo botón manual)');
-  }
+    const { triggerWords, wakeWordSensitivity } = useSettingsStore.getState();
+    const accessKey = process.env.EXPO_PUBLIC_PORCUPINE_ACCESS_KEY;
 
-  async stop(): Promise<void> {
-    if (!this.isRunning) return;
-    this.clearCountdown();
-    this.isRunning = false;
-    console.log('[WakeWordService] Modo guardia desactivado');
-  }
-
-  triggerKeyword(keyword: string = 'ayuda'): void {
-    console.log(`[WakeWordService] Palabra detectada: "${keyword}"`);
-    WakeWordEvents.emit('keyword_detected', { keyword });
-
-    const guardStore = useGuardStore.getState();
-    guardStore.setDetectedKeyword(keyword);
-    guardStore.setAlertPhase('countdown');
-
-    this.alertTriggered = false;
-    let secondsLeft = ALERT_COUNTDOWN_SECONDS;
-    guardStore.setCountdownSeconds(secondsLeft);
-
-    this.countdownTimer = setInterval(() => {
-      secondsLeft--;
-      guardStore.setCountdownSeconds(secondsLeft);
-
-      if (secondsLeft <= 0) {
-        this.clearCountdown();
-        if (!this.alertTriggered) {
-          this.alertTriggered = true;
-          AlertService.send(keyword).catch((e) =>
-            console.error('[WakeWordService] Alerta falló:', e)
-          );
-        }
-      }
-    }, 1000);
-  }
-
-  cancelAlert(): void {
-    this.clearCountdown();
-    this.alertTriggered = true;
-    useGuardStore.getState().reset();
-    console.log('[WakeWordService] Alerta cancelada por el usuario');
-  }
-
-  private clearCountdown(): void {
-    if (this.countdownTimer) {
-      clearInterval(this.countdownTimer);
-      this.countdownTimer = null;
+    if (!accessKey) {
+      console.warn('[WakeWordService] No Access Key found. Wake word disabled.');
+      return;
     }
-  }
 
-  get running(): boolean {
-    return this.isRunning;
-  }
-}
+    try {
+      // Mapeo de archivos .ppn según plataforma
+      const keywordPaths = Platform.select({
+        ios: {
+          ayuda: 'keywords/ayuda_ios.ppn',
+          socorro: 'keywords/socorro_ios.ppn',
+        },
+        android: {
+          ayuda: 'keywords/ayuda_android.ppn',
+          socorro: 'keywords/socorro_android.ppn',
+        },
+      });
 
-export const WakeWordService = new WakeWordServiceClass();
+      const activePaths = triggerWords
+        .map((w) => (keywordPaths as any)[w])
+        .filter(Boolean);
+      const sensitivities = activePaths.map(() => wakeWordSensitivity || PORCUPINE_SENSITIVITY);
+
+      porcupineManager = await PorcupineManager.fromKeywordPaths(
+        accessKey,
+        activePaths,
+        (keywordIndex) => {
+          const detected = triggerWords[keywordIndex];
+          console.log(`[WakeWordService] Palabra detectada: ${detected}`);
+          // Emitir evento o llamar a store directamente
+          // useAlert hook escucha cambios en el estado o eventos
+        },
+        (error) => {
+          console.error('[WakeWordService] Error en Porcupine:', error);
+        },
+        'model/porcupine_model_es.pv', // Modelo en español
+        sensitivities
+      );
+
+      await porcupineManager.start();
+      console.log('[WakeWordService] Escucha activa iniciada.');
+    } catch (e) {
+      console.error('[WakeWordService] Error al inicializar:', e);
+      porcupineManager = null;
+    }
+  },
+
+  /* ============================================================================
+  * Función         : stop
+  * Descripción     : Detiene la escucha y libera los recursos del manager.
+  * Fecha           : 2026-03-18
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.0
+  * Conexiones      : N/A
+  * Ingesta         : N/A
+  * Devolución      : Promise<void>
+  * Uso             : await WakeWordService.stop()
+  * ============================================================================ */
+  async stop() {
+    if (porcupineManager) {
+      await porcupineManager.stop();
+      await porcupineManager.delete();
+      porcupineManager = null;
+      console.log('[WakeWordService] Escucha detenida.');
+    }
+  },
+};

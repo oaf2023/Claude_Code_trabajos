@@ -25,10 +25,17 @@ export default function AddEditContactScreen() {
     s.contacts.find((c) => c.id === id)
   );
 
-  const [name, setName] = useState(existingContact?.name ?? '');
-  const [phone, setPhone] = useState(existingContact?.phone ?? '');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({ name: '', phone: '' });
+
+  useEffect(() => {
+    if (!isNew && existingContact) {
+      setName(existingContact.name);
+      setPhone(existingContact.phone);
+    }
+  }, [id, existingContact, isNew]);
 
   const validate = (): boolean => {
     const newErrors = { name: '', phone: '' };
@@ -47,7 +54,7 @@ export default function AddEditContactScreen() {
       if (isNew) {
         await addContact({ name: name.trim(), phone });
       } else {
-        await updateContact(id, { name: name.trim(), phone });
+        await updateContact(id as string, { name: name.trim(), phone });
       }
       router.back();
     } catch (e: any) {

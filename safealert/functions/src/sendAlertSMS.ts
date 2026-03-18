@@ -31,9 +31,8 @@ const AlertSchema = z.object({
 });
 
 /**
- * Envía la alerta usando el proveedor configurado.
- * Actualmente: log + notificación interna en Firestore.
- * Para agregar SMS: descomentar el bloque correspondiente.
+ * Envía la alerta usando el proveedor configurado (Twilio).
+ * Cae al método interno de Firestore si Twilio no está configurado.
  */
 async function sendNotification(
   contact: { name: string; phone: string },
@@ -41,26 +40,26 @@ async function sendNotification(
   alertId: string
 ): Promise<{ success: boolean; method: string }> {
 
-  // ─────────────────────────────────────────────────────
-  // OPCIÓN 1: Twilio SMS (descomentar cuando tengas cuenta)
-  // ─────────────────────────────────────────────────────
-  // const twilio = require('twilio');
-  // const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  // await client.messages.create({ body, from: process.env.TWILIO_PHONE_NUMBER, to: contact.phone });
-  // return { success: true, method: 'twilio_sms' };
+  // 1. Intentar Twilio si las credenciales existen
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+    try {
+      const twilio = require('twilio');
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      
+      await client.messages.create({
+        body: body,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: contact.phone
+      });
 
-  // ─────────────────────────────────────────────────────
-  // OPCIÓN 2: WhatsApp via Twilio
-  // ─────────────────────────────────────────────────────
-  // const twilio = require('twilio');
-  // const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  // await client.messages.create({ body, from: 'whatsapp:+14155238886', to: `whatsapp:${contact.phone}` });
-  // return { success: true, method: 'whatsapp' };
+      return { success: true, method: 'twilio_sms' };
+    } catch (error) {
+      console.error(`[Twilio Error] Para ${contact.phone}:`, error);
+    }
+  }
 
-  // ─────────────────────────────────────────────────────
-  // MÉTODO ACTUAL: Log + notificación interna Firestore
-  // ─────────────────────────────────────────────────────
-  console.log(`[ALERTA] → ${contact.name} (${contact.phone}): ${body}`);
+  // 2. Método de respaldo (Fallback): Notificación interna en Firestore
+  console.log(`[ALERTA FALLBACK] → ${contact.name} (${contact.phone}): ${body}`);
 
   await admin.firestore().collection('pendingNotifications').add({
     targetPhone: contact.phone,
