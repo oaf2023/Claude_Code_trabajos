@@ -1,94 +1,78 @@
 /* ============================================================================
 * Archivo         : WakeWordService.ts
-* Descripción     : Servicio para la detección de palabras de activación (Wake Word) usando Picovoice Porcupine.
+* Descripción     : Servicio para la detección de palabras de activación (Wake Word) usando DaVoice.io SDK.
 * Autor           : oafon
 * Fecha           : 2026-03-18
-* Versión         : 1.1.0
+* Versión         : 2.0.0
 * Lenguaje        : TypeScript 5.0
-* Uso             : WakeWordService.start() para iniciar la escucha activa.
+* Uso             : WakeWordService.start() para iniciar la escucha activa mediante DaVoice.
 * ============================================================================ */
 
 import {
-  PorcupineManager,
-  PorcupineErrors,
-} from '@picovoice/porcupine-react-native';
+  WakeWordManager,
+} from 'react-native-wakeword';
 import { Platform } from 'react-native';
-import { useGuardStore } from '../stores/useGuardStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
-import { PORCUPINE_SENSITIVITY } from '../config/constants';
+import { useGuardStore } from '../stores/useGuardStore';
 
-let porcupineManager: PorcupineManager | null = null;
+let wakeWordManager: WakeWordManager | null = null;
 
 export const WakeWordService = {
   /* ============================================================================
   * Función         : start
-  * Descripción     : Inicializa y comienza la escucha de palabras clave (ayuda, socorro).
+  * Descripción     : Inicializa el motor DaVoice.io y comienza la detección de "ayuda" y "socorro".
   * Fecha           : 2026-03-18
-  * Versión         : 1.1.0
+  * Versión         : 2.0.0
   * Lenguaje        : TypeScript 5.0
-  * Conexiones      : Conecta con Picovoice SDK y GuardStore.
-  * Ingesta         : N/A (Lee de SettingsStore internamente)
+  * Conexiones      : DaVoice SDK, GuardStore, SettingsStore.
+  * Ingesta         : N/A (Usa claves de entorno y estado de settings)
   * Devolución      : Promise<void>
   * Uso             : await WakeWordService.start()
   * ============================================================================ */
   async start() {
-    if (porcupineManager) return;
+    if (wakeWordManager) return;
 
-    const { triggerWords, wakeWordSensitivity } = useSettingsStore.getState();
-    const accessKey = process.env.EXPO_PUBLIC_PORCUPINE_ACCESS_KEY;
+    const { wakeWordSensitivity } = useSettingsStore.getState();
+    const sdkKey = process.env.EXPO_PUBLIC_DAVOICE_SDK_KEY;
 
-    if (!accessKey) {
-      console.warn('[WakeWordService] No Access Key found. Wake word disabled.');
+    if (!sdkKey) {
+      console.warn('[WakeWordService] No DaVoice SDK Key found. Wake word disabled.');
       return;
     }
 
     try {
-      // Mapeo de archivos .ppn según plataforma
-      const keywordPaths = Platform.select({
-        ios: {
-          ayuda: 'keywords/ayuda_ios.ppn',
-          socorro: 'keywords/socorro_ios.ppn',
-        },
-        android: {
-          ayuda: 'keywords/ayuda_android.ppn',
-          socorro: 'keywords/socorro_android.ppn',
-        },
+      // Configuración de modelos .onnx (estándar DaVoice)
+      const modelPath = Platform.select({
+        ios: 'models/wakeword_es.onnx',
+        android: 'models/wakeword_es.onnx',
       });
 
-      const activePaths = triggerWords
-        .map((w) => (keywordPaths as any)[w])
-        .filter(Boolean);
-      const sensitivities = activePaths.map(() => wakeWordSensitivity || PORCUPINE_SENSITIVITY);
-
-      porcupineManager = await PorcupineManager.fromKeywordPaths(
-        accessKey,
-        activePaths,
-        (keywordIndex) => {
-          const detected = triggerWords[keywordIndex];
-          console.log(`[WakeWordService] Palabra detectada: ${detected}`);
-          // Emitir evento o llamar a store directamente
-          // useAlert hook escucha cambios en el estado o eventos
+      // Inicialización de DaVoice Manager
+      wakeWordManager = new WakeWordManager(sdkKey, {
+        modelPath: modelPath!,
+        threshold: wakeWordSensitivity || 0.7,
+        onKeywordDetected: (keyword: string) => {
+          console.log(`[WakeWordService] Palabra detectada: ${keyword}`);
+          // Disparamos lógica de alerta
         },
-        (error) => {
-          console.error('[WakeWordService] Error en Porcupine:', error);
-        },
-        'model/porcupine_model_es.pv', // Modelo en español
-        sensitivities
-      );
+        onError: (error: any) => {
+          console.error('[WakeWordService] DaVoice Error:', error);
+        }
+      });
 
-      await porcupineManager.start();
-      console.log('[WakeWordService] Escucha activa iniciada.');
+      await wakeWordManager.start();
+      console.log('[WakeWordService] Motor DaVoice iniciado correctamente.');
     } catch (e) {
-      console.error('[WakeWordService] Error al inicializar:', e);
-      porcupineManager = null;
+      console.error('[WakeWordService] Error al inicializar DaVoice:', e);
+      wakeWordManager = null;
     }
   },
 
   /* ============================================================================
   * Función         : stop
-  * Descripción     : Detiene la escucha y libera los recursos del manager.
+  * Descripción     : Detiene la escucha de DaVoice y libera recursos.
   * Fecha           : 2026-03-18
-  * Versión         : 1.1.0
+  * Versión         : 2.0.0
   * Lenguaje        : TypeScript 5.0
   * Conexiones      : N/A
   * Ingesta         : N/A
@@ -96,11 +80,10 @@ export const WakeWordService = {
   * Uso             : await WakeWordService.stop()
   * ============================================================================ */
   async stop() {
-    if (porcupineManager) {
-      await porcupineManager.stop();
-      await porcupineManager.delete();
-      porcupineManager = null;
-      console.log('[WakeWordService] Escucha detenida.');
+    if (wakeWordManager) {
+      await wakeWordManager.stop();
+      wakeWordManager = null;
+      console.log('[WakeWordService] Motor DaVoice detenido.');
     }
   },
 };
