@@ -1,91 +1,35 @@
 /* ============================================================================
 * Archivo         : WakeWordService.ts
-* Descripción     : Servicio para la detección de palabras de activación (Wake Word) usando DaVoice.io SDK.
+* Descripción     : Versión temporal desactivada (Mock) de detección de voz.
 * Autor           : oafon
 * Fecha           : 2026-03-18
-* Versión         : 2.0.0
+* Versión         : 2.0.1
 * Lenguaje        : TypeScript 5.0
-* Uso             : WakeWordService.start() para iniciar la escucha activa mediante DaVoice.
+* Uso             : WakeWordService.start() (Desactivado).
 * ============================================================================ */
 
-import {
-  WakeWordManager,
-} from 'react-native-wakeword';
 import { Platform } from 'react-native';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useGuardStore } from '../stores/useGuardStore';
 
-let wakeWordManager: WakeWordManager | null = null;
-
 export const WakeWordService = {
   /* ============================================================================
   * Función         : start
-  * Descripción     : Inicializa el motor DaVoice.io y comienza la detección de "ayuda" y "socorro".
+  * Descripción     : Versión dummy, no hace nada.
   * Fecha           : 2026-03-18
-  * Versión         : 2.0.0
-  * Lenguaje        : TypeScript 5.0
-  * Conexiones      : DaVoice SDK, GuardStore, SettingsStore.
-  * Ingesta         : N/A (Usa claves de entorno y estado de settings)
-  * Devolución      : Promise<void>
-  * Uso             : await WakeWordService.start()
+  * Versión         : 2.0.1
   * ============================================================================ */
   async start() {
-    if (wakeWordManager) return;
-
-    const { wakeWordSensitivity } = useSettingsStore.getState();
-    const sdkKey = process.env.EXPO_PUBLIC_DAVOICE_SDK_KEY;
-
-    if (!sdkKey) {
-      console.warn('[WakeWordService] No DaVoice SDK Key found. Wake word disabled.');
-      return;
-    }
-
-    try {
-      // Configuración de modelos .onnx (estándar DaVoice)
-      const modelPath = Platform.select({
-        ios: 'models/wakeword_es.onnx',
-        android: 'models/wakeword_es.onnx',
-      });
-
-      // Inicialización de DaVoice Manager
-      wakeWordManager = new WakeWordManager(sdkKey, {
-        modelPath: modelPath!,
-        threshold: wakeWordSensitivity || 0.7,
-        onKeywordDetected: (keyword: string) => {
-          console.log(`[WakeWordService] Palabra detectada: ${keyword}`);
-          // Disparamos lógica de alerta
-          const { setAlertPhase } = useGuardStore.getState();
-          setAlertPhase('capturando');
-        },
-        onError: (error: any) => {
-          console.error('[WakeWordService] DaVoice Error:', error);
-        }
-      });
-
-      await wakeWordManager.start();
-      console.log('[WakeWordService] Motor DaVoice iniciado correctamente.');
-    } catch (e) {
-      console.error('[WakeWordService] Error al inicializar DaVoice:', e);
-      wakeWordManager = null;
-    }
+    console.log('[WakeWordService] Activación por voz desactivada temporalmente para evitar problemas de dependencias.');
   },
 
   /* ============================================================================
   * Función         : stop
-  * Descripción     : Detiene la escucha de DaVoice y libera recursos.
+  * Descripción     : Versión dummy, no hace nada.
   * Fecha           : 2026-03-18
-  * Versión         : 2.0.0
-  * Lenguaje        : TypeScript 5.0
-  * Conexiones      : N/A
-  * Ingesta         : N/A
-  * Devolución      : Promise<void>
-  * Uso             : await WakeWordService.stop()
+  * Versión         : 2.0.1
   * ============================================================================ */
   async stop() {
-    if (wakeWordManager) {
-      await wakeWordManager.stop();
-      wakeWordManager = null;
-      console.log('[WakeWordService] Motor DaVoice detenido.');
-    }
+    console.log('[WakeWordService] Motor de voz (fantasma) detenido.');
   },
 };

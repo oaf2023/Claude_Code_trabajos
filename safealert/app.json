@@ -6,28 +6,31 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "safealert",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#DC2626"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.safealert.app",
       "infoPlist": {
-        "UIBackgroundModes": ["audio", "fetch", "location", "remote-notification"],
-        "NSMicrophoneUsageDescription": "SafeAlert escucha tu palabra clave de emergencia para enviar alertas a tus contactos de confianza. El audio se procesa localmente en tu dispositivo.",
+        "UIBackgroundModes": [
+          "audio",
+          "fetch",
+          "location",
+          "remote-notification"
+        ],
+        "NSMicrophoneUsageDescription": "SafeAlert necesita acceso al micrófono para grabar mensajes de voz en caso de emergencia.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "SafeAlert necesita tu ubicación para enviarla a tus contactos de confianza en caso de emergencia.",
         "NSLocationWhenInUseUsageDescription": "SafeAlert usa tu ubicación para enviarla a tus contactos de confianza en caso de emergencia.",
-        "NSLocationAlwaysUsageDescription": "SafeAlert necesita acceso continuo a tu ubicación para funcionar en segundo plano.",
-        "NSSpeechRecognitionUsageDescription": "SafeAlert usa detección de palabras clave para activar alertas de emergencia.",
-        "UIRequiresPersistentWiFi": false
+        "NSLocationAlwaysUsageDescription": "SafeAlert necesita tu ubicación en todo momento para asegurar que recibas ayuda incluso si la aplicación está cerrada."
       }
     },
     "android": {
       "package": "com.safealert.app",
-      "googleServicesFile": "./android/app/google-services.json",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundImage": "./assets/android-icon-background.png",
@@ -35,19 +38,20 @@
         "backgroundColor": "#DC2626"
       },
       "permissions": [
-        "RECORD_AUDIO",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION",
-        "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_MICROPHONE",
-        "FOREGROUND_SERVICE_LOCATION",
-        "RECEIVE_BOOT_COMPLETED",
-        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
-        "VIBRATE"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK"
       ]
     },
     "web": {
+      "bundler": "metro",
+      "output": "static",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
@@ -57,7 +61,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "SafeAlert usa el micrófono para detectar tu palabra clave de emergencia y grabar mensajes de voz."
+          "microphonePermission": "SafeAlert usa el micrófono para grabar mensajes de voz durante una emergencia."
         }
       ],
       [
@@ -77,14 +81,17 @@
             "SpeechRecognition"
           ]
         }
-      ]
+      ],
+      "./plugins/withManifestConflictFix",
+      "expo-font",
+      "@react-native-firebase/messaging"
     ],
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "73c6606f-12cc-49fd-8ae8-1f198f1f198f"
       }
     }
   }

@@ -16,12 +16,25 @@ export default function RootLayout() {
   useEffect(() => {
     const intentar = async () => {
       try {
-        const uid = await ensureAuthenticated();
+        console.log('[RootLayout] Iniciando autenticación anónima de Firebase...');
+        
+        // Agregamos un timeout manual por si Firebase se cuelga (típico en emuladores sin Play Services)
+        const firebaseAuthPromise = ensureAuthenticated();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase auth timeout')), 3000));
+        
+        const uid = await Promise.race([firebaseAuthPromise, timeoutPromise]) as string;
+        
+        console.log('[RootLayout] Autenticación Firebase exitosa. UID:', uid);
         setUserId(uid);
-      } catch (e) {
+      } catch (e: any) {
+        console.warn('[RootLayout] Error o Timeout en Firebase:', e.message);
         // Si Firebase falla, usamos el teléfono como ID local
-        if (userPhone) setUserId(userPhone);
+        if (userPhone) {
+          console.log('[RootLayout] Usando userPhone local como UID:', userPhone);
+          setUserId(userPhone);
+        }
       } finally {
+        console.log('[RootLayout] Inicialización terminada, marcando como listo.');
         setListo(true);
       }
     };
