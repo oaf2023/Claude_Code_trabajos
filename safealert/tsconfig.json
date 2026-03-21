@@ -3,6 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "react-native-wakeword": [
+        "./src/types/react-native-wakeword"
+      ],
       "@/*": [
         "./src/*"
       ]
@@ -15,6 +18,7 @@
   ],
   "exclude": [
     "node_modules",
-    "functions"
+    "functions",
+    "temp_voice_resources"
   ]
 }

@@ -3,6 +3,8 @@ export interface AppSettings {
   messageTemplate: string;
   audioEnabled: boolean;
   guardModeEnabled: boolean;
+  reminderNotificationsEnabled: boolean;
+  reminderHour: number;
   wakeWordSensitivity: number; // 0.0 - 1.0
   alertCountdownSeconds: number; // seconds to cancel before sending
 }
@@ -13,6 +15,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     '{name} necesita ayuda urgente! Ubicación: {location} — Hora: {time}',
   audioEnabled: true,
   guardModeEnabled: false,
+  reminderNotificationsEnabled: false,
+  reminderHour: 9,
   wakeWordSensitivity: 0.7,
   alertCountdownSeconds: 3,
 };

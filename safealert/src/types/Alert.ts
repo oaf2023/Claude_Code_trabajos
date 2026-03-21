@@ -14,6 +14,10 @@ export interface AlertContact {
   name: string;
   phone: string;
   smsStatus: SMSStatus;
+  provider?: string | null;
+  providerMessageId?: string | null;
+  attempts?: number;
+  lastError?: string | null;
 }
 
 export interface Alert {
@@ -24,6 +28,7 @@ export interface Alert {
   location: AlertLocation;
   mapsLink: string;
   audioUrl: string | null;
+  audioPath?: string | null;
   messageTemplate: string;
   contacts: AlertContact[];
   status: AlertStatus;

@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : permissions.tsx
+* Descripción     : Pantalla de permisos alineada con las capacidades del MVP.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Modal de permisos y transparencia operativa.
+* ============================================================================ */
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -13,6 +23,7 @@ import {
   PermissionsStatus,
 } from '../src/services/PermissionsService';
 import { COLORS } from '../src/config/constants';
+import { BACKGROUND_LOCATION_ENABLED } from '../src/config/features';
 
 type PermissionItem = {
   key: keyof PermissionsStatus;
@@ -21,6 +32,18 @@ type PermissionItem = {
   critical: boolean;
   onRequest: () => Promise<void>;
 };
+
+/* ============================================================================
+* Función         : PermissionsScreen
+* Descripción     : Presenta permisos críticos y opcionales con acciones accesibles.
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : PermissionsService, router
+* Ingesta         : Sin argumentos
+* Devolución      : JSX.Element
+* Uso             : Pantalla /permissions
+* ============================================================================ */
 
 export default function PermissionsScreen() {
   const [status, setStatus] = useState<PermissionsStatus | null>(null);
@@ -42,8 +65,8 @@ export default function PermissionsScreen() {
       key: 'microphone',
       title: '🎙️ Micrófono',
       description:
-        'Necesario para detectar tu palabra clave y grabar mensajes de voz.',
-      critical: true,
+        'Opcional. Solo se usa si decides adjuntar un mensaje de voz a la alerta.',
+      critical: false,
       onRequest: async () => {
         await PermissionsService.requestMicrophone();
         await refresh();
@@ -60,17 +83,31 @@ export default function PermissionsScreen() {
       },
     },
     {
+      key: 'notifications',
+      title: '🔔 Notificaciones',
+      description:
+        'Necesarias para recordatorios locales y para avisarte del estado de la app.',
+      critical: true,
+      onRequest: async () => {
+        await PermissionsService.requestNotifications();
+        await refresh();
+      },
+    },
+  ];
+
+  if (BACKGROUND_LOCATION_ENABLED) {
+    permissions.push({
       key: 'locationBackground',
       title: '🗺️ Ubicación en segundo plano',
       description:
-        'Para mantener tu ubicación actualizada cuando la pantalla está bloqueada.',
+        'Opcional. Solo se habilita en compilaciones que realmente usen seguimiento en segundo plano.',
       critical: false,
       onRequest: async () => {
         await PermissionsService.requestLocationBackground();
         await refresh();
       },
-    },
-  ];
+    });
+  }
 
   const statusColor = (s: string) => {
     if (s === 'granted') return COLORS.safe;
@@ -100,8 +137,8 @@ export default function PermissionsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Permisos requeridos</Text>
       <Text style={styles.subtitle}>
-        SafeAlert necesita estos permisos para funcionar correctamente en
-        situaciones de emergencia.
+        SafeAlert solo pide permisos vinculados al MVP real: ubicación para el SOS,
+        notificaciones para recordatorios y micrófono opcional para audio.
       </Text>
 
       {permissions.map((perm) => {
@@ -139,6 +176,9 @@ export default function PermissionsScreen() {
                     ? () => PermissionsService.openAppSettings()
                     : perm.onRequest
                 }
+                accessibilityRole="button"
+                accessibilityLabel={isBlocked ? `Abrir configuración para ${perm.title}` : `Conceder permiso de ${perm.title}`}
+                accessibilityHint={perm.critical ? 'Es un permiso necesario para el funcionamiento principal del MVP' : 'Es un permiso opcional para funciones complementarias'}
               >
                 <Text style={styles.permButtonText}>
                   {isBlocked ? 'Abrir configuración' : 'Conceder permiso'}
@@ -150,7 +190,13 @@ export default function PermissionsScreen() {
       })}
 
       {allCriticalGranted && (
-        <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.doneButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar pantalla de permisos"
+          accessibilityHint="Vuelve a la pantalla anterior porque los permisos críticos ya están listos"
+        >
           <Text style={styles.doneButtonText}>✅ Todo listo</Text>
         </TouchableOpacity>
       )}

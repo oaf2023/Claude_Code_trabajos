@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : index.tsx
+* Descripción     : Pantalla principal del MVP con SOS manual y estado real.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Pantalla Home de la app.
+* ============================================================================ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -8,16 +18,17 @@ import {
   Alert,
   Animated,
   Vibration,
+  Linking,
 } from 'react-native';
 import { router } from 'expo-router';
 import { WakeWordService } from '../../src/services/WakeWordService';
-import { LocationService } from '../../src/services/LocationService';
 import { useGuardStore } from '../../src/stores/useGuardStore';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
 import { COLORS } from '../../src/config/constants';
+import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
 
 export default function HomeScreen() {
   const isArmed = useGuardStore((s) => s.isArmed);
@@ -36,6 +47,7 @@ export default function HomeScreen() {
   const contacts = useContactsStore((s) => s.contacts);
   const activeCount = contacts.filter((c) => c.active).length;
   const userId = useSettingsStore((s) => s.userId);
+  const wakeWordAvailable = WakeWordService.isAvailable();
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const [isSendingManual, setIsSendingManual] = useState(false);
@@ -65,6 +77,11 @@ export default function HomeScreen() {
   }, [isArmed]);
 
   const toggleGuard = async () => {
+    if (!wakeWordAvailable) {
+      Alert.alert('No disponible', WakeWordService.getUnavailableReason());
+      return;
+    }
+
     if (!userId) return;
     if (activeCount === 0) {
       Alert.alert(
@@ -77,12 +94,10 @@ export default function HomeScreen() {
 
     if (isArmed) {
       await WakeWordService.stop();
-      await LocationService.stopBackgroundUpdates();
       setArmed(false);
     } else {
       try {
         await WakeWordService.start();
-        await LocationService.startBackgroundUpdates();
         setArmed(true);
         Vibration.vibrate(200);
       } catch (e) {
@@ -96,6 +111,14 @@ export default function HomeScreen() {
   };
 
   const handlePanicButton = async () => {
+    if (!userId) {
+      Alert.alert(
+        'Sesión no disponible',
+        'Todavía no se pudo inicializar la sesión segura. Reintenta en unos segundos.'
+      );
+      return;
+    }
+
     if (activeCount === 0) {
       Alert.alert('Sin contactos', 'Agrega contactos de confianza primero.');
       return;
@@ -126,6 +149,9 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={cancelCountdown}
+          accessibilityRole="button"
+          accessibilityLabel="Cancelar alerta detectada"
+          accessibilityHint="Detiene el envío antes de avisar a tus contactos"
         >
           <Text style={styles.cancelButtonText}>✕ CANCELAR</Text>
         </TouchableOpacity>
@@ -147,6 +173,19 @@ export default function HomeScreen() {
           <Text style={styles.successBannerSub}>
             {new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')}
           </Text>
+          {!lastAlert.isTest && lastAlert.contacts[0]?.phone ? (
+            <TouchableOpacity
+              style={styles.assistedCallButton}
+              onPress={() => Linking.openURL(`tel:${lastAlert.contacts[0].phone}`)}
+              accessibilityRole="button"
+              accessibilityLabel={`Abrir teléfono para llamar a ${lastAlert.contacts[0].name}`}
+              accessibilityHint="Abre el marcador del sistema con el contacto prioritario"
+            >
+              <Text style={styles.assistedCallButtonText}>
+                Abrir teléfono para llamar a {lastAlert.contacts[0].name}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       )}
 
@@ -160,31 +199,44 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-      {/* Guard Mode Toggle */}
-      <View style={styles.guardSection}>
-        <Text style={styles.guardLabel}>
-          {isArmed ? '🟢 Modo guardia ACTIVO' : '⚪ Modo guardia INACTIVO'}
-        </Text>
-
-        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-          <TouchableOpacity
-            style={[styles.guardButton, isArmed && styles.guardButtonArmed]}
-            onPress={toggleGuard}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.guardButtonIcon}>{isArmed ? '🛡️' : '🔓'}</Text>
-            <Text style={styles.guardButtonText}>
-              {isArmed ? 'DESACTIVAR\nGUARDIA' : 'ACTIVAR\nGUARDIA'}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {isArmed && (
-          <Text style={styles.guardHint}>
-            Di "ayuda" o "socorro" para activar la alerta
+      {wakeWordAvailable ? (
+        <View style={styles.guardSection}>
+          <Text style={styles.guardLabel}>
+            {isArmed ? '🟢 Modo guardia ACTIVO' : '⚪ Modo guardia INACTIVO'}
           </Text>
-        )}
-      </View>
+
+          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+            <TouchableOpacity
+              style={[styles.guardButton, isArmed && styles.guardButtonArmed]}
+              onPress={toggleGuard}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={isArmed ? 'Desactivar modo guardia' : 'Activar modo guardia'}
+              accessibilityHint="Controla la escucha automática solo cuando la función está disponible"
+            >
+              <Text style={styles.guardButtonIcon}>{isArmed ? '🛡️' : '🔓'}</Text>
+              <Text style={styles.guardButtonText}>
+                {isArmed ? 'DESACTIVAR\nGUARDIA' : 'ACTIVAR\nGUARDIA'}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {isArmed ? (
+            <Text style={styles.guardHint}>
+              {WAKE_WORD_FOREGROUND_ONLY
+                ? 'La detección automática está activa mientras SafeAlert permanece abierto en Android.'
+                : 'La detección automática está activa para esta compilación.'}
+            </Text>
+          ) : null}
+        </View>
+      ) : (
+        <View style={styles.guardUnavailableCard}>
+          <Text style={styles.guardUnavailableTitle}>Modo guardia automático</Text>
+          <Text style={styles.guardUnavailableText}>
+            {WakeWordService.getUnavailableReason()} Usa el botón SOS manual mientras terminas la configuración del motor de voz.
+          </Text>
+        </View>
+      )}
 
       {/* Contact count */}
       <View
@@ -208,7 +260,12 @@ export default function HomeScreen() {
               : 'Recibirán tu ubicación en emergencias'}
           </Text>
         </View>
-        <TouchableOpacity onPress={() => router.push('/contacts')}>
+        <TouchableOpacity
+          onPress={() => router.push('/contacts')}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir gestión de contactos"
+          accessibilityHint="Permite revisar, activar o editar contactos de confianza"
+        >
           <Text style={styles.infoCardLink}>→</Text>
         </TouchableOpacity>
       </View>
@@ -222,6 +279,9 @@ export default function HomeScreen() {
         onPress={handlePanicButton}
         disabled={isSendingManual || isAlerting}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={isSendingManual ? 'Enviando alerta manual' : 'Enviar alerta SOS ahora'}
+        accessibilityHint="Envía tu ubicación actual a tus contactos activos"
       >
         <Text style={styles.panicButtonText}>
           {isSendingManual ? '📤 Enviando...' : '🆘 ENVIAR ALERTA AHORA'}
@@ -235,24 +295,32 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={styles.testLink}
         onPress={() => router.push('/test-alert')}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir prueba de alerta"
+        accessibilityHint="Permite ensayar el flujo sin enviar SMS reales"
       >
         <Text style={styles.testLinkText}>🧪 Probar alerta (sin SMS real)</Text>
       </TouchableOpacity>
 
-      {/* Keywords info */}
-      <View style={styles.keywordsCard}>
-        <Text style={styles.keywordsTitle}>Palabras de activación</Text>
-        <View style={styles.keywordsList}>
-          {['ayuda', 'socorro', 'auxilio'].map((word) => (
-            <View key={word} style={styles.keywordBadge}>
-              <Text style={styles.keywordBadgeText}>{word}</Text>
-            </View>
-          ))}
+      {wakeWordAvailable ? (
+        <View style={styles.keywordsCard}>
+          <Text style={styles.keywordsTitle}>Palabras de activación</Text>
+          <View style={styles.keywordsList}>
+            {['ayuda', 'socorro', 'auxilio'].map((word) => (
+              <View key={word} style={styles.keywordBadge}>
+                <Text style={styles.keywordBadgeText}>{word}</Text>
+              </View>
+            ))}
+          </View>
+          <TouchableOpacity
+            onPress={() => router.push('/settings')}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir ajustes de activación por voz"
+          >
+            <Text style={styles.editKeywords}>Personalizar →</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => router.push('/settings')}>
-          <Text style={styles.editKeywords}>Personalizar →</Text>
-        </TouchableOpacity>
-      </View>
+      ) : null}
     </ScrollView>
   );
 }
@@ -320,6 +388,19 @@ const styles = StyleSheet.create({
     color: COLORS.safe,
   },
   successBannerSub: { fontSize: 12, color: COLORS.neutral, marginTop: 2 },
+  assistedCallButton: {
+    marginTop: 12,
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignSelf: 'flex-start',
+  },
+  assistedCallButtonText: {
+    color: COLORS.safe,
+    fontSize: 13,
+    fontWeight: '600',
+  },
   sendingBanner: {
     backgroundColor: COLORS.warningLight,
     borderRadius: 12,
@@ -357,6 +438,24 @@ const styles = StyleSheet.create({
     color: COLORS.safe,
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  guardUnavailableCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: 8,
+  },
+  guardUnavailableTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  guardUnavailableText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 20,
   },
 
   // Info card

@@ -1,46 +1,41 @@
-# Comandos para ejecutar en tu terminal
+# SafeAlert - Deploy del MVP
 
-Abrí una terminal en la carpeta del proyecto:
-```
+## Checklist previo
+
+1. Validar que estén presentes android/app/google-services.json y ios/GoogleService-Info.plist.
+2. Ejecutar npm run typecheck en la app.
+3. Ejecutar npm run build dentro de functions.
+4. Confirmar que las reglas de Firestore y Storage estén listas para producción.
+5. Verificar que functions/.env no tenga secretos de ejemplo.
+
+## Comandos base
+
+```bash
 cd C:\Claude_Code_trabajos\safealert
-```
-
-## Paso 1 — Login Firebase
-```
 firebase login
-```
-
-## Paso 2 — Habilitar servicios en Firebase Console
-
-Antes de hacer deploy, activá estos servicios en https://console.firebase.google.com → proyecto "safealert":
-
-1. **Authentication** → Comenzar → habilitar "Anónimo"
-2. **Firestore Database** → Crear base de datos → Modo producción → ubicación: us-central1
-3. **Storage** → Comenzar → Modo producción
-4. **Functions** → (requiere plan Blaze - pago por uso, con capa gratuita generosa)
-
-## Paso 3 — Deploy de reglas y functions
-```
 firebase deploy --only firestore:rules,storage
 firebase deploy --only functions
 ```
 
-## Paso 4 — Verificar
-```
+## Validaciones después del deploy
+
+```bash
 firebase functions:list
+firebase functions:log --only sendAlertSMS
 ```
 
----
+## Notas operativas
 
-## Para agregar SMS después (Twilio)
+- La app no debe publicitar wake word ni background tracking en esta etapa.
+- El botón de llamada es asistido: abre el dialer tras una acción explícita del usuario.
+- Si Twilio no está configurado, la Function usa un fallback interno y deja provider, providerMessageId, attempts y lastError en la trazabilidad del documento.
 
-Cuando tengas el Auth Token de Twilio, crear el archivo `functions/.env`:
+## Secretos requeridos en Functions
+
+```env
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+15551234567
 ```
-TWILIO_ACCOUNT_SID=tu_account_sid_aqui
-TWILIO_AUTH_TOKEN=tu_auth_token_aqui
-TWILIO_PHONE_NUMBER=+1XXXXXXXXXX
-```
 
-Y en `functions/src/sendAlertSMS.ts` descomentar el bloque "OPCIÓN 1: Twilio SMS".
-
-Luego: `firebase deploy --only functions`
+No documentes tokens reales en este archivo ni en commits.

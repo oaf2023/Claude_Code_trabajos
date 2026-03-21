@@ -1,45 +1,70 @@
+/* ============================================================================
+* Archivo         : useGuardStore.ts
+* Descripción     : Estado global canónico del flujo de alerta y modo guardia.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Consumir con useGuardStore(selector) desde hooks y pantallas.
+* ============================================================================ */
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from '../types/Alert';
+import { ALERT_COUNTDOWN_SECONDS } from '../config/constants';
+import { Alert as AppAlert, AlertLocation } from '../types/Alert';
 
 export type AlertPhase =
-  | 'inactivo'
-  | 'capturando'
-  | 'enviando'
-  | 'enviado'
+  | 'idle'
+  | 'countdown'
+  | 'capturing'
+  | 'sending'
+  | 'sent'
   | 'error';
 
 interface GuardState {
   isArmed: boolean;
   alertPhase: AlertPhase;
-  lastAlert: Alert | null;
-  
-  // Actions
-  toggleArmed: () => void;
+  countdownSeconds: number;
+  detectedKeyword: string | null;
+  lastLocation: AlertLocation | null;
+  lastAlert: AppAlert | null;
   setArmed: (value: boolean) => void;
   setAlertPhase: (phase: AlertPhase) => void;
-  setLastAlert: (alert: Alert) => void;
-  reset: () => void;
+  setCountdownSeconds: (seconds: number) => void;
+  setDetectedKeyword: (keyword: string | null) => void;
+  setLastLocation: (location: AlertLocation | null) => void;
+  setLastAlert: (alert: AppAlert | null) => void;
+  resetAlertState: () => void;
 }
 
 export const useGuardStore = create<GuardState>()(
   persist(
     (set) => ({
       isArmed: false,
-      alertPhase: 'inactivo',
+      alertPhase: 'idle',
+      countdownSeconds: ALERT_COUNTDOWN_SECONDS,
+      detectedKeyword: null,
+      lastLocation: null,
       lastAlert: null,
 
-      toggleArmed: () => set((state) => ({ isArmed: !state.isArmed })),
       setArmed: (value) => set({ isArmed: value }),
       setAlertPhase: (phase) => set({ alertPhase: phase }),
+      setCountdownSeconds: (seconds) => set({ countdownSeconds: seconds }),
+      setDetectedKeyword: (keyword) => set({ detectedKeyword: keyword }),
+      setLastLocation: (location) => set({ lastLocation: location }),
       setLastAlert: (alert) => set({ lastAlert: alert }),
-      reset: () => set({ alertPhase: 'inactivo', lastAlert: null }),
+      resetAlertState: () =>
+        set({
+          alertPhase: 'idle',
+          countdownSeconds: ALERT_COUNTDOWN_SECONDS,
+          detectedKeyword: null,
+        }),
     }),
     {
       name: 'guard-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ isArmed: state.isArmed }), // Solo persistimos isArmed
+      partialize: (state) => ({ isArmed: state.isArmed }),
     }
   )
 );

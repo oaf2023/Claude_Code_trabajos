@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : settings.tsx
+* Descripción     : Ajustes operativos del MVP y capacidades disponibles.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Pantalla de ajustes accesible desde las tabs.
+* ============================================================================ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -12,6 +22,9 @@ import {
 import { router } from 'expo-router';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { COLORS } from '../../src/config/constants';
+import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
+import { WakeWordService } from '../../src/services/WakeWordService';
+import { NotificationService } from '../../src/services/NotificationService';
 
 export default function SettingsScreen() {
   const settings = useSettingsStore();
@@ -48,6 +61,33 @@ export default function SettingsScreen() {
     Alert.alert('Guardado', 'Plantilla de mensaje actualizada.');
   };
 
+  const toggleDailyReminder = async (enabled: boolean) => {
+    if (enabled) {
+      const permissionStatus = await NotificationService.requestPermissions();
+      if (permissionStatus !== 'granted') {
+        Alert.alert(
+          'Permiso requerido',
+          'Activa las notificaciones para usar recordatorios diarios.'
+        );
+        return;
+      }
+
+      await NotificationService.scheduleDailyReminder(settings.reminderHour);
+    } else {
+      await NotificationService.cancelDailyReminder();
+    }
+
+    updateSettings({ reminderNotificationsEnabled: enabled });
+  };
+
+  const updateReminderHour = async (hour: number) => {
+    updateSettings({ reminderHour: hour });
+
+    if (settings.reminderNotificationsEnabled) {
+      await NotificationService.scheduleDailyReminder(hour);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Permisos */}
@@ -79,6 +119,47 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Recordatorios diarios</Text>
+        <View style={styles.row}>
+          <View style={styles.rowInfo}>
+            <Text style={styles.rowLabel}>Activar recordatorio local</Text>
+            <Text style={styles.rowSub}>
+              Te recuerda revisar permisos y contactos una vez al día.
+            </Text>
+          </View>
+          <Switch
+            value={settings.reminderNotificationsEnabled}
+            onValueChange={toggleDailyReminder}
+            trackColor={{ false: COLORS.border, true: COLORS.dangerLight }}
+            thumbColor={
+              settings.reminderNotificationsEnabled ? COLORS.danger : COLORS.neutral
+            }
+          />
+        </View>
+        <View style={styles.sensitivityButtons}>
+          {[9, 14, 20].map((hour) => (
+            <TouchableOpacity
+              key={hour}
+              style={[
+                styles.sensitivityBtn,
+                settings.reminderHour === hour && styles.sensitivityBtnActive,
+              ]}
+              onPress={() => updateReminderHour(hour)}
+            >
+              <Text
+                style={[
+                  styles.sensitivityBtnText,
+                  settings.reminderHour === hour && styles.sensitivityBtnTextActive,
+                ]}
+              >
+                {hour}:00
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
       {/* Message template */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Plantilla de mensaje</Text>
@@ -103,104 +184,129 @@ export default function SettingsScreen() {
 
       {/* Trigger words */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Palabras de activación</Text>
-        <Text style={styles.sectionSub}>
-          Di cualquiera de estas palabras para activar la alerta.
-        </Text>
-        <View style={styles.keywordsList}>
-          {settings.triggerWords.map((word) => (
-            <TouchableOpacity
-              key={word}
-              style={styles.keywordChip}
-              onPress={() => removeKeyword(word)}
-            >
-              <Text style={styles.keywordChipText}>{word}</Text>
-              <Text style={styles.keywordChipRemove}> ✕</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={styles.addKeywordRow}>
-          <TextInput
-            style={styles.addKeywordInput}
-            value={newKeyword}
-            onChangeText={setNewKeyword}
-            placeholder="Nueva palabra..."
-            autoCapitalize="none"
-            returnKeyType="done"
-            onSubmitEditing={addKeyword}
-          />
-          <TouchableOpacity style={styles.addKeywordBtn} onPress={addKeyword}>
-            <Text style={styles.addKeywordBtnText}>Agregar</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.sectionTitle}>Activación por voz</Text>
+        {WakeWordService.isAvailable() ? (
+          <>
+            <Text style={styles.sectionSub}>
+              El modelo español instalado escucha en Android. Mantén esta lista alineada con el modelo cargado para evitar falsas expectativas.
+            </Text>
+            <View style={styles.keywordsList}>
+              {settings.triggerWords.map((word) => (
+                <TouchableOpacity
+                  key={word}
+                  style={styles.keywordChip}
+                  onPress={() => removeKeyword(word)}
+                >
+                  <Text style={styles.keywordChipText}>{word}</Text>
+                  <Text style={styles.keywordChipRemove}> ✕</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.addKeywordRow}>
+              <TextInput
+                style={styles.addKeywordInput}
+                value={newKeyword}
+                onChangeText={setNewKeyword}
+                placeholder="Nueva palabra..."
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={addKeyword}
+              />
+              <TouchableOpacity style={styles.addKeywordBtn} onPress={addKeyword}>
+                <Text style={styles.addKeywordBtnText}>Agregar</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <Text style={styles.sectionSub}>{WakeWordService.getUnavailableReason()}</Text>
+        )}
       </View>
 
       {/* Sensitivity */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Sensibilidad de detección</Text>
-        <Text style={styles.sectionSub}>
-          Sensibilidad actual: {Math.round(settings.wakeWordSensitivity * 100)}%
-        </Text>
-        <View style={styles.sensitivityButtons}>
-          {[
-            { label: 'Baja\n(menos falsos)', value: 0.4 },
-            { label: 'Media\n(recomendado)', value: 0.7 },
-            { label: 'Alta\n(más detección)', value: 0.9 },
-          ].map(({ label, value }) => (
-            <TouchableOpacity
-              key={value}
-              style={[
-                styles.sensitivityBtn,
-                Math.abs(settings.wakeWordSensitivity - value) < 0.05 &&
-                  styles.sensitivityBtnActive,
-              ]}
-              onPress={() => updateSettings({ wakeWordSensitivity: value })}
-            >
-              <Text
-                style={[
-                  styles.sensitivityBtnText,
-                  Math.abs(settings.wakeWordSensitivity - value) < 0.05 &&
-                    styles.sensitivityBtnTextActive,
-                ]}
-              >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {WakeWordService.isAvailable() ? (
+          <>
+            <Text style={styles.sectionSub}>
+              Sensibilidad actual: {Math.round(settings.wakeWordSensitivity * 100)}%
+              {WAKE_WORD_FOREGROUND_ONLY
+                ? ' · Solo escucha en primer plano.'
+                : ''}
+            </Text>
+            <View style={styles.sensitivityButtons}>
+              {[
+                { label: 'Baja\n(menos falsos)', value: 0.4 },
+                { label: 'Media\n(recomendado)', value: 0.7 },
+                { label: 'Alta\n(más detección)', value: 0.9 },
+              ].map(({ label, value }) => (
+                <TouchableOpacity
+                  key={value}
+                  style={[
+                    styles.sensitivityBtn,
+                    Math.abs(settings.wakeWordSensitivity - value) < 0.05 &&
+                      styles.sensitivityBtnActive,
+                  ]}
+                  onPress={() => updateSettings({ wakeWordSensitivity: value })}
+                >
+                  <Text
+                    style={[
+                      styles.sensitivityBtnText,
+                      Math.abs(settings.wakeWordSensitivity - value) < 0.05 &&
+                        styles.sensitivityBtnTextActive,
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.sectionSub}>
+            Ajusta esta sensibilidad cuando el motor de voz y su licencia estén operativos en tu Android.
+          </Text>
+        )}
       </View>
 
       {/* Countdown seconds */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tiempo para cancelar</Text>
-        <Text style={styles.sectionSub}>
-          Segundos para cancelar una alerta accidental
-        </Text>
-        <View style={styles.sensitivityButtons}>
-          {[3, 5, 10].map((secs) => (
-            <TouchableOpacity
-              key={secs}
-              style={[
-                styles.sensitivityBtn,
-                settings.alertCountdownSeconds === secs &&
-                  styles.sensitivityBtnActive,
-              ]}
-              onPress={() =>
-                updateSettings({ alertCountdownSeconds: secs })
-              }
-            >
-              <Text
-                style={[
-                  styles.sensitivityBtnText,
-                  settings.alertCountdownSeconds === secs &&
-                    styles.sensitivityBtnTextActive,
-                ]}
-              >
-                {secs}s
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {WakeWordService.isAvailable() ? (
+          <>
+            <Text style={styles.sectionSub}>
+              Segundos para cancelar una alerta accidental
+            </Text>
+            <View style={styles.sensitivityButtons}>
+              {[3, 5, 10].map((secs) => (
+                <TouchableOpacity
+                  key={secs}
+                  style={[
+                    styles.sensitivityBtn,
+                    settings.alertCountdownSeconds === secs &&
+                      styles.sensitivityBtnActive,
+                  ]}
+                  onPress={() =>
+                    updateSettings({ alertCountdownSeconds: secs })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.sensitivityBtnText,
+                      settings.alertCountdownSeconds === secs &&
+                        styles.sensitivityBtnTextActive,
+                    ]}
+                  >
+                    {secs}s
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.sectionSub}>
+            El conteo regresivo se activará cuando el motor de voz esté listo y autorizado.
+          </Text>
+        )}
       </View>
     </ScrollView>
   );

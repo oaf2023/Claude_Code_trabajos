@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : sendAlertSMS.ts
+* Descripción     : Envío idempotente de alertas y seguimiento de audio vía Cloud Functions.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.3
+* Uso             : Trigger automático sobre users/{userId}/alerts/{alertId}
+* ============================================================================ */
+
 import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
@@ -6,6 +16,10 @@ const AlertContactSchema = z.object({
   name: z.string(),
   phone: z.string(),
   smsStatus: z.enum(['pending', 'sent', 'failed']),
+  provider: z.string().nullable().optional(),
+  providerMessageId: z.string().nullable().optional(),
+  attempts: z.number().optional(),
+  lastError: z.string().nullable().optional(),
 });
 
 const AlertLocationSchema = z.object({
@@ -24,64 +38,129 @@ const AlertSchema = z.object({
   location: AlertLocationSchema,
   mapsLink: z.string(),
   audioUrl: z.string().nullable(),
+  audioPath: z.string().nullable().optional(),
   messageTemplate: z.string(),
   contacts: z.array(AlertContactSchema),
   status: z.enum(['pending', 'sent', 'partial', 'failed']),
   isTest: z.boolean().optional(),
 });
 
-/**
- * Envía la alerta usando el proveedor configurado (Twilio).
- * Cae al método interno de Firestore si Twilio no está configurado.
- */
+type NotificationResult = {
+  success: boolean;
+  provider: string;
+  providerMessageId: string | null;
+  attempts: number;
+  lastError: string | null;
+};
+
+/* ============================================================================
+* Función         : claimEvent
+* Descripción     : Evita ejecuciones duplicadas de una misma Cloud Function.
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.3
+* Conexiones      : Firestore _functionEvents
+* Ingesta         : eventKey: string, alertId: string
+* Devolución      : Promise<boolean>
+* Uso             : await claimEvent(key, alertId)
+* ============================================================================ */
+async function claimEvent(eventKey: string, alertId: string): Promise<boolean> {
+  try {
+    await admin.firestore().collection('_functionEvents').doc(eventKey).create({
+      alertId,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return true;
+  } catch (error: any) {
+    if (error?.code === 6 || error?.code === 'already-exists') {
+      console.log(`[sendAlertSMS] Evento duplicado ignorado: ${eventKey}`);
+      return false;
+    }
+
+    throw error;
+  }
+}
+
+/* ============================================================================
+* Función         : sendNotification
+* Descripción     : Envía una notificación con trazabilidad por contacto.
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.3
+* Conexiones      : Twilio, Firestore pendingNotifications
+* Ingesta         : contact, body, alertId
+* Devolución      : Promise<NotificationResult>
+* Uso             : await sendNotification(contact, body, alertId)
+* ============================================================================ */
 async function sendNotification(
   contact: { name: string; phone: string },
   body: string,
   alertId: string
-): Promise<{ success: boolean; method: string }> {
-
-  // 1. Intentar Twilio si las credenciales existen
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+): Promise<NotificationResult> {
+  if (
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_PHONE_NUMBER
+  ) {
     try {
       const twilio = require('twilio');
-      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-      
-      await client.messages.create({
-        body: body,
+      const client = twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+      );
+
+      const response = await client.messages.create({
+        body,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: contact.phone
+        to: contact.phone,
       });
 
-      return { success: true, method: 'twilio_sms' };
-    } catch (error) {
-      console.error(`[Twilio Error] Para ${contact.phone}:`, error);
+      return {
+        success: true,
+        provider: 'twilio',
+        providerMessageId: response.sid ?? null,
+        attempts: 1,
+        lastError: null,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        provider: 'twilio',
+        providerMessageId: null,
+        attempts: 1,
+        lastError: error?.message ?? String(error),
+      };
     }
   }
 
-  // 2. Método de respaldo (Fallback): Notificación interna en Firestore
-  console.log(`[ALERTA FALLBACK] → ${contact.name} (${contact.phone}): ${body}`);
-
-  await admin.firestore().collection('pendingNotifications').add({
+  const fallbackRef = await admin.firestore().collection('pendingNotifications').add({
     targetPhone: contact.phone,
     targetName: contact.name,
     alertId,
     message: body,
+    provider: 'firestore-fallback',
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     delivered: false,
   });
 
-  return { success: true, method: 'internal_notification' };
+  return {
+    success: true,
+    provider: 'firestore-fallback',
+    providerMessageId: fallbackRef.id,
+    attempts: 1,
+    lastError: null,
+  };
 }
 
-/**
- * Triggered cuando se crea un nuevo documento de alerta en Firestore.
- */
 export const sendAlertSMS = onDocumentCreated(
   'users/{userId}/alerts/{alertId}',
   async (event) => {
     const alertId = event.params.alertId;
     const snapshot = event.data;
     if (!snapshot) return;
+
+    const shouldProcess = await claimEvent(`sendAlertSMS-${event.id}`, alertId);
+    if (!shouldProcess) return;
 
     const data = snapshot.data();
     const parsed = AlertSchema.safeParse(data);
@@ -92,57 +171,44 @@ export const sendAlertSMS = onDocumentCreated(
     }
 
     const alert = parsed.data;
-
     let messageBody = alert.messageTemplate;
+
     if (alert.location.isStale && alert.location.staleMinutes) {
       messageBody += `\n⚠️ Ubicación registrada hace ${alert.location.staleMinutes} minutos`;
     }
+
     if (alert.isTest) {
       messageBody = `[PRUEBA - No es emergencia real]\n${messageBody}`;
     }
 
-    const results = await Promise.allSettled(
-      alert.contacts.map((contact) =>
-        sendNotification(contact, messageBody, alertId)
-          .then((r) => ({ phone: contact.phone, ...r }))
-          .catch((err) => ({
-            phone: contact.phone,
-            success: false,
-            method: 'error',
-            error: String(err),
-          }))
-      )
+    const results = await Promise.all(
+      alert.contacts.map(async (contact) => {
+        const result = await sendNotification(contact, messageBody, alertId);
+        return {
+          ...contact,
+          smsStatus: result.success ? 'sent' : 'failed',
+          provider: result.provider,
+          providerMessageId: result.providerMessageId,
+          attempts: result.attempts,
+          lastError: result.lastError,
+        };
+      })
     );
 
-    const updatedContacts = alert.contacts.map((contact, i) => {
-      const result = results[i];
-      const success = result.status === 'fulfilled' && result.value.success;
-      return { ...contact, smsStatus: success ? 'sent' : 'failed' };
-    });
+    const sentCount = results.filter((contact) => contact.smsStatus === 'sent').length;
+    const totalCount = results.length;
 
-    const sentCount = updatedContacts.filter((c) => c.smsStatus === 'sent').length;
-    const totalCount = updatedContacts.length;
-
-    let overallStatus: 'sent' | 'partial' | 'failed';
-    if (sentCount === totalCount) overallStatus = 'sent';
-    else if (sentCount > 0) overallStatus = 'partial';
-    else overallStatus = 'failed';
+    const overallStatus =
+      sentCount === totalCount ? 'sent' : sentCount > 0 ? 'partial' : 'failed';
 
     await snapshot.ref.update({
-      contacts: updatedContacts,
+      contacts: results,
       status: overallStatus,
       sentAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    console.log(
-      `[sendAlertSMS] Alerta ${alertId}: ${sentCount}/${totalCount} notificaciones enviadas`
-    );
   }
 );
 
-/**
- * Triggered cuando se actualiza la alerta con un audioUrl.
- */
 export const sendAudioFollowUp = onDocumentUpdated(
   'users/{userId}/alerts/{alertId}',
   async (event) => {
@@ -150,24 +216,29 @@ export const sendAudioFollowUp = onDocumentUpdated(
     const after = event.data?.after.data();
     if (!before || !after) return;
 
-    if (before.audioUrl || !after.audioUrl) return;
-    if (after.isTest) return;
+    if (before.audioUrl || !after.audioUrl || after.isTest) return;
 
     const alertId = event.params.alertId;
-    const contacts: Array<{ name: string; phone: string; smsStatus: string }> =
-      after.contacts || [];
-    const sentContacts = contacts.filter((c) => c.smsStatus === 'sent');
+    const shouldProcess = await claimEvent(`sendAudioFollowUp-${event.id}`, alertId);
+    if (!shouldProcess) return;
+
+    const contacts = Array.isArray(after.contacts) ? after.contacts : [];
+    const sentContacts = contacts.filter(
+      (contact: { smsStatus?: string }) => contact.smsStatus === 'sent'
+    );
+
+    if (sentContacts.length === 0) return;
 
     const audioBody = `🔊 Mensaje de voz de tu contacto:\n${after.audioUrl}`;
-
-    await Promise.allSettled(
-      sentContacts.map((contact) =>
+    await Promise.all(
+      sentContacts.map((contact: { name: string; phone: string }) =>
         sendNotification(contact, audioBody, alertId)
       )
     );
 
-    console.log(
-      `[sendAudioFollowUp] Audio enviado a ${sentContacts.length} contactos`
-    );
+    await event.data?.after.ref.update({
+      audioFollowUpSentAt: admin.firestore.FieldValue.serverTimestamp(),
+      audioFollowUpCount: sentContacts.length,
+    });
   }
 );

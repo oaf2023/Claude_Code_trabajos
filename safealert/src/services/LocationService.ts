@@ -1,9 +1,23 @@
+/* ============================================================================
+* Archivo         : LocationService.ts
+* Descripción     : Obtención de ubicación puntual y actualización local opcional.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : LocationService.getCurrentLocation()
+* ============================================================================ */
+
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { AlertLocation } from '../types/Alert';
 import { buildMapsLink } from '../utils/googleMapsLink';
 import { useGuardStore } from '../stores/useGuardStore';
-import { GPS_FRESH_FIX_TIMEOUT_MS, LOCATION_UPDATE_INTERVAL_MS } from '../config/constants';
+import {
+  GPS_FRESH_FIX_TIMEOUT_MS,
+  LOCATION_UPDATE_INTERVAL_MS,
+} from '../config/constants';
+import { BACKGROUND_LOCATION_ENABLED } from '../config/features';
 
 const BACKGROUND_LOCATION_TASK = 'background-location-task';
 
@@ -26,6 +40,8 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
 
 export const LocationService = {
   async startBackgroundUpdates(): Promise<void> {
+    if (!BACKGROUND_LOCATION_ENABLED) return;
+
     const { status } = await Location.requestBackgroundPermissionsAsync();
     if (status !== 'granted') return;
 
@@ -49,6 +65,8 @@ export const LocationService = {
   },
 
   async stopBackgroundUpdates(): Promise<void> {
+    if (!BACKGROUND_LOCATION_ENABLED) return;
+
     const isRegistered = await Location.hasStartedLocationUpdatesAsync(
       BACKGROUND_LOCATION_TASK
     ).catch(() => false);
@@ -73,13 +91,16 @@ export const LocationService = {
     const result = await Promise.race([freshLocationPromise, timeoutPromise]);
 
     if (result) {
-      return {
+      const freshLocation: AlertLocation = {
         lat: result.coords.latitude,
         lon: result.coords.longitude,
         accuracy: result.coords.accuracy ?? 0,
         timestamp: result.timestamp,
         isStale: false,
       };
+
+      useGuardStore.getState().setLastLocation(freshLocation);
+      return freshLocation;
     }
 
     // Fall back to last known location
@@ -96,7 +117,7 @@ export const LocationService = {
       const staleMinutes = Math.round(
         (Date.now() - lastKnown.timestamp) / 60000
       );
-      return {
+      const fallbackLocation: AlertLocation = {
         lat: lastKnown.coords.latitude,
         lon: lastKnown.coords.longitude,
         accuracy: lastKnown.coords.accuracy ?? 0,
@@ -104,6 +125,9 @@ export const LocationService = {
         isStale: true,
         staleMinutes,
       };
+
+      useGuardStore.getState().setLastLocation(fallbackLocation);
+      return fallbackLocation;
     }
 
     throw new Error('No se pudo obtener la ubicación');

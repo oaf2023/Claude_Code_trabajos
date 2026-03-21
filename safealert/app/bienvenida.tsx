@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : bienvenida.tsx
+* Descripción     : Onboarding inicial con validación real y accesibilidad básica.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Pantalla inicial de alta del usuario.
+* ============================================================================ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -13,6 +23,7 @@ import {
 import { router } from 'expo-router';
 import { useSettingsStore } from '../src/stores/useSettingsStore';
 import { COLORS } from '../src/config/constants';
+import { isValidPhone, toE164 } from '../src/utils/formatPhone';
 
 export default function BienvenidaScreen() {
   const [telefono, setTelefono] = useState('');
@@ -22,25 +33,53 @@ export default function BienvenidaScreen() {
   const setUserPhone = useSettingsStore((s) => s.setUserPhone);
   const setUserName = useSettingsStore((s) => s.setUserName);
 
+  /* ============================================================================
+  * Función         : continuarPaso1
+  * Descripción     : Valida el nombre antes de avanzar al segundo paso del onboarding.
+  * Fecha           : 2026-03-19
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : Estado local del onboarding
+  * Ingesta         : Sin argumentos
+  * Devolución      : void
+  * Uso             : onPress={continuarPaso1}
+  * ============================================================================ */
   const continuarPaso1 = () => {
     if (!nombre.trim()) {
       Alert.alert('¡Falta tu nombre!', 'Escribí tu nombre para continuar.');
       return;
     }
+
+    if (nombre.trim().length < 2) {
+      Alert.alert('Nombre demasiado corto', 'Escribí al menos dos letras para identificarte.');
+      return;
+    }
+
     setPaso(2);
   };
 
+  /* ============================================================================
+  * Función         : finalizar
+  * Descripción     : Cierra el onboarding guardando nombre y teléfono normalizado.
+  * Fecha           : 2026-03-19
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : useSettingsStore, formatPhone, router
+  * Ingesta         : Sin argumentos
+  * Devolución      : void
+  * Uso             : onPress={finalizar}
+  * ============================================================================ */
   const finalizar = () => {
-    const tel = telefono.replace(/\D/g, '');
-    if (tel.length < 8) {
+    if (!isValidPhone(telefono)) {
       Alert.alert(
-        '¡Número incompleto!',
-        'Escribí tu número de teléfono completo.'
+        'Número inválido',
+        'Escribí tu número con código de país o un formato válido para poder identificarte.'
       );
       return;
     }
+
     setUserName(nombre.trim());
-    setUserPhone(tel);
+    setUserPhone(toE164(telefono));
     setOnboarded(true);
     router.replace('/(tabs)');
   };
@@ -69,11 +108,17 @@ export default function BienvenidaScreen() {
               returnKeyType="next"
               onSubmitEditing={continuarPaso1}
               autoCapitalize="words"
-              fontSize={22}
+              accessibilityLabel="Tu nombre"
+              accessibilityHint="Se usa para personalizar tus alertas"
             />
           </View>
 
-          <TouchableOpacity style={styles.botonPrincipal} onPress={continuarPaso1}>
+          <TouchableOpacity
+            style={styles.botonPrincipal}
+            onPress={continuarPaso1}
+            accessibilityRole="button"
+            accessibilityLabel="Continuar al paso del teléfono"
+          >
             <Text style={styles.botonTexto}>CONTINUAR →</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -92,12 +137,13 @@ export default function BienvenidaScreen() {
         <Text style={styles.subtitulo}>¿Cuál es tu número de teléfono?</Text>
 
         <View style={styles.tarjeta}>
+          <Text style={styles.pregunta}>Número para identificar tus alertas</Text>
           <Text style={styles.ayuda}>
             Tus contactos de confianza verán este número cuando les mandes una alerta
           </Text>
           <TextInput
-            style={styles.input}
-            placeholder="Ej: 3364286176"
+            style={[styles.input, styles.inputPhone]}
+            placeholder="Ej: +54 9 3364 286176"
             placeholderTextColor={COLORS.textMuted}
             value={telefono}
             onChangeText={setTelefono}
@@ -105,16 +151,27 @@ export default function BienvenidaScreen() {
             autoFocus
             returnKeyType="done"
             onSubmitEditing={finalizar}
-            maxLength={15}
-            fontSize={26}
+            maxLength={20}
+            accessibilityLabel="Tu número de teléfono"
+            accessibilityHint="Incluye el código de país para que tus contactos te reconozcan"
           />
         </View>
 
-        <TouchableOpacity style={styles.botonPrincipal} onPress={finalizar}>
+        <TouchableOpacity
+          style={styles.botonPrincipal}
+          onPress={finalizar}
+          accessibilityRole="button"
+          accessibilityLabel="Finalizar onboarding y entrar a la app"
+        >
           <Text style={styles.botonTexto}>¡EMPEZAR! 🚀</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.botonSecundario} onPress={() => setPaso(1)}>
+        <TouchableOpacity
+          style={styles.botonSecundario}
+          onPress={() => setPaso(1)}
+          accessibilityRole="button"
+          accessibilityLabel="Volver al paso anterior"
+        >
           <Text style={styles.botonSecundarioTexto}>← Volver</Text>
         </TouchableOpacity>
 
@@ -176,6 +233,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     marginTop: 8,
+  },
+  inputPhone: {
+    fontSize: 26,
   },
   botonPrincipal: {
     backgroundColor: COLORS.white,

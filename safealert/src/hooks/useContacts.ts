@@ -41,5 +41,18 @@ export function useContacts() {
     return ContactsService.toggleActive(userId, id, active);
   };
 
-  return { contacts, loading, addContact, updateContact, removeContact, toggleContact };
+  const prioritizeContact = async (id: string) => {
+    if (!userId) throw new Error('Not authenticated');
+    return ContactsService.setPriority(userId, id);
+  };
+
+  return {
+    contacts,
+    loading,
+    addContact,
+    updateContact,
+    removeContact,
+    toggleContact,
+    prioritizeContact,
+  };
 }

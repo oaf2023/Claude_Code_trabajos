@@ -1,11 +1,12 @@
-// Firebase is initialized automatically by @react-native-firebase/app
-// when google-services.json (Android) and GoogleService-Info.plist (iOS) are present.
-//
-// To set up Firebase:
-// 1. Create a project at https://console.firebase.google.com
-// 2. Add Android app (com.safealert.app) → download google-services.json → place in android/app/
-// 3. Add iOS app (com.safealert.app) → download GoogleService-Info.plist → place in ios/
-// 4. Enable Authentication (Anonymous), Firestore, Storage, Functions in Firebase Console
+/* ============================================================================
+* Archivo         : firebase.ts
+* Descripción     : Inicialización y autenticación segura de Firebase para SafeAlert.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : ensureAuthenticated() y helpers de colecciones.
+* ============================================================================ */
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -13,16 +14,18 @@ import storage from '@react-native-firebase/storage';
 
 export { firestore, auth, storage };
 
-// Sign in anonymously on first launch
 export async function ensureAuthenticated(): Promise<string> {
   const currentUser = auth().currentUser;
   if (currentUser) return currentUser.uid;
 
   const credential = await auth().signInAnonymously();
+  if (!credential.user?.uid) {
+    throw new Error('Firebase Authentication no devolvió un usuario válido.');
+  }
+
   return credential.user.uid;
 }
 
-// Firestore path helpers
 export const userDoc = (uid: string) =>
   firestore().collection('users').doc(uid);
 

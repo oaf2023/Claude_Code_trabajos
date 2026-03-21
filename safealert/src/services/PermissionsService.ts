@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : PermissionsService.ts
+* Descripción     : Verificación y solicitud de permisos del MVP real.
+* Autor           : oafon
+* Fecha           : 2026-03-19
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : PermissionsService.checkAll()
+* ============================================================================ */
+
 import { Platform } from 'react-native';
 import {
   check,
@@ -7,6 +17,7 @@ import {
   openSettings,
 } from 'react-native-permissions';
 import * as Notifications from 'expo-notifications';
+import { BACKGROUND_LOCATION_ENABLED } from '../config/features';
 
 export type PermissionKey =
   | 'microphone'
@@ -54,11 +65,13 @@ export const PermissionsService = {
           ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
           : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
       ),
-      check(
-        Platform.OS === 'ios'
-          ? PERMISSIONS.IOS.LOCATION_ALWAYS
-          : PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION
-      ),
+      BACKGROUND_LOCATION_ENABLED
+        ? check(
+            Platform.OS === 'ios'
+              ? PERMISSIONS.IOS.LOCATION_ALWAYS
+              : PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION
+          )
+        : Promise.resolve(RESULTS.UNAVAILABLE),
       Notifications.getPermissionsAsync(),
     ]);
 
@@ -91,6 +104,8 @@ export const PermissionsService = {
   },
 
   async requestLocationBackground(): Promise<PermissionStatus> {
+    if (!BACKGROUND_LOCATION_ENABLED) return 'unavailable';
+
     const result = await request(
       Platform.OS === 'ios'
         ? PERMISSIONS.IOS.LOCATION_ALWAYS
@@ -110,7 +125,6 @@ export const PermissionsService = {
 
   areAllCriticalGranted(status: PermissionsStatus): boolean {
     return (
-      status.microphone === 'granted' &&
       status.locationForeground === 'granted' &&
       status.notifications === 'granted'
     );

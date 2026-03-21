@@ -62,7 +62,7 @@ export default function TestAlertScreen() {
         </Text>
         {contacts.map((c) => (
           <Text key={c.id} style={styles.contactItem}>
-            • {c.name} ({c.phone})
+            • {c.priority === 0 ? '[Principal] ' : ''}{c.name} ({c.phone})
           </Text>
         ))}
       </View>
