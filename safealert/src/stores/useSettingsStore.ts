@@ -13,6 +13,7 @@ interface SettingsState extends AppSettings {
   setOnboarded: (value: boolean) => void;
   setUserName: (name: string) => void;
   setUserPhone: (phone: string) => void;
+  setHasSubscription: (value: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -29,6 +30,7 @@ export const useSettingsStore = create<SettingsState>()(
       setOnboarded: (isOnboarded) => set({ isOnboarded }),
       setUserName: (userName) => set({ userName }),
       setUserPhone: (userPhone) => set({ userPhone }),
+      setHasSubscription: (hasSubscription) => set({ hasSubscription }),
     }),
     {
       name: 'safealert-settings',
@@ -40,6 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
         triggerWords: state.triggerWords,
         messageTemplate: state.messageTemplate,
         audioEnabled: state.audioEnabled,
+        hasSubscription: state.hasSubscription,
         alertCountdownSeconds: state.alertCountdownSeconds,
         wakeWordSensitivity: state.wakeWordSensitivity,
       }),

@@ -14,11 +14,11 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  InteractionManager,
+  LogBox,
 } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Redirect } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { ensureAuthenticated } from '../src/config/firebase';
 import { useSettingsStore } from '../src/stores/useSettingsStore';
 import { useGuardStore } from '../src/stores/useGuardStore';
@@ -26,6 +26,31 @@ import { COLORS } from '../src/config/constants';
 import { AUTHENTICATION_TIMEOUT_MS } from '../src/config/features';
 import { NotificationService } from '../src/services/NotificationService';
 import { WakeWordService } from '../src/services/WakeWordService';
+
+/* ============================================================================
+* Función         : runWhenIdle
+* Descripción     : Ejecuta una tarea diferida usando requestIdleCallback con fallback a setTimeout.
+* Fecha           : 2026-03-25
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : RootLayout
+* Ingesta         : task: () => void
+* Devolución      : () => void
+* Uso             : const cancel = runWhenIdle(() => {...})
+* ============================================================================ */
+function runWhenIdle(task: () => void): () => void {
+  if (typeof globalThis.requestIdleCallback === 'function') {
+    const handle = globalThis.requestIdleCallback(() => task());
+    return () => {
+      if (typeof globalThis.cancelIdleCallback === 'function') {
+        globalThis.cancelIdleCallback(handle);
+      }
+    };
+  }
+
+  const timeoutId = setTimeout(task, 0);
+  return () => clearTimeout(timeoutId);
+}
 
 /* ============================================================================
 * Función         : RootLayout
@@ -50,6 +75,25 @@ export default function RootLayout() {
   const [hidratado, setHidratado] = useState(useSettingsStore.persist.hasHydrated());
   const [listo, setListo] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Ocultar splash screen nativa al montar el componente.
+  // expo-router sólo llama SplashScreen.hideAsync() cuando <Stack> monta pero
+  // nuestro return anticipado (spinner) lo impide → la splash blanca persiste.
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!__DEV__) {
+      return;
+    }
+
+    LogBox.ignoreLogs([
+      '[expo-av]: Expo AV has been deprecated',
+      'This method is deprecated (as well as all React Native Firebase namespaced API)',
+      'InteractionManager has been deprecated',
+    ]);
+  }, []);
 
   useEffect(() => {
     const unsubscribeHydration = useSettingsStore.persist.onFinishHydration(() => {
@@ -131,14 +175,14 @@ export default function RootLayout() {
       }
     };
 
-    const task = InteractionManager.runAfterInteractions(() => {
+    const cancelTask = runWhenIdle(() => {
       bootstrapNotifications().catch((error) => {
         console.error('[RootLayout] No se pudieron preparar las notificaciones:', error);
       });
     });
 
     return () => {
-      task.cancel();
+      cancelTask();
     };
   }, [listo, reminderNotificationsEnabled, reminderHour]);
 
@@ -147,14 +191,14 @@ export default function RootLayout() {
       return;
     }
 
-    const task = InteractionManager.runAfterInteractions(() => {
+    const cancelTask = runWhenIdle(() => {
       WakeWordService.restoreAfterBoot().catch((error) => {
         console.error('[RootLayout] No se pudo restaurar el modo guardia:', error);
       });
     });
 
     return () => {
-      task.cancel();
+      cancelTask();
     };
   }, [authError, isArmed, isOnboarded, listo]);
 
@@ -201,15 +245,11 @@ export default function RootLayout() {
     );
   }
 
-  if (!isOnboarded) {
-    return <Redirect href="/bienvenida" />;
-  }
-
   return (
     <>
       <StatusBar style="light" backgroundColor={COLORS.danger} />
       <Stack
-        initialRouteName="(tabs)"
+        initialRouteName={isOnboarded ? "(tabs)" : "bienvenida"}
         screenOptions={{
           headerStyle: { backgroundColor: COLORS.danger },
           headerTintColor: COLORS.white,

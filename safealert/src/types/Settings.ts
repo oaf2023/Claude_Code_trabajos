@@ -2,6 +2,7 @@ export interface AppSettings {
   triggerWords: string[];
   messageTemplate: string;
   audioEnabled: boolean;
+  hasSubscription: boolean;
   guardModeEnabled: boolean;
   reminderNotificationsEnabled: boolean;
   reminderHour: number;
@@ -14,6 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   messageTemplate:
     '{name} necesita ayuda urgente! Ubicación: {location} — Hora: {time}',
   audioEnabled: true,
+  hasSubscription: false,
   guardModeEnabled: false,
   reminderNotificationsEnabled: false,
   reminderHour: 9,

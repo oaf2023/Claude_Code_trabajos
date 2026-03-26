@@ -1,0 +1,1 @@
+ConfigError: The expected package.json path: C:\Claude_Code_trabajos\package.json does not exist

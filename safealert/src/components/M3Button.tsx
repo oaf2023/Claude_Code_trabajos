@@ -20,6 +20,12 @@ import {
 } from 'react-native';
 import { MD3_THEME } from '../config/Theme';
 
+const LABEL_MEDIUM_TEXT_STYLE: TextStyle = {
+  fontSize: MD3_THEME.typography.labelMedium.fontSize,
+  fontWeight: '500',
+  letterSpacing: MD3_THEME.typography.labelMedium.letterSpacing,
+};
+
 interface M3ButtonProps {
   title: string;
   onPress: () => void;
@@ -129,7 +135,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   text: {
-    ...MD3_THEME.typography.labelMedium,
+    ...LABEL_MEDIUM_TEXT_STYLE,
     textAlign: 'center',
     textTransform: 'uppercase', // Estilo M3 para botones
   },

@@ -1,0 +1,29 @@
+env: load .env
+env: export EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION EXPO_PUBLIC_ENABLE_WAKE_WORD EXPO_PUBLIC_WAKE_WORD_LICENSE
+Starting project at C:\Claude_Code_trabajos\safealert
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+Android .\index.ts ÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 20.7% (13/37)
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+Android .\index.ts ÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 20.7% (114/306)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 33.2% (307/533)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 50.6% (517/727)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæ 68.2% (706/890)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 73.1% ( 880/1035)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 73.8% (1025/1215)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæ 95.4% (1391/1424)
+Android Bundled 29986ms index.ts (1475 modules)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.
+ÔÇ║ Detected a change in babel.config.js. Restart the server to see the new results. You may need to clear the bundler cache with the --clear flag for your changes to take effect.

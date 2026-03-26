@@ -44,10 +44,9 @@ export const IAProcessingService = {
       };
 
       // 2. Actualizar el documento en Firestore con los resultados del análisis
-      // Esto permite que el Server-Driven UI muestre la urgencia en tiempo real
+      // La urgencia analizada no debe sobrescribir el estado operativo del envío SOS.
       await alertsCol(userId).doc(alertId).update({
         iaAnalysis: mockAnalysis,
-        status: 'high_priority' // Escalada por IA
       });
 
       return {

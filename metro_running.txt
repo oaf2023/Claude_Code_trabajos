@@ -1,0 +1,138 @@
+env: load .env
+env: export EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION EXPO_PUBLIC_ENABLE_WAKE_WORD EXPO_PUBLIC_WAKE_WORD_LICENSE
+Starting project at C:\Claude_Code_trabajos\safealert
+Starting Metro Bundler
+
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 73.5% ( 914/1066)
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+| expo-router/babel is deprecated in favor of babel-preset-expo in SDK 50. To fix the issue, remove "expo-router/babel" from "plugins" in your babel.config.js file.
+Android Bundled 5235ms index.ts (1481 modules)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  Route "./contacts/[id].tsx" is missing the required default export. Ensure a React component is exported as default.
+ ERROR  [Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNCWebViewModule' could not be found. Verify that a module by this name is registered in the native binary.] 
+
+Call Stack
+  invariant (node_modules\invariant\browser.js)
+  getEnforcing (node_modules\react-native\Libraries\TurboModule\TurboModuleRegistry.js)
+  <global> (node_modules\react-native-webview\src\NativeRNCWebViewModule.ts)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (node_modules\react-native-webview\src\WebView.android.tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (node_modules\react-native-webview\src\index.ts)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (src\components\PaymentModal.tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (app\contacts\[id].tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  Object.defineProperties$argument_1.contactsIdTsx.get (app)
+  metroContext (app)
+  node.loadRoute (node_modules\expo-router\build\getRoutesCore.js)
+  getDirectoryTree (node_modules\expo-router\build\getRoutesCore.js)
+  getDirectoryTree (node_modules\expo-router\build\getRoutesCore.js)
+  getRoutes (node_modules\expo-router\build\getRoutesCore.js)
+  getRoutes (node_modules\expo-router\build\getRoutes.js)
+  useStore (node_modules\expo-router\build\global-state\router-store.js)
+  ContextNavigator (node_modules\expo-router\build\ExpoRoot.js)
+  callComponent.react_stack_bottom_frame (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  renderWithHooks (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  updateFunctionComponent (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  beginWork (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  runWithFiberInDEV (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performUnitOfWork (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  workLoopSync (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  renderRootSync (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performWorkOnRoot (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performWorkOnRootViaSchedulerTask (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js) 
+
+Call Stack
+  ExpoRoot (node_modules\expo-router\build\ExpoRoot.js)
+  App (node_modules\expo-router\build\qualified-entry.js)
+  WithDevTools (node_modules\expo\src\launch\withDevTools.tsx)
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android Bundled 180ms index.ts (1 module)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  Route "./contacts/[id].tsx" is missing the required default export. Ensure a React component is exported as default.
+ ERROR  [Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNCWebViewModule' could not be found. Verify that a module by this name is registered in the native binary.] 
+
+Call Stack
+  invariant (node_modules\invariant\browser.js)
+  getEnforcing (node_modules\react-native\Libraries\TurboModule\TurboModuleRegistry.js)
+  <global> (node_modules\react-native-webview\src\NativeRNCWebViewModule.ts)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (node_modules\react-native-webview\src\WebView.android.tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (node_modules\react-native-webview\src\index.ts)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (src\components\PaymentModal.tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  <global> (app\contacts\[id].tsx)
+  loadModuleImplementation (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  guardedLoadModule (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  metroRequire (node_modules\expo\node_modules\@expo\cli\build\metro-require\require.js)
+  Object.defineProperties$argument_1.contactsIdTsx.get (app)
+  metroContext (app)
+  node.loadRoute (node_modules\expo-router\build\getRoutesCore.js)
+  getDirectoryTree (node_modules\expo-router\build\getRoutesCore.js)
+  getDirectoryTree (node_modules\expo-router\build\getRoutesCore.js)
+  getRoutes (node_modules\expo-router\build\getRoutesCore.js)
+  getRoutes (node_modules\expo-router\build\getRoutes.js)
+  useStore (node_modules\expo-router\build\global-state\router-store.js)
+  ContextNavigator (node_modules\expo-router\build\ExpoRoot.js)
+  callComponent.react_stack_bottom_frame (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  renderWithHooks (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  updateFunctionComponent (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  beginWork (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  runWithFiberInDEV (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performUnitOfWork (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  workLoopSync (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  renderRootSync (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performWorkOnRoot (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js)
+  performWorkOnRootViaSchedulerTask (node_modules\react-native\Libraries\Renderer\implementations\ReactFabric-dev.js) 
+
+Call Stack
+  ExpoRoot (node_modules\expo-router\build\ExpoRoot.js)
+  App (node_modules\expo-router\build\qualified-entry.js)
+  WithDevTools (node_modules\expo\src\launch\withDevTools.tsx)
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android Bundled 142ms index.ts (1 module)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android Bundled 124ms index.ts (1 module)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.

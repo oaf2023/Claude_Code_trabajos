@@ -1,0 +1,32 @@
+env: load .env
+env: export EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION EXPO_PUBLIC_ENABLE_WAKE_WORD EXPO_PUBLIC_WAKE_WORD_LICENSE
+Starting project at C:\Claude_Code_trabajos\safealert
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8083
+Logs for your project will appear below.
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android .\index.ts ÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 20.7% ( 7/19)
+Android .\index.ts ÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 20.7% ( 39/200)
+Android .\index.ts ÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 22.6% (176/370)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 36.0% (334/574)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 48.4% (499/717)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 62.0% (593/753)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 69.7% (764/915)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 72.7% ( 886/1039)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæ 79.5% ( 994/1172)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæ 89.5% (1293/1367)
+Android .\index.ts ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæ 99.9% (1483/1483)
+Android Bundled 39628ms index.ts (1483 modules)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.
+ LOG  [WakeWordService] AppState: background
+Android .\index.ts ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android Bundled 194ms index.ts (1 module)
+ LOG  [SafeAlertBootstrap] index.ts loaded
+ LOG  [SafeAlertBootstrap] expo-router entry imported
+ WARN  [expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.
+ WARN  InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead.

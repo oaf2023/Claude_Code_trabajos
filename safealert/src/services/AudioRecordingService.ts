@@ -9,9 +9,11 @@
 * ============================================================================ */
 
 import { Audio } from 'expo-av';
+import { Platform } from 'react-native';
 import storage from '@react-native-firebase/storage';
 import { AUDIO_RECORDING_SECONDS } from '../config/constants';
 import { buildAlertAudioStoragePath } from '../config/features';
+import { auth, ensureAuthenticated } from '../config/firebase';
 
 export const AudioRecordingService = {
   async configure(): Promise<void> {
@@ -30,6 +32,25 @@ export const AudioRecordingService = {
     alertId: string
   ): Promise<{ audioUrl: string; audioPath: string } | null> {
     try {
+      if (__DEV__ && Platform.OS === 'android') {
+        console.warn(
+          '[AudioRecordingService] Se omite la subida del audio en Android dev para evitar falsos negativos de Storage durante las pruebas locales.',
+          { userId, alertId }
+        );
+        return null;
+      }
+
+      const authenticatedUserId = await ensureAuthenticated().catch(() => null);
+      if (!authenticatedUserId || authenticatedUserId !== userId) {
+        console.warn(
+          '[AudioRecordingService] Se omite la subida del audio porque la sesión Firebase no coincide con la alerta activa.',
+          { authenticatedUserId, alertUserId: userId }
+        );
+        return null;
+      }
+
+      await auth().currentUser?.getIdToken(true);
+
       const permission = await Audio.requestPermissionsAsync();
       if (!permission.granted) return null;
 
@@ -51,7 +72,20 @@ export const AudioRecordingService = {
 
       const audioPath = buildAlertAudioStoragePath(userId, alertId);
       const ref = storage().ref(audioPath);
-      await ref.putFile(uri);
+      try {
+        await ref.putFile(uri);
+      } catch (error: any) {
+        if (error?.code === 'storage/unauthorized') {
+          console.warn(
+            '[AudioRecordingService] Firebase Storage rechazó la subida del audio. Se continúa sin adjunto.',
+            { userId, alertId }
+          );
+          return null;
+        }
+
+        throw error;
+      }
+
       const audioUrl = await ref.getDownloadURL();
 
       return { audioUrl, audioPath };

@@ -14,6 +14,7 @@ import { AlertLocation } from '../types/Alert';
 import { buildMapsLink } from '../utils/googleMapsLink';
 import { useGuardStore } from '../stores/useGuardStore';
 import {
+  DEV_FALLBACK_LOCATION,
   GPS_FRESH_FIX_TIMEOUT_MS,
   LOCATION_UPDATE_INTERVAL_MS,
 } from '../config/constants';
@@ -78,11 +79,29 @@ export const LocationService = {
 
   async getCurrentLocation(): Promise<AlertLocation> {
     const lastLocation = useGuardStore.getState().lastLocation;
+    const providerStatus = await Location.getProviderStatusAsync().catch(() => null);
+
+    const currentPermission = await Location.getForegroundPermissionsAsync();
+    const permissionStatus =
+      currentPermission.status === 'granted'
+        ? currentPermission
+        : await Location.requestForegroundPermissionsAsync();
+
+    if (permissionStatus.status !== 'granted') {
+      if (lastLocation) {
+        const staleMinutes = Math.round(
+          (Date.now() - lastLocation.timestamp) / 60000
+        );
+        return { ...lastLocation, isStale: true, staleMinutes };
+      }
+
+      throw new Error('Debes conceder ubicación para poder enviar la alerta.');
+    }
 
     // Try to get a fresh fix with timeout
     const freshLocationPromise = Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
-    });
+    }).catch(() => null);
 
     const timeoutPromise = new Promise<null>((resolve) =>
       setTimeout(() => resolve(null), GPS_FRESH_FIX_TIMEOUT_MS)
@@ -103,6 +122,24 @@ export const LocationService = {
       return freshLocation;
     }
 
+    if (__DEV__) {
+      const simulatedLocation: AlertLocation = {
+        lat: DEV_FALLBACK_LOCATION.lat,
+        lon: DEV_FALLBACK_LOCATION.lon,
+        accuracy: DEV_FALLBACK_LOCATION.accuracy,
+        timestamp: Date.now(),
+        isStale: true,
+        staleMinutes: 0,
+      };
+
+      console.warn(
+        '[LocationService] Usando ubicación simulada de desarrollo por falta de fix GPS.',
+        providerStatus
+      );
+      useGuardStore.getState().setLastLocation(simulatedLocation);
+      return simulatedLocation;
+    }
+
     // Fall back to last known location
     if (lastLocation) {
       const staleMinutes = Math.round(
@@ -112,7 +149,7 @@ export const LocationService = {
     }
 
     // Last resort: expo last known position
-    const lastKnown = await Location.getLastKnownPositionAsync();
+    const lastKnown = await Location.getLastKnownPositionAsync().catch(() => null);
     if (lastKnown) {
       const staleMinutes = Math.round(
         (Date.now() - lastKnown.timestamp) / 60000
@@ -130,7 +167,11 @@ export const LocationService = {
       return fallbackLocation;
     }
 
-    throw new Error('No se pudo obtener la ubicación');
+    throw new Error(
+      providerStatus?.locationServicesEnabled === false
+        ? 'El GPS del dispositivo está desactivado. Actívalo y vuelve a intentarlo.'
+        : 'No se pudo obtener la ubicación. Activa GPS o vuelve a intentarlo en unos segundos.'
+    );
   },
 
   buildMapsLink(location: AlertLocation): string {

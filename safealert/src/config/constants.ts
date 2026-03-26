@@ -5,6 +5,11 @@ export const ALERT_COUNTDOWN_SECONDS = 3;
 export const AUDIO_RECORDING_SECONDS = 10;
 export const GPS_FRESH_FIX_TIMEOUT_MS = 8000;
 export const LOCATION_UPDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+export const DEV_FALLBACK_LOCATION = {
+  lat: -34.6037,
+  lon: -58.3816,
+  accuracy: 5000,
+};
 
 // Porcupine
 export const PORCUPINE_SENSITIVITY = 0.7;

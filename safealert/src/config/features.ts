@@ -10,10 +10,32 @@
 
 import { Platform } from 'react-native';
 
+const ENABLED_VALUES = new Set(['1', 'true', 'yes', 'on']);
+
+function readBooleanEnv(name: string, fallback: boolean): boolean {
+  const rawValue = process.env[name];
+  if (!rawValue) {
+    return fallback;
+  }
+
+  return ENABLED_VALUES.has(rawValue.trim().toLowerCase());
+}
+
 export const AUTHENTICATION_TIMEOUT_MS = 8000;
-export const WAKE_WORD_ENABLED = true;
-export const BACKGROUND_LOCATION_ENABLED = false;
-export const WAKE_WORD_LICENSE_KEY = 'safealert_trial_key';
+export const WAKE_WORD_ENABLED = readBooleanEnv(
+  'EXPO_PUBLIC_ENABLE_WAKE_WORD',
+  false
+);
+export const PAYMENTS_ENABLED = readBooleanEnv(
+  'EXPO_PUBLIC_ENABLE_PAYMENTS',
+  false
+);
+export const BACKGROUND_LOCATION_ENABLED = readBooleanEnv(
+  'EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION',
+  false
+);
+export const WAKE_WORD_LICENSE_KEY =
+  process.env.EXPO_PUBLIC_WAKE_WORD_LICENSE?.trim() || '';
 export const WAKE_WORD_MODEL_NAME = 'wakeword_es.onnx';
 export const WAKE_WORD_FOREGROUND_ONLY = true;
 
@@ -21,11 +43,11 @@ const wakeWordBaseReason = !WAKE_WORD_ENABLED
   ? 'La activación por voz está desactivada por configuración.'
   : Platform.OS !== 'android'
     ? 'La activación por voz quedó habilitada solo para Android en esta etapa.'
-    : !WAKE_WORD_LICENSE_KEY
-      ? 'Falta configurar EXPO_PUBLIC_WAKE_WORD_LICENSE para iniciar la escucha por voz.'
-      : null;
+    : null;
 
 export const WAKE_WORD_DISABLED_REASON = wakeWordBaseReason || '';
+export const PAYMENTS_DISABLED_REASON =
+  'La pasarela de pagos está pausada temporalmente hasta terminar las pruebas funcionales.';
 
 /* ============================================================================
 * Función         : buildAlertAudioStoragePath
