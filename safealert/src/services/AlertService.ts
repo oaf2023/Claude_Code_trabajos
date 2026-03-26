@@ -20,10 +20,91 @@ import { useContactsStore } from '../stores/useContactsStore';
 import { MessageFormatter } from '../utils/MessageFormatter';
 import { IAProcessingService } from './IAProcessingService';
 
+const alertWatchers = new Map<string, () => void>();
+
+/* ============================================================================
+* Función         : stopAlertWatcher
+* Descripción     : Libera la suscripción activa asociada a una alerta concreta.
+* Fecha           : 2026-03-25
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : startAlertWatcher
+* Ingesta         : alertId: string
+* Devolución      : void
+* Uso             : stopAlertWatcher(alertId)
+* ============================================================================ */
+function stopAlertWatcher(alertId: string): void {
+  const unsubscribe = alertWatchers.get(alertId);
+  if (unsubscribe) {
+    unsubscribe();
+    alertWatchers.delete(alertId);
+  }
+}
+
+/* ============================================================================
+* Función         : startAlertWatcher
+* Descripción     : Escucha el documento de alerta para reflejar el resultado real del backend en la UI.
+* Fecha           : 2026-03-25
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : alertsCol, useGuardStore
+* Ingesta         : userId: string, alertId: string
+* Devolución      : void
+* Uso             : startAlertWatcher(userId, alertId)
+* ============================================================================ */
+function startAlertWatcher(userId: string, alertId: string): void {
+  stopAlertWatcher(alertId);
+
+  const unsubscribe = alertsCol(userId)
+    .doc(alertId)
+    .onSnapshot(
+      (snapshot) => {
+        if (!snapshot.exists()) {
+          return;
+        }
+
+        const updatedAlert = {
+          id: snapshot.id,
+          ...(snapshot.data() as Omit<AppAlert, 'id'>),
+        } as AppAlert;
+
+        useGuardStore.getState().setLastAlert(updatedAlert);
+
+        if (updatedAlert.status === 'failed') {
+          useGuardStore.getState().setAlertPhase('error');
+          stopAlertWatcher(alertId);
+          return;
+        }
+
+        if (updatedAlert.status === 'sent' || updatedAlert.status === 'partial') {
+          useGuardStore.getState().setAlertPhase('sent');
+          stopAlertWatcher(alertId);
+        }
+      },
+      (error) => {
+        console.warn('[AlertService] No se pudo seguir el estado de la alerta:', error);
+        stopAlertWatcher(alertId);
+      }
+    );
+
+  alertWatchers.set(alertId, unsubscribe);
+}
+
 function getActiveContacts(): Contact[] {
   return useContactsStore.getState().activeContacts();
 }
 
+/* ============================================================================
+* Función         : buildAlertContacts
+* Descripción     : Proyecta los contactos activos al contrato persistido de alertas SMS.
+* Fecha           : 2026-03-26
+* Versión         : 1.2.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : Contact, AlertContact
+* Ingesta         : contacts: Contact[]
+* Devolución      : AlertContact[]
+* Uso             : const alertContacts = buildAlertContacts(contacts)
+* ============================================================================ */
 function buildAlertContacts(contacts: Contact[]): AlertContact[] {
   return contacts.map((contact) => ({
     name: contact.name,
@@ -62,9 +143,9 @@ export const AlertService = {
     try {
       location = await LocationService.getCurrentLocation();
       guardStore.setLastLocation(location);
-    } catch (e) {
+    } catch (e: any) {
       guardStore.setAlertPhase('error');
-      throw new Error('No se pudo obtener la ubicación');
+      throw new Error(e?.message || 'No se pudo obtener la ubicación');
     }
 
     const mapsLink = LocationService.buildMapsLink(location);
@@ -98,8 +179,9 @@ export const AlertService = {
     const ref = await alertsCol(userId).add(alertData);
     const alertId = ref.id;
 
-    guardStore.setAlertPhase('sent');
     guardStore.setLastAlert({ id: alertId, ...alertData });
+    guardStore.setAlertPhase('sent');
+    startAlertWatcher(userId, alertId);
 
     if (settings.audioEnabled && !isTest) {
       AudioRecordingService.recordAndUpload(userId, alertId)

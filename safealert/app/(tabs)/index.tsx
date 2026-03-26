@@ -19,6 +19,7 @@ import {
   Animated,
   Vibration,
   Linking,
+  StatusBar,
 } from 'react-native';
 import { router } from 'expo-router';
 import { WakeWordService } from '../../src/services/WakeWordService';
@@ -33,6 +34,9 @@ import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
 export default function HomeScreen() {
   const isArmed = useGuardStore((s) => s.isArmed);
   const setArmed = useGuardStore((s) => s.setArmed);
+  const resetAlertState = useGuardStore((s) => s.resetAlertState);
+  const setLastAlert = useGuardStore((s) => s.setLastAlert);
+
   const {
     alertPhase,
     countdownSeconds,
@@ -43,7 +47,7 @@ export default function HomeScreen() {
     isAlerting,
   } = useAlert();
 
-  useContacts(); // subscribe to contacts
+  const { loading: contactsLoading } = useContacts();
   const contacts = useContactsStore((s) => s.contacts);
   const activeCount = contacts.filter((c) => c.active).length;
   const userId = useSettingsStore((s) => s.userId);
@@ -51,6 +55,45 @@ export default function HomeScreen() {
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const [isSendingManual, setIsSendingManual] = useState(false);
+  const [isBlackScreen, setIsBlackScreen] = useState(false);
+
+  const dismissAlertFeedback = () => {
+    resetAlertState();
+    setLastAlert(null);
+  };
+
+  const alertStatusLabel =
+    lastAlert?.status === 'pending'
+      ? '⏳ Alerta registrada. Pendiente de procesamiento.'
+      : lastAlert?.status === 'partial'
+        ? `⚠️ Alerta enviada parcialmente a ${lastAlert.contacts.length} contactos`
+        : lastAlert?.status === 'failed'
+          ? '❌ La alerta no pudo enviarse desde el backend.'
+          : lastAlert
+            ? `✅ Alerta enviada a ${lastAlert.contacts.length} contactos`
+            : '';
+
+  const alertStatusSubLabel =
+    lastAlert?.status === 'pending'
+      ? 'El backend todavía no confirmó el envío del mensaje. Si este entorno no tiene Twilio configurado, no saldrá SMS real.'
+      : lastAlert?.status === 'failed'
+        ? lastAlert.contacts.find((contact) => contact.lastError)?.lastError
+          ? `Detalle backend: ${lastAlert.contacts.find((contact) => contact.lastError)?.lastError}`
+          : 'Revisá la configuración de Functions y del proveedor SMS antes de repetir la prueba.'
+        : lastAlert?.status === 'partial'
+          ? 'Al menos un contacto no recibió la notificación y requiere revisión.'
+          : lastAlert
+            ? new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')
+            : '';
+
+    const shouldShowAlertFeedback =
+      !!lastAlert && (alertPhase === 'sent' || alertPhase === 'error');
+
+  // Toggle Black Screen (Incognito)
+  const toggleBlackScreen = () => {
+    setIsBlackScreen(!isBlackScreen);
+    Vibration.vibrate(100);
+  };
 
   // Pulse animation for active guard mode
   useEffect(() => {
@@ -58,13 +101,13 @@ export default function HomeScreen() {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.08,
-            duration: 900,
+            toValue: 1.12,
+            duration: 1200,
             useNativeDriver: true,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 900,
+            duration: 1200,
             useNativeDriver: true,
           }),
         ])
@@ -74,7 +117,7 @@ export default function HomeScreen() {
     } else {
       pulseAnim.setValue(1);
     }
-  }, [isArmed]);
+  }, [isArmed, pulseAnim]);
 
   const toggleGuard = async () => {
     if (!wakeWordAvailable) {
@@ -100,10 +143,10 @@ export default function HomeScreen() {
         await WakeWordService.start();
         setArmed(true);
         Vibration.vibrate(200);
-      } catch (e) {
+      } catch (e: any) {
         Alert.alert(
           'Error',
-          'No se pudo activar el modo guardia. Verifica los permisos.',
+          e?.message || 'No se pudo activar el modo guardia. Verifica los permisos.',
           [{ text: 'Ver Permisos', onPress: () => router.push('/permissions') }]
         );
       }
@@ -116,6 +159,11 @@ export default function HomeScreen() {
         'Sesión no disponible',
         'Todavía no se pudo inicializar la sesión segura. Reintenta en unos segundos.'
       );
+      return;
+    }
+
+    if (contactsLoading) {
+      Alert.alert('Cargando', 'Todavía estamos cargando tus contactos. Reintenta en unos segundos.');
       return;
     }
 
@@ -133,6 +181,19 @@ export default function HomeScreen() {
       setIsSendingManual(false);
     }
   };
+
+  // Black Screen Overlay (Incognito Mode)
+  if (isBlackScreen) {
+    return (
+      <TouchableOpacity 
+        activeOpacity={1} 
+        onLongPress={toggleBlackScreen} 
+        style={styles.blackScreen}
+      >
+        <StatusBar hidden />
+      </TouchableOpacity>
+    );
+  }
 
   // Countdown overlay
   if (alertPhase === 'countdown') {
@@ -164,16 +225,16 @@ export default function HomeScreen() {
       style={styles.container}
       contentContainerStyle={styles.content}
     >
-      {/* Status banner */}
-      {alertPhase === 'sent' && lastAlert && (
+      {shouldShowAlertFeedback && lastAlert ? (
         <View style={styles.successBanner}>
           <Text style={styles.successBannerText}>
-            ✅ Alerta enviada a {lastAlert.contacts.length} contactos
+            {alertStatusLabel}
           </Text>
           <Text style={styles.successBannerSub}>
-            {new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')}
+            {alertStatusSubLabel}
           </Text>
-          {!lastAlert.isTest && lastAlert.contacts[0]?.phone ? (
+
+          {(lastAlert.status === 'sent' || lastAlert.status === 'partial') && !lastAlert.isTest && lastAlert.contacts[0]?.phone ? (
             <TouchableOpacity
               style={styles.assistedCallButton}
               onPress={() => Linking.openURL(`tel:${lastAlert.contacts[0].phone}`)}
@@ -186,8 +247,34 @@ export default function HomeScreen() {
               </Text>
             </TouchableOpacity>
           ) : null}
+
+          {lastAlert.audioUrl ? (
+            <Text style={styles.audioStatusDone}>
+              🎙️ El audio de seguimiento quedó adjunto a la alerta.
+            </Text>
+          ) : null}
+
+          <TouchableOpacity
+            style={styles.incognitoToggle}
+            onPress={toggleBlackScreen}
+            accessibilityRole="button"
+            accessibilityLabel="Activar modo incógnito"
+            accessibilityHint="Oscurece la pantalla principal mientras sigues con la app abierta"
+          >
+            <Text style={styles.incognitoToggleText}>🕶️ ACTIVAR MODO INCÓGNITO</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.clearAlertButton}
+            onPress={dismissAlertFeedback}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar estado de alerta"
+            accessibilityHint="Limpia el banner de estado y devuelve la pantalla principal al modo normal"
+          >
+            <Text style={styles.clearAlertButtonText}>Cerrar estado de alerta</Text>
+          </TouchableOpacity>
         </View>
-      )}
+      ) : null}
 
       {alertPhase === 'capturing' || alertPhase === 'sending' ? (
         <View style={styles.sendingBanner}>
@@ -250,12 +337,16 @@ export default function HomeScreen() {
         </Text>
         <View>
           <Text style={styles.infoCardTitle}>
-            {activeCount === 0
+            {contactsLoading
+              ? 'Cargando contactos de confianza'
+              : activeCount === 0
               ? 'Sin contactos de confianza'
               : `${activeCount} contacto${activeCount !== 1 ? 's' : ''} activo${activeCount !== 1 ? 's' : ''}`}
           </Text>
           <Text style={styles.infoCardSub}>
-            {activeCount === 0
+            {contactsLoading
+              ? 'Esperá un momento mientras sincronizamos tu lista guardada'
+              : activeCount === 0
               ? 'Toca para agregar contactos'
               : 'Recibirán tu ubicación en emergencias'}
           </Text>
@@ -362,16 +453,25 @@ const styles = StyleSheet.create({
   },
   countdownSub: { fontSize: 16, color: '#FEE2E2', textAlign: 'center' },
   cancelButton: {
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 40,
-    paddingVertical: 16,
-    borderRadius: 50,
-    marginTop: 16,
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 48,
+    paddingVertical: 20,
+    borderRadius: 18,
+    marginTop: 20,
+    minWidth: 260,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   cancelButtonText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: COLORS.danger,
+    color: COLORS.white,
+    letterSpacing: 0.5,
   },
 
   // Banners
@@ -388,6 +488,48 @@ const styles = StyleSheet.create({
     color: COLORS.safe,
   },
   successBannerSub: { fontSize: 12, color: COLORS.neutral, marginTop: 2 },
+  deliverySummaryCard: {
+    marginTop: 12,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 12,
+    gap: 6,
+  },
+  deliverySummaryTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  deliverySummaryLine: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: COLORS.textMuted,
+  },
+  clearAlertButton: {
+    marginTop: 12,
+    backgroundColor: COLORS.danger,
+    borderRadius: 14,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearAlertButtonText: {
+    color: COLORS.white,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  
+  audioStatusDone: {
+    fontSize: 12,
+    color: COLORS.safe,
+    marginTop: 8,
+    fontWeight: '600',
+  },
+
   assistedCallButton: {
     marginTop: 12,
     backgroundColor: COLORS.white,
@@ -524,4 +666,22 @@ const styles = StyleSheet.create({
   },
   keywordBadgeText: { fontSize: 13, color: COLORS.danger, fontWeight: '500' },
   editKeywords: { fontSize: 13, color: COLORS.textMuted },
+  
+  // Black Screen & Incognito
+  blackScreen: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  incognitoToggle: {
+    marginTop: 10,
+    backgroundColor: '#000000',
+    padding: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  incognitoToggleText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
 });

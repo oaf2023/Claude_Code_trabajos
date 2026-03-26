@@ -263,7 +263,7 @@ export default function SettingsScreen() {
           </>
         ) : (
           <Text style={styles.sectionSub}>
-            Ajusta esta sensibilidad cuando el motor de voz y su licencia estén operativos en tu Android.
+            Ajusta esta sensibilidad cuando el motor de voz quede disponible en tu Android.
           </Text>
         )}
       </View>
@@ -304,7 +304,7 @@ export default function SettingsScreen() {
           </>
         ) : (
           <Text style={styles.sectionSub}>
-            El conteo regresivo se activará cuando el motor de voz esté listo y autorizado.
+            El conteo regresivo se activará cuando el motor de voz quede disponible.
           </Text>
         )}
       </View>
@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text },
   sectionSub: { fontSize: 13, color: COLORS.textMuted, lineHeight: 18 },
+  sectionBullet: { fontSize: 13, color: COLORS.text, lineHeight: 20 },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowInfo: { flex: 1 },

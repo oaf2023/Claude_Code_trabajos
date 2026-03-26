@@ -13,6 +13,17 @@ import { Contact, ContactFormData } from '../types/Contact';
 import { toE164 } from '../utils/formatPhone';
 import firestore from '@react-native-firebase/firestore';
 
+/* ============================================================================
+* Función         : hydrateAndSortContacts
+* Descripción     : Normaliza los contactos persistidos y los ordena por prioridad operativa.
+* Fecha           : 2026-03-26
+* Versión         : 1.1.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : Firestore contacts
+* Ingesta         : contacts: Contact[]
+* Devolución      : Contact[]
+* Uso             : const ordered = hydrateAndSortContacts(contacts)
+* ============================================================================ */
 function hydrateAndSortContacts(contacts: Contact[]): Contact[] {
   const byAddedAt = [...contacts].sort((left, right) => left.addedAt - right.addedAt);
 

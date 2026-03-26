@@ -127,6 +127,17 @@ export default function ContactsScreen() {
   const orderedContacts = sortContactsForDisplay(contacts);
   const priorityContactId = orderedContacts.find((contact) => contact.active)?.id ?? null;
 
+  /* ============================================================================
+  * Función         : handleDelete
+  * Descripción     : Confirma y elimina un contacto mostrando errores operativos si la baja falla.
+  * Fecha           : 2026-03-25
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : useContacts.removeContact, Alert
+  * Ingesta         : contact: Contact
+  * Devolución      : void
+  * Uso             : onDelete={() => handleDelete(item)}
+  * ============================================================================ */
   const handleDelete = (contact: Contact) => {
     Alert.alert(
       'Eliminar contacto',
@@ -136,7 +147,16 @@ export default function ContactsScreen() {
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: () => removeContact(contact.id),
+          onPress: async () => {
+            try {
+              await removeContact(contact.id);
+            } catch (error: any) {
+              Alert.alert(
+                'No se pudo eliminar',
+                error?.message || 'La baja del contacto falló. Reintenta en unos segundos.'
+              );
+            }
+          },
         },
       ]
     );
@@ -255,6 +275,17 @@ const styles = StyleSheet.create({
   contactInfo: { flex: 1 },
   contactName: { fontSize: 15, fontWeight: '600', color: COLORS.text },
   contactPhone: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
+  channelBadge: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.dangerDark,
+    backgroundColor: COLORS.dangerLight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
   priorityBadge: {
     marginTop: 6,
     fontSize: 11,

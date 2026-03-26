@@ -20,13 +20,32 @@ import {
   Platform,
   ScrollView,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import functions from '@react-native-firebase/functions';
 import { useContacts } from '../../src/hooks/useContacts';
 import { useContactsStore } from '../../src/stores/useContactsStore';
+import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { isValidPhone } from '../../src/utils/formatPhone';
 import { COLORS } from '../../src/config/constants';
+import {
+  PAYMENTS_DISABLED_REASON,
+  PAYMENTS_ENABLED,
+} from '../../src/config/features';
+import { PaymentModal } from '../../src/components/PaymentModal';
 
+/* ============================================================================
+* Función         : AddEditContactScreen
+* Descripción     : Alta y edición de contactos con prioridad operativa.
+* Fecha           : 2026-03-26
+* Versión         : 1.2.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : useContacts, useContactsStore, PaymentModal
+* Ingesta         : Sin argumentos
+* Devolución      : JSX.Element
+* Uso             : Pantalla de ruta /contacts/[id]
+* ============================================================================ */
 export default function AddEditContactScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === 'new';
@@ -41,6 +60,11 @@ export default function AddEditContactScreen() {
   const [makePrimary, setMakePrimary] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({ name: '', phone: '' });
+
+  // Payment states
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const hasSubscription = useSettingsStore(s => s.hasSubscription); // Asumiremos que extendemos settingsStore o consultamos directo
 
   useEffect(() => {
     if (!isNew && existingContact) {
@@ -85,15 +109,56 @@ export default function AddEditContactScreen() {
   * ============================================================================ */
   const handleSave = async () => {
     if (!validate()) return;
+
+    if (!PAYMENTS_ENABLED) {
+      await performActualSave();
+      return;
+    }
+    
+    // Si no tiene suscripción y es el primer contacto (o nueva suscripción), interceptamos.
+    if (!hasSubscription) {
+      setSaving(true);
+      try {
+        const createPayment = functions().httpsCallable('createPaymentOrder');
+        const response = await createPayment({
+          userName: name.trim(),
+          phoneNumber: phone,
+        });
+
+        const data = response.data as any;
+        if (data.success && data.initPoint) {
+          setPaymentUrl(data.initPoint);
+          setShowPayment(true);
+        } else {
+          Alert.alert('Error', 'No se pudo iniciar el proceso de pago.');
+        }
+      } catch (e: any) {
+        Alert.alert('Error de pago', e.message || 'Error conectando con Mercado Pago.');
+      } finally {
+        setSaving(false);
+      }
+      return; // Detenemos el guardado hasta que complete el pago
+    }
+
+    await performActualSave();
+  };
+
+  const performActualSave = async () => {
     setSaving(true);
     try {
       if (isNew) {
-        const created = await addContact({ name: name.trim(), phone });
+        const created = await addContact({
+          name: name.trim(),
+          phone,
+        });
         if (makePrimary) {
           await prioritizeContact(created.id);
         }
       } else {
-        await updateContact(id as string, { name: name.trim(), phone });
+        await updateContact(id as string, {
+          name: name.trim(),
+          phone,
+        });
         if (makePrimary) {
           await prioritizeContact(id as string);
         }
@@ -104,6 +169,14 @@ export default function AddEditContactScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePaymentSuccess = async () => {
+    setShowPayment(false);
+    useSettingsStore.getState().setHasSubscription(true);
+    Alert.alert('¡Pago completado!', 'Guardando tu contacto...', [
+      { text: 'OK', onPress: () => performActualSave() }
+    ]);
   };
 
   return (
@@ -118,6 +191,13 @@ export default function AddEditContactScreen() {
         <Text style={styles.subtitle}>
           Esta persona recibirá tu ubicación y mensaje en emergencias. Evita duplicar teléfonos.
         </Text>
+
+        {!PAYMENTS_ENABLED ? (
+          <View style={styles.testingBanner}>
+            <Text style={styles.testingBannerTitle}>Pruebas activas</Text>
+            <Text style={styles.testingBannerText}>{PAYMENTS_DISABLED_REASON}</Text>
+          </View>
+        ) : null}
 
         <View style={styles.field}>
           <Text style={styles.label}>Nombre completo</Text>
@@ -192,6 +272,15 @@ export default function AddEditContactScreen() {
         >
           <Text style={styles.cancelLinkText}>Cancelar</Text>
         </TouchableOpacity>
+
+        {PAYMENTS_ENABLED ? (
+          <PaymentModal
+            visible={showPayment}
+            paymentUrl={paymentUrl}
+            onClose={() => setShowPayment(false)}
+            onSuccess={handlePaymentSuccess}
+          />
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -202,6 +291,14 @@ const styles = StyleSheet.create({
   content: { padding: 24, gap: 20 },
   title: { fontSize: 22, fontWeight: 'bold', color: COLORS.text },
   subtitle: { fontSize: 14, color: COLORS.textMuted, lineHeight: 20 },
+  testingBanner: {
+    backgroundColor: COLORS.warningLight,
+    borderRadius: 10,
+    padding: 14,
+    gap: 4,
+  },
+  testingBannerTitle: { fontSize: 14, fontWeight: '700', color: COLORS.warning },
+  testingBannerText: { fontSize: 12, color: COLORS.text, lineHeight: 18 },
 
   field: { gap: 6 },
   label: { fontSize: 14, fontWeight: '600', color: COLORS.text },
@@ -217,6 +314,51 @@ const styles = StyleSheet.create({
   inputError: { borderColor: COLORS.danger },
   errorText: { fontSize: 12, color: COLORS.danger },
   hint: { fontSize: 12, color: COLORS.textMuted },
+  deliveryCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    gap: 10,
+  },
+  deliveryOptions: {
+    gap: 10,
+  },
+  deliveryOption: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 10,
+    padding: 12,
+    gap: 4,
+    backgroundColor: COLORS.background,
+  },
+  deliveryOptionSelected: {
+    borderColor: COLORS.warning,
+    backgroundColor: COLORS.warningLight,
+  },
+  deliveryOptionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  deliveryOptionTitleSelected: {
+    color: COLORS.warning,
+  },
+  deliveryOptionDescription: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: COLORS.textMuted,
+  },
+  fallbackRow: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   primaryRow: {
     backgroundColor: COLORS.white,
     borderRadius: 10,
