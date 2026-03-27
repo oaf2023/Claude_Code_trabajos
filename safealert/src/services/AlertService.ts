@@ -2,8 +2,8 @@
 * Archivo         : AlertService.ts
 * Descripción     : Orquestación local del envío de alertas del MVP.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : AlertService.send('manual')
 * ============================================================================ */
@@ -12,6 +12,7 @@ import { Alert as AppAlert, AlertContact } from '../types/Alert';
 import { Contact } from '../types/Contact';
 import { LocationService } from './LocationService';
 import { AudioRecordingService } from './AudioRecordingService';
+import { ensureAuthenticated } from '../config/firebase';
 import { alertsCol } from '../config/firebase';
 import { SMS_PREFIX, SMS_TEST_PREFIX } from '../config/constants';
 import { useGuardStore } from '../stores/useGuardStore';
@@ -19,6 +20,7 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import { useContactsStore } from '../stores/useContactsStore';
 import { MessageFormatter } from '../utils/MessageFormatter';
 import { IAProcessingService } from './IAProcessingService';
+import { ContactsService } from './ContactsService';
 
 const alertWatchers = new Map<string, () => void>();
 
@@ -118,22 +120,39 @@ function buildAlertContacts(contacts: Contact[]): AlertContact[] {
 }
 
 export const AlertService = {
+  /* ============================================================================
+  * Función         : send
+  * Descripción     : Envía una alerta SOS resolviendo sesión y contactos operativos aunque el store todavía no se haya hidratado.
+  * Fecha           : 2026-03-27
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : ensureAuthenticated, ContactsService, alertsCol, useGuardStore
+  * Ingesta         : triggerWord: string, isTest?: boolean
+  * Devolución      : Promise<{ alertId: string; assistedCallPhone: string | null }>
+  * Uso             : await AlertService.send('manual')
+  * ============================================================================ */
   async send(
     triggerWord: string,
     isTest = false
   ): Promise<{ alertId: string; assistedCallPhone: string | null }> {
     const guardStore = useGuardStore.getState();
     const settings = useSettingsStore.getState();
-    const contacts = getActiveContacts();
-    const userId = settings.userId;
+    const resolvedUserId = settings.userId || (await ensureAuthenticated());
 
-    if (contacts.length === 0) {
-      throw new Error('No hay contactos activos');
+    if (settings.userId !== resolvedUserId) {
+      useSettingsStore.getState().setUserId(resolvedUserId);
     }
 
-    if (!userId) {
+    let contacts = getActiveContacts();
+    if (contacts.length === 0) {
+      const allContacts = await ContactsService.getAll(resolvedUserId);
+      useContactsStore.getState().setContacts(allContacts);
+      contacts = allContacts.filter((contact) => contact.active);
+    }
+
+    if (contacts.length === 0) {
       guardStore.setAlertPhase('error');
-      throw new Error('La sesión no está lista. Reintenta en unos segundos.');
+      throw new Error('No hay contactos activos');
     }
 
     guardStore.setDetectedKeyword(isTest ? 'test' : triggerWord);
@@ -163,7 +182,7 @@ export const AlertService = {
     guardStore.setAlertPhase('sending');
 
     const alertData: Omit<AppAlert, 'id'> = {
-      userId,
+      userId: resolvedUserId,
       triggeredAt: Date.now(),
       triggerWord,
       location,
@@ -176,24 +195,24 @@ export const AlertService = {
       isTest,
     };
 
-    const ref = await alertsCol(userId).add(alertData);
+    const ref = await alertsCol(resolvedUserId).add(alertData);
     const alertId = ref.id;
 
     guardStore.setLastAlert({ id: alertId, ...alertData });
     guardStore.setAlertPhase('sent');
-    startAlertWatcher(userId, alertId);
+    startAlertWatcher(resolvedUserId, alertId);
 
     if (settings.audioEnabled && !isTest) {
-      AudioRecordingService.recordAndUpload(userId, alertId)
+      AudioRecordingService.recordAndUpload(resolvedUserId, alertId)
         .then(async (audioUpload) => {
           if (audioUpload) {
-            await alertsCol(userId).doc(alertId).update({
+            await alertsCol(resolvedUserId).doc(alertId).update({
               audioUrl: audioUpload.audioUrl,
               audioPath: audioUpload.audioPath,
             });
 
             // Escalabilidad Fase 2: Iniciar análisis de IA una vez que el audio está disponible
-            IAProcessingService.processAlertAudio(userId, alertId, audioUpload.audioUrl)
+            IAProcessingService.processAlertAudio(resolvedUserId, alertId, audioUpload.audioUrl)
               .catch(error => console.warn('[AlertService] Error en disparador IA post-upload:', error));
           }
         })

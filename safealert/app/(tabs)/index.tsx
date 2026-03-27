@@ -2,8 +2,8 @@
 * Archivo         : index.tsx
 * Descripción     : Pantalla principal del MVP con SOS manual y estado real.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : Pantalla Home de la app.
 * ============================================================================ */
@@ -130,7 +130,7 @@ export default function HomeScreen() {
       Alert.alert(
         'Sin contactos',
         'Agrega al menos un contacto antes de activar el modo guardia.',
-        [{ text: 'Ir a Contactos', onPress: () => router.push('/contacts') }]
+        [{ text: 'Ir a Contactos', onPress: () => router.push('/(tabs)/contacts') }]
       );
       return;
     }
@@ -268,10 +268,10 @@ export default function HomeScreen() {
             style={styles.clearAlertButton}
             onPress={dismissAlertFeedback}
             accessibilityRole="button"
-            accessibilityLabel="Cerrar estado de alerta"
-            accessibilityHint="Limpia el banner de estado y devuelve la pantalla principal al modo normal"
+            accessibilityLabel="Terminar alerta"
+            accessibilityHint="Cierra el estado actual de la alerta y devuelve la pantalla principal al modo normal"
           >
-            <Text style={styles.clearAlertButtonText}>Cerrar estado de alerta</Text>
+            <Text style={styles.clearAlertButtonText}>TERMINAR ALERTA</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -352,7 +352,7 @@ export default function HomeScreen() {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push('/contacts')}
+          onPress={() => router.push('/(tabs)/contacts')}
           accessibilityRole="button"
           accessibilityLabel="Abrir gestión de contactos"
           accessibilityHint="Permite revisar, activar o editar contactos de confianza"
@@ -404,7 +404,7 @@ export default function HomeScreen() {
             ))}
           </View>
           <TouchableOpacity
-            onPress={() => router.push('/settings')}
+            onPress={() => router.push('/(tabs)/settings')}
             accessibilityRole="button"
             accessibilityLabel="Abrir ajustes de activación por voz"
           >

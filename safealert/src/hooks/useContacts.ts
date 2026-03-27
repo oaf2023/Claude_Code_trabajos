@@ -1,3 +1,13 @@
+/* ============================================================================
+* Archivo         : useContacts.ts
+* Descripción     : Hook operativo para suscripción y mutaciones de contactos.
+* Autor           : oafon
+* Fecha           : 2026-03-27
+* Versión         : 1.2.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : const contacts = useContacts()
+* ============================================================================ */
+
 import { useEffect } from 'react';
 import { useContactsStore } from '../stores/useContactsStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -45,10 +55,21 @@ export function useContacts() {
           return;
         }
 
-        unsubscribe = ContactsService.subscribe(resolvedUserId, (updated) => {
-          setContacts(updated);
-          setLoading(false);
-        });
+        unsubscribe = ContactsService.subscribe(
+          resolvedUserId,
+          (updated) => {
+            setContacts(updated);
+            setLoading(false);
+          },
+          (error) => {
+            if (!cancelled) {
+              console.error('[useContacts] Falló la suscripción de contactos:', error);
+              setLoading(false);
+            }
+          }
+        );
+
+        setLoading(false);
       } catch (error) {
         if (!cancelled) {
           console.error('[useContacts] No se pudieron cargar los contactos:', error);
