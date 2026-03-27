@@ -3,12 +3,12 @@
 * Descripción     : Orquestación local del envío de alertas del MVP.
 * Autor           : oafon
 * Fecha           : 2026-03-27
-* Versión         : 1.1.0
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : AlertService.send('manual')
 * ============================================================================ */
 
-import { Alert as AppAlert, AlertContact } from '../types/Alert';
+import { Alert as AppAlert, AlertContact, AlertTrackingMetadata } from '../types/Alert';
 import { Contact } from '../types/Contact';
 import { LocationService } from './LocationService';
 import { AudioRecordingService } from './AudioRecordingService';
@@ -225,5 +225,42 @@ export const AlertService = {
       alertId,
       assistedCallPhone: isTest ? null : contacts[0]?.phone ?? null,
     };
+  },
+
+  /* ============================================================================
+  * Función         : sendLocationPulse
+  * Descripción     : Actualiza la ubicación de una alerta activa y activa el reenvío periódico de SMS en modo incógnito.
+  * Fecha           : 2026-03-27
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : LocationService, alertsCol, sendLocationPulseUpdate (Cloud Function)
+  * Ingesta         : userId: string, alertId: string
+  * Devolución      : Promise<void>
+  * Uso             : await AlertService.sendLocationPulse(userId, alertId)
+  * ============================================================================ */
+  async sendLocationPulse(userId: string, alertId: string): Promise<void> {
+    try {
+      const location = await LocationService.getCurrentLocation();
+      const mapsLink = LocationService.buildMapsLink(location);
+      const now = Date.now();
+
+      const metadata: AlertTrackingMetadata = {
+        isTrackingActive: true,
+        lastPulseTimestamp: now,
+        trackingIntervalMs: 2 * 60 * 1000, // 2 minutos
+        provider: 'incognito-pulse',
+      };
+
+      await alertsCol(userId).doc(alertId).update({
+        location,
+        mapsLink,
+        metadata,
+      });
+
+      useGuardStore.getState().setLastLocation(location);
+      console.log(`[AlertService] Pulso de ubicación enviado para alerta ${alertId}`);
+    } catch (error) {
+      console.warn('[AlertService] Error enviando pulso de ubicación:', error);
+    }
   },
 };

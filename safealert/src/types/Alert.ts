@@ -2,8 +2,8 @@
 * Archivo         : Alert.ts
 * Descripción     : Tipos e interfaces del dominio de alertas SOS.
 * Autor           : oafon
-* Fecha           : 2026-03-25
-* Versión         : 1.0.1
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * ============================================================================ */
 
@@ -11,6 +11,13 @@ import { IAAnalysis } from './IAAnalysis';
 
 export type AlertStatus = 'pending' | 'sent' | 'partial' | 'failed';
 export type SMSStatus = 'pending' | 'sent' | 'failed';
+
+export interface AlertTrackingMetadata {
+  isTrackingActive: boolean;
+  lastPulseTimestamp?: number;
+  trackingIntervalMs: number;
+  provider?: string;
+}
 
 export interface AlertLocation {
   lat: number;
@@ -45,4 +52,5 @@ export interface Alert {
   status: AlertStatus;
   iaAnalysis?: IAAnalysis;
   isTest?: boolean;
+  metadata?: AlertTrackingMetadata;
 }
