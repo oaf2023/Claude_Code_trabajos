@@ -1,14 +1,14 @@
 /* ============================================================================
 * Archivo         : index.tsx
-* Descripción     : Pantalla principal del MVP con SOS manual y estado real.
+* Descripción     : Pantalla principal del MVP con SOS manual, modo incógnito y reenvío periódico.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : Pantalla Home de la app.
 * ============================================================================ */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { WakeWordService } from '../../src/services/WakeWordService';
+import { AlertService } from '../../src/services/AlertService';
 import { useGuardStore } from '../../src/stores/useGuardStore';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { useContactsStore } from '../../src/stores/useContactsStore';
@@ -30,6 +31,8 @@ import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
 import { COLORS } from '../../src/config/constants';
 import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
+
+const INCOGNITO_PULSE_INTERVAL_MS = 2 * 60 * 1000; // 2 minutos
 
 export default function HomeScreen() {
   const isArmed = useGuardStore((s) => s.isArmed);
@@ -54,13 +57,80 @@ export default function HomeScreen() {
   const wakeWordAvailable = WakeWordService.isAvailable();
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const incognitoPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isSendingPulseRef = useRef(false);
   const [isSendingManual, setIsSendingManual] = useState(false);
   const [isBlackScreen, setIsBlackScreen] = useState(false);
+  const [lastPulseTime, setLastPulseTime] = useState<number | null>(null);
+
+  /* ============================================================================
+  * Función         : clearIncognitoPulse
+  * Descripción     : Limpia el temporizador de reenvío periódico en modo incógnito.
+  * Fecha           : 2026-03-27
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : incognitoPulseRef
+  * Ingesta         : Sin argumentos
+  * Devolución      : void
+  * Uso             : clearIncognitoPulse()
+  * ============================================================================ */
+  const clearIncognitoPulse = useCallback(() => {
+    if (incognitoPulseRef.current) {
+      clearInterval(incognitoPulseRef.current);
+      incognitoPulseRef.current = null;
+    }
+    isSendingPulseRef.current = false;
+  }, []);
 
   const dismissAlertFeedback = () => {
+    clearIncognitoPulse();
+    setIsBlackScreen(false);
+    setLastPulseTime(null);
     resetAlertState();
     setLastAlert(null);
   };
+
+  // Reenvío periódico cada 2 minutos en modo incógnito cuando hay alerta activa
+  useEffect(() => {
+    const alertIsActive =
+      !!lastAlert &&
+      (lastAlert.status === 'sent' || lastAlert.status === 'partial') &&
+      !!userId &&
+      !!lastAlert.id;
+
+    if (isBlackScreen && alertIsActive) {
+      clearIncognitoPulse();
+
+      const capturedUserId = userId!;
+      const capturedAlertId = lastAlert!.id;
+
+      incognitoPulseRef.current = setInterval(() => {
+        if (isSendingPulseRef.current) {
+          console.log('[Incognito] Pulso anterior todavía en proceso, saltando...');
+          return;
+        }
+        isSendingPulseRef.current = true;
+        console.log('[Incognito] Reenvío periódico de ubicación activado');
+        Vibration.vibrate(50);
+        setLastPulseTime(Date.now());
+        AlertService.sendLocationPulse(capturedUserId, capturedAlertId)
+          .catch((err) => console.warn('[Incognito] Error en pulso de ubicación:', err))
+          .finally(() => {
+            isSendingPulseRef.current = false;
+          });
+      }, INCOGNITO_PULSE_INTERVAL_MS);
+
+      return clearIncognitoPulse;
+    }
+
+    clearIncognitoPulse();
+    return undefined;
+  }, [isBlackScreen, lastAlert?.id, lastAlert?.status, userId, clearIncognitoPulse]);
+
+  // Limpiar temporizador al desmontar
+  useEffect(() => {
+    return clearIncognitoPulse;
+  }, [clearIncognitoPulse]);
 
   const alertStatusLabel =
     lastAlert?.status === 'pending'
@@ -86,12 +156,12 @@ export default function HomeScreen() {
             ? new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')
             : '';
 
-    const shouldShowAlertFeedback =
-      !!lastAlert && (alertPhase === 'sent' || alertPhase === 'error');
+  const shouldShowAlertFeedback =
+    !!lastAlert && (alertPhase === 'sent' || alertPhase === 'error');
 
   // Toggle Black Screen (Incognito)
   const toggleBlackScreen = () => {
-    setIsBlackScreen(!isBlackScreen);
+    setIsBlackScreen((prev) => !prev);
     Vibration.vibrate(100);
   };
 
@@ -130,7 +200,7 @@ export default function HomeScreen() {
       Alert.alert(
         'Sin contactos',
         'Agrega al menos un contacto antes de activar el modo guardia.',
-        [{ text: 'Ir a Contactos', onPress: () => router.push('/contacts') }]
+        [{ text: 'Ir a Contactos', onPress: () => router.push('/(tabs)/contacts') }]
       );
       return;
     }
@@ -184,13 +254,25 @@ export default function HomeScreen() {
 
   // Black Screen Overlay (Incognito Mode)
   if (isBlackScreen) {
+    const alertIsActive =
+      !!lastAlert &&
+      (lastAlert.status === 'sent' || lastAlert.status === 'partial');
+
     return (
-      <TouchableOpacity 
-        activeOpacity={1} 
-        onLongPress={toggleBlackScreen} 
+      <TouchableOpacity
+        activeOpacity={1}
+        onLongPress={toggleBlackScreen}
         style={styles.blackScreen}
       >
         <StatusBar hidden />
+        {alertIsActive && lastPulseTime ? (
+          <Text
+            style={styles.blackScreenPulseText}
+            accessibilityLabel={`Última actualización de ubicación: ${new Date(lastPulseTime).toLocaleTimeString('es-AR')}`}
+          >
+            📍 {new Date(lastPulseTime).toLocaleTimeString('es-AR')}
+          </Text>
+        ) : null}
       </TouchableOpacity>
     );
   }
@@ -259,19 +341,22 @@ export default function HomeScreen() {
             onPress={toggleBlackScreen}
             accessibilityRole="button"
             accessibilityLabel="Activar modo incógnito"
-            accessibilityHint="Oscurece la pantalla principal mientras sigues con la app abierta"
+            accessibilityHint="Oscurece la pantalla principal mientras sigues con la app abierta. Cada 2 minutos reenvía tu ubicación."
           >
             <Text style={styles.incognitoToggleText}>🕶️ ACTIVAR MODO INCÓGNITO</Text>
           </TouchableOpacity>
+          <Text style={styles.incognitoHint}>
+            En modo incógnito, tu ubicación se reenvía cada 2 minutos. Mantén presionada la pantalla negra para salir.
+          </Text>
 
           <TouchableOpacity
             style={styles.clearAlertButton}
             onPress={dismissAlertFeedback}
             accessibilityRole="button"
-            accessibilityLabel="Cerrar estado de alerta"
-            accessibilityHint="Limpia el banner de estado y devuelve la pantalla principal al modo normal"
+            accessibilityLabel="Terminar alerta"
+            accessibilityHint="Cierra el estado actual de la alerta y devuelve la pantalla principal al modo normal"
           >
-            <Text style={styles.clearAlertButtonText}>Cerrar estado de alerta</Text>
+            <Text style={styles.clearAlertButtonText}>TERMINAR ALERTA</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -352,7 +437,7 @@ export default function HomeScreen() {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push('/contacts')}
+          onPress={() => router.push('/(tabs)/contacts')}
           accessibilityRole="button"
           accessibilityLabel="Abrir gestión de contactos"
           accessibilityHint="Permite revisar, activar o editar contactos de confianza"
@@ -404,7 +489,7 @@ export default function HomeScreen() {
             ))}
           </View>
           <TouchableOpacity
-            onPress={() => router.push('/settings')}
+            onPress={() => router.push('/(tabs)/settings')}
             accessibilityRole="button"
             accessibilityLabel="Abrir ajustes de activación por voz"
           >
@@ -671,6 +756,14 @@ const styles = StyleSheet.create({
   blackScreen: {
     flex: 1,
     backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 40,
+  },
+  blackScreenPulseText: {
+    color: '#1a1a1a',
+    fontSize: 10,
+    textAlign: 'center',
   },
   incognitoToggle: {
     marginTop: 10,
@@ -683,5 +776,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  incognitoHint: {
+    fontSize: 11,
+    color: COLORS.neutral,
+    textAlign: 'center',
+    marginTop: 4,
+    fontStyle: 'italic',
+    lineHeight: 15,
   },
 });

@@ -2,8 +2,8 @@
 * Archivo         : sendAlertSMS.ts
 * Descripción     : Envío idempotente de alertas y seguimiento de audio vía Cloud Functions.
 * Autor           : oafon
-* Fecha           : 2026-03-25
-* Versión         : 1.0.1
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.3
 * Uso             : Trigger automático sobre users/{userId}/alerts/{alertId}
 * ============================================================================ */
@@ -106,6 +106,14 @@ const TWILIO_API_KEY_SID = process.env.TWILIO_API_KEY_SID?.trim();
 const TWILIO_API_SECRET = process.env.TWILIO_API_SECRET?.trim();
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER?.trim();
 const TWILIO_DEFAULT_SENDER_ID = '+12605440417';
+const ALERT_DOCUMENT_PATH = 'users/{userId}/alerts/{alertId}';
+const TWILIO_SECRETS: string[] = [
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_API_KEY_SID',
+  'TWILIO_API_SECRET',
+  'TWILIO_PHONE_NUMBER',
+];
 
 /* ============================================================================
 * Función         : createTwilioClient
@@ -198,14 +206,8 @@ async function sendNotification(
 
 export const sendAlertSMS = onDocumentCreated(
   {
-    document: 'users/{userId}/alerts/{alertId}',
-    secrets: [
-      'TWILIO_ACCOUNT_SID',
-      'TWILIO_AUTH_TOKEN',
-      'TWILIO_API_KEY_SID',
-      'TWILIO_API_SECRET',
-      'TWILIO_PHONE_NUMBER',
-    ],
+    document: ALERT_DOCUMENT_PATH,
+    secrets: TWILIO_SECRETS,
     region: 'us-central1',
   },
   async (event) => {
@@ -264,7 +266,11 @@ export const sendAlertSMS = onDocumentCreated(
 );
 
 export const sendAudioFollowUp = onDocumentUpdated(
-  'users/{userId}/alerts/{alertId}',
+  {
+    document: ALERT_DOCUMENT_PATH,
+    secrets: TWILIO_SECRETS,
+    region: 'us-central1',
+  },
   async (event) => {
     const before = event.data?.before.data();
     const after = event.data?.after.data();
@@ -298,7 +304,11 @@ export const sendAudioFollowUp = onDocumentUpdated(
 );
 
 export const sendLocationPulseUpdate = onDocumentUpdated(
-  'users/{userId}/alerts/{alertId}',
+  {
+    document: ALERT_DOCUMENT_PATH,
+    secrets: TWILIO_SECRETS,
+    region: 'us-central1',
+  },
   async (event) => {
     const before = event.data?.before.data();
     const after = event.data?.after.data();

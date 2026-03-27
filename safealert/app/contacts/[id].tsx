@@ -2,8 +2,8 @@
 * Archivo         : [id].tsx
 * Descripción     : Alta y edición de contactos con validación operativa y accesibilidad.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : Formulario para crear o editar contactos.
 * ============================================================================ */
@@ -46,13 +46,14 @@ import { PaymentModal } from '../../src/components/PaymentModal';
 * Devolución      : JSX.Element
 * Uso             : Pantalla de ruta /contacts/[id]
 * ============================================================================ */
-export default function AddEditContactScreen() {
+export function ContactFormScreen({ forcedId }: { forcedId?: string } = {}) {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const isNew = id === 'new';
+  const resolvedId = forcedId || id || '';
+  const isNew = resolvedId === 'new';
 
   const { addContact, updateContact, prioritizeContact } = useContacts();
   const existingContact = useContactsStore((s) =>
-    s.contacts.find((c) => c.id === id)
+    s.contacts.find((c) => c.id === resolvedId)
   );
 
   const [name, setName] = useState('');
@@ -72,7 +73,7 @@ export default function AddEditContactScreen() {
       setPhone(existingContact.phone);
       setMakePrimary(existingContact.priority === 0);
     }
-  }, [id, existingContact, isNew]);
+  }, [resolvedId, existingContact, isNew]);
 
   /* ============================================================================
   * Función         : validate
@@ -155,12 +156,12 @@ export default function AddEditContactScreen() {
           await prioritizeContact(created.id);
         }
       } else {
-        await updateContact(id as string, {
+        await updateContact(resolvedId, {
           name: name.trim(),
           phone,
         });
         if (makePrimary) {
-          await prioritizeContact(id as string);
+          await prioritizeContact(resolvedId);
         }
       }
       router.back();
@@ -284,6 +285,10 @@ export default function AddEditContactScreen() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
+}
+
+export default function AddEditContactScreen() {
+  return <ContactFormScreen />;
 }
 
 const styles = StyleSheet.create({

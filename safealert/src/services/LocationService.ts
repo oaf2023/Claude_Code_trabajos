@@ -2,14 +2,15 @@
 * Archivo         : LocationService.ts
 * Descripción     : Obtención de ubicación puntual y actualización local opcional.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : LocationService.getCurrentLocation()
 * ============================================================================ */
 
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import { Platform } from 'react-native';
 import { AlertLocation } from '../types/Alert';
 import { buildMapsLink } from '../utils/googleMapsLink';
 import { useGuardStore } from '../stores/useGuardStore';
@@ -21,6 +22,50 @@ import {
 import { BACKGROUND_LOCATION_ENABLED } from '../config/features';
 
 const BACKGROUND_LOCATION_TASK = 'background-location-task';
+
+/* ============================================================================
+* Función         : isAndroidEmulator
+* Descripción     : Detecta heurísticamente si la app corre en un emulador Android.
+* Fecha           : 2026-03-27
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : LocationService.getCurrentLocation
+* Ingesta         : Sin argumentos
+* Devolución      : boolean
+* Uso             : if (isAndroidEmulator()) { ... }
+* ============================================================================ */
+function isAndroidEmulator(): boolean {
+  if (Platform.OS !== 'android') {
+    return false;
+  }
+
+  const constants = Platform.constants as {
+    Brand?: string;
+    Fingerprint?: string;
+    Manufacturer?: string;
+    Model?: string;
+    Product?: string;
+  };
+
+  const emulatorFingerprint = [
+    constants.Brand,
+    constants.Fingerprint,
+    constants.Manufacturer,
+    constants.Model,
+    constants.Product,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return [
+    'generic',
+    'emulator',
+    'sdk_gphone',
+    'ranchu',
+    'vbox',
+  ].some((token) => emulatorFingerprint.includes(token));
+}
 
 // Register background task for location updates
 TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
@@ -122,7 +167,7 @@ export const LocationService = {
       return freshLocation;
     }
 
-    if (__DEV__) {
+    if (__DEV__ || isAndroidEmulator()) {
       const simulatedLocation: AlertLocation = {
         lat: DEV_FALLBACK_LOCATION.lat,
         lon: DEV_FALLBACK_LOCATION.lon,
@@ -133,7 +178,7 @@ export const LocationService = {
       };
 
       console.warn(
-        '[LocationService] Usando ubicación simulada de desarrollo por falta de fix GPS.',
+        '[LocationService] Usando ubicación simulada por falta de fix GPS.',
         providerStatus
       );
       useGuardStore.getState().setLastLocation(simulatedLocation);

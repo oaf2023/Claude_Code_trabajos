@@ -2,8 +2,8 @@
 * Archivo         : ContactsService.ts
 * Descripción     : Gestión de contactos con validaciones operativas para el MVP.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-27
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : ContactsService.add(userId, data) y operaciones relacionadas.
 * ============================================================================ */
@@ -113,17 +113,24 @@ export const ContactsService = {
   * ============================================================================ */
   subscribe(
     userId: string,
-    onUpdate: (contacts: Contact[]) => void
+    onUpdate: (contacts: Contact[]) => void,
+    onError?: (error: unknown) => void
   ): () => void {
     return contactsCol(userId)
       .orderBy('addedAt', 'asc')
-      .onSnapshot((snapshot) => {
-        const contacts = hydrateAndSortContacts(snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Contact, 'id'>),
-        })));
-        onUpdate(contacts);
-      });
+      .onSnapshot(
+        (snapshot) => {
+          const contacts = hydrateAndSortContacts(snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Contact, 'id'>),
+          })));
+          onUpdate(contacts);
+        },
+        (error) => {
+          console.error('[ContactsService] Error al escuchar contactos:', error);
+          onError?.(error);
+        }
+      );
   },
 
   /* ============================================================================
