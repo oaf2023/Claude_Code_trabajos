@@ -86,8 +86,7 @@ export default function HomeScreen() {
             ? new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')
             : '';
 
-    const shouldShowAlertFeedback =
-      !!lastAlert && (alertPhase === 'sent' || alertPhase === 'error');
+  const shouldShowAlertFeedback = !!lastAlert;
 
   // Toggle Black Screen (Incognito)
   const toggleBlackScreen = () => {
@@ -188,7 +187,11 @@ export default function HomeScreen() {
       <TouchableOpacity 
         activeOpacity={1} 
         onLongPress={toggleBlackScreen} 
+        delayLongPress={5000}
         style={styles.blackScreen}
+        accessibilityRole="button"
+        accessibilityLabel="Salir del modo incógnito"
+        accessibilityHint="Mantén pulsado cinco segundos para volver a la pantalla principal"
       >
         <StatusBar hidden />
       </TouchableOpacity>
@@ -268,10 +271,10 @@ export default function HomeScreen() {
             style={styles.clearAlertButton}
             onPress={dismissAlertFeedback}
             accessibilityRole="button"
-            accessibilityLabel="Cerrar estado de alerta"
+            accessibilityLabel="Terminar alerta"
             accessibilityHint="Limpia el banner de estado y devuelve la pantalla principal al modo normal"
           >
-            <Text style={styles.clearAlertButtonText}>Cerrar estado de alerta</Text>
+            <Text style={styles.clearAlertButtonText}>TERMINAR ALERTA</Text>
           </TouchableOpacity>
         </View>
       ) : null}

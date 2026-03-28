@@ -12,7 +12,7 @@ import { Alert as AppAlert, AlertContact } from '../types/Alert';
 import { Contact } from '../types/Contact';
 import { LocationService } from './LocationService';
 import { AudioRecordingService } from './AudioRecordingService';
-import { alertsCol } from '../config/firebase';
+import { alertsCol, ensureAuthenticated } from '../config/firebase';
 import { SMS_PREFIX, SMS_TEST_PREFIX } from '../config/constants';
 import { useGuardStore } from '../stores/useGuardStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -125,7 +125,7 @@ export const AlertService = {
     const guardStore = useGuardStore.getState();
     const settings = useSettingsStore.getState();
     const contacts = getActiveContacts();
-    const userId = settings.userId;
+    const userId = settings.userId || (await ensureAuthenticated());
 
     if (contacts.length === 0) {
       throw new Error('No hay contactos activos');
@@ -134,6 +134,10 @@ export const AlertService = {
     if (!userId) {
       guardStore.setAlertPhase('error');
       throw new Error('La sesión no está lista. Reintenta en unos segundos.');
+    }
+
+    if (settings.userId !== userId) {
+      useSettingsStore.getState().setUserId(userId);
     }
 
     guardStore.setDetectedKeyword(isTest ? 'test' : triggerWord);

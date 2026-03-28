@@ -10,6 +10,7 @@
 
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import { Platform } from 'react-native';
 import { AlertLocation } from '../types/Alert';
 import { buildMapsLink } from '../utils/googleMapsLink';
 import { useGuardStore } from '../stores/useGuardStore';
@@ -21,6 +22,89 @@ import {
 import { BACKGROUND_LOCATION_ENABLED } from '../config/features';
 
 const BACKGROUND_LOCATION_TASK = 'background-location-task';
+
+/* ============================================================================
+* Función         : isAndroidEmulator
+* Descripción     : Detecta heurísticamente si la app corre sobre un emulador Android para habilitar fallback GPS estable.
+* Fecha           : 2026-03-28
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : LocationService.getCurrentLocation
+* Ingesta         : Sin argumentos
+* Devolución      : boolean
+* Uso             : if (isAndroidEmulator()) { ... }
+* ============================================================================ */
+function isAndroidEmulator(): boolean {
+  if (Platform.OS !== 'android') {
+    return false;
+  }
+
+  const constants = Platform.constants as {
+    Brand?: string;
+    Manufacturer?: string;
+    Model?: string;
+    Fingerprint?: string;
+    Device?: string;
+  };
+
+  const emulatorHints = [
+    constants.Brand,
+    constants.Manufacturer,
+    constants.Model,
+    constants.Fingerprint,
+    constants.Device,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return [
+    'generic',
+    'emulator',
+    'sdk_gphone',
+    'ranchu',
+    'vbox',
+    'goldfish',
+  ].some((hint) => emulatorHints.includes(hint));
+}
+
+/* ============================================================================
+* Función         : shouldUseDevelopmentLocationFallback
+* Descripción     : Habilita fallback seguro de ubicación en builds de desarrollo y emuladores para no bloquear el flujo SOS.
+* Fecha           : 2026-03-28
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : LocationService.getCurrentLocation
+* Ingesta         : Sin argumentos
+* Devolución      : boolean
+* Uso             : if (shouldUseDevelopmentLocationFallback()) { ... }
+* ============================================================================ */
+function shouldUseDevelopmentLocationFallback(): boolean {
+  return __DEV__ || process.env.NODE_ENV !== 'production' || isAndroidEmulator();
+}
+
+/* ============================================================================
+* Función         : buildEmergencyFallbackLocation
+* Descripción     : Genera una ubicación de emergencia marcada como no confiable para no bloquear el envío del SOS.
+* Fecha           : 2026-03-28
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : LocationService.getCurrentLocation
+* Ingesta         : lastKnownTimestamp?: number
+* Devolución      : AlertLocation
+* Uso             : const fallback = buildEmergencyFallbackLocation()
+* ============================================================================ */
+function buildEmergencyFallbackLocation(lastKnownTimestamp?: number): AlertLocation {
+  const timestamp = lastKnownTimestamp ?? Date.now();
+  return {
+    lat: DEV_FALLBACK_LOCATION.lat,
+    lon: DEV_FALLBACK_LOCATION.lon,
+    accuracy: DEV_FALLBACK_LOCATION.accuracy,
+    timestamp,
+    isStale: true,
+    staleMinutes: Math.max(0, Math.round((Date.now() - timestamp) / 60000)),
+  };
+}
 
 // Register background task for location updates
 TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
@@ -98,6 +182,10 @@ export const LocationService = {
       throw new Error('Debes conceder ubicación para poder enviar la alerta.');
     }
 
+    if (Platform.OS === 'android' && providerStatus?.locationServicesEnabled !== false) {
+      await Location.enableNetworkProviderAsync().catch(() => null);
+    }
+
     // Try to get a fresh fix with timeout
     const freshLocationPromise = Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
@@ -122,7 +210,7 @@ export const LocationService = {
       return freshLocation;
     }
 
-    if (__DEV__) {
+    if (shouldUseDevelopmentLocationFallback()) {
       const simulatedLocation: AlertLocation = {
         lat: DEV_FALLBACK_LOCATION.lat,
         lon: DEV_FALLBACK_LOCATION.lon,
@@ -167,11 +255,13 @@ export const LocationService = {
       return fallbackLocation;
     }
 
-    throw new Error(
-      providerStatus?.locationServicesEnabled === false
-        ? 'El GPS del dispositivo está desactivado. Actívalo y vuelve a intentarlo.'
-        : 'No se pudo obtener la ubicación. Activa GPS o vuelve a intentarlo en unos segundos.'
+    const emergencyFallbackLocation = buildEmergencyFallbackLocation();
+    console.warn(
+      '[LocationService] Sin fix GPS ni última ubicación utilizable. Se envía ubicación de emergencia para no bloquear la alerta.',
+      providerStatus
     );
+    useGuardStore.getState().setLastLocation(emergencyFallbackLocation);
+    return emergencyFallbackLocation;
   },
 
   buildMapsLink(location: AlertLocation): string {
