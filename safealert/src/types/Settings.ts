@@ -3,6 +3,8 @@ export interface AppSettings {
   messageTemplate: string;
   audioEnabled: boolean;
   hasSubscription: boolean;
+  // true cuando el usuario cerró el aviso de suscripción vencida sin pagar
+  paymentOverdue: boolean;
   guardModeEnabled: boolean;
   reminderNotificationsEnabled: boolean;
   reminderHour: number;
@@ -16,6 +18,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     '{name} necesita ayuda urgente! Ubicación: {location} — Hora: {time}',
   audioEnabled: true,
   hasSubscription: false,
+  paymentOverdue: false,
   guardModeEnabled: false,
   reminderNotificationsEnabled: false,
   reminderHour: 9,

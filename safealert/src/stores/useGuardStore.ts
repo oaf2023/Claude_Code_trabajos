@@ -27,14 +27,21 @@ interface GuardState {
   alertPhase: AlertPhase;
   countdownSeconds: number;
   detectedKeyword: string | null;
+  guardStatusMessage: string | null;
+  lastHeardTranscript: string | null;
   lastLocation: AlertLocation | null;
   lastAlert: AppAlert | null;
+  // true cuando la última alerta se envió solo al contacto principal por pago vencido
+  showOverdueAlert: boolean;
   setArmed: (value: boolean) => void;
   setAlertPhase: (phase: AlertPhase) => void;
   setCountdownSeconds: (seconds: number) => void;
   setDetectedKeyword: (keyword: string | null) => void;
+  setGuardStatusMessage: (message: string | null) => void;
+  setLastHeardTranscript: (transcript: string | null) => void;
   setLastLocation: (location: AlertLocation | null) => void;
   setLastAlert: (alert: AppAlert | null) => void;
+  setShowOverdueAlert: (value: boolean) => void;
   resetAlertState: () => void;
 }
 
@@ -45,20 +52,28 @@ export const useGuardStore = create<GuardState>()(
       alertPhase: 'idle',
       countdownSeconds: ALERT_COUNTDOWN_SECONDS,
       detectedKeyword: null,
+      guardStatusMessage: null,
+      lastHeardTranscript: null,
       lastLocation: null,
       lastAlert: null,
+      showOverdueAlert: false,
 
       setArmed: (value) => set({ isArmed: value }),
       setAlertPhase: (phase) => set({ alertPhase: phase }),
       setCountdownSeconds: (seconds) => set({ countdownSeconds: seconds }),
       setDetectedKeyword: (keyword) => set({ detectedKeyword: keyword }),
+      setGuardStatusMessage: (guardStatusMessage) => set({ guardStatusMessage }),
+      setLastHeardTranscript: (lastHeardTranscript) => set({ lastHeardTranscript }),
       setLastLocation: (location) => set({ lastLocation: location }),
       setLastAlert: (alert) => set({ lastAlert: alert }),
+      setShowOverdueAlert: (value) => set({ showOverdueAlert: value }),
       resetAlertState: () =>
         set({
           alertPhase: 'idle',
           countdownSeconds: ALERT_COUNTDOWN_SECONDS,
           detectedKeyword: null,
+          guardStatusMessage: null,
+          lastHeardTranscript: null,
         }),
     }),
     {

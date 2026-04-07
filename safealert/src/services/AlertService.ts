@@ -124,11 +124,23 @@ export const AlertService = {
   ): Promise<{ alertId: string; assistedCallPhone: string | null }> {
     const guardStore = useGuardStore.getState();
     const settings = useSettingsStore.getState();
-    const contacts = getActiveContacts();
+    const allActiveContacts = getActiveContacts();
     const userId = settings.userId || (await ensureAuthenticated());
 
-    if (contacts.length === 0) {
+    if (allActiveContacts.length === 0) {
       throw new Error('No hay contactos activos');
+    }
+
+    // Si no tiene suscripción vigente y no es alerta de prueba:
+    // enviar ÚNICAMENTE al contacto principal (priority mínimo) y señalizar
+    // que se debe mostrar el aviso de pago vencido.
+    let contacts: ReturnType<typeof getActiveContacts>;
+    if (!settings.hasSubscription && !isTest) {
+      const sorted = [...allActiveContacts].sort((a, b) => a.priority - b.priority);
+      contacts = [sorted[0]];
+      guardStore.setShowOverdueAlert(true);
+    } else {
+      contacts = allActiveContacts;
     }
 
     if (!userId) {

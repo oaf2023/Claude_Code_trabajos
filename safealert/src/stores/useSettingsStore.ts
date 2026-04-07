@@ -8,12 +8,15 @@ interface SettingsState extends AppSettings {
   isOnboarded: boolean;
   userName: string;
   userPhone: string;
+  userSelfieUrl: string | null;
   updateSettings: (patch: Partial<AppSettings>) => void;
   setUserId: (id: string) => void;
   setOnboarded: (value: boolean) => void;
   setUserName: (name: string) => void;
   setUserPhone: (phone: string) => void;
+  setUserSelfieUrl: (url: string) => void;
   setHasSubscription: (value: boolean) => void;
+  setPaymentOverdue: (value: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -24,13 +27,16 @@ export const useSettingsStore = create<SettingsState>()(
       isOnboarded: false,
       userName: '',
       userPhone: '',
+      userSelfieUrl: null,
 
       updateSettings: (patch) => set((state) => ({ ...state, ...patch })),
       setUserId: (userId) => set({ userId }),
       setOnboarded: (isOnboarded) => set({ isOnboarded }),
       setUserName: (userName) => set({ userName }),
       setUserPhone: (userPhone) => set({ userPhone }),
+      setUserSelfieUrl: (userSelfieUrl) => set({ userSelfieUrl }),
       setHasSubscription: (hasSubscription) => set({ hasSubscription }),
+      setPaymentOverdue: (paymentOverdue) => set({ paymentOverdue }),
     }),
     {
       name: 'safealert-settings',
@@ -39,10 +45,12 @@ export const useSettingsStore = create<SettingsState>()(
         isOnboarded: state.isOnboarded,
         userName: state.userName,
         userPhone: state.userPhone,
+        userSelfieUrl: state.userSelfieUrl,
         triggerWords: state.triggerWords,
         messageTemplate: state.messageTemplate,
         audioEnabled: state.audioEnabled,
         hasSubscription: state.hasSubscription,
+        paymentOverdue: state.paymentOverdue,
         alertCountdownSeconds: state.alertCountdownSeconds,
         wakeWordSensitivity: state.wakeWordSensitivity,
       }),

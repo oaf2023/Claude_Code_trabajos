@@ -26,6 +26,9 @@ import { COLORS } from '../src/config/constants';
 import { AUTHENTICATION_TIMEOUT_MS } from '../src/config/features';
 import { NotificationService } from '../src/services/NotificationService';
 import { WakeWordService } from '../src/services/WakeWordService';
+import { PaymentOverdueModal } from '../src/components/PaymentOverdueModal';
+import { PaymentModal } from '../src/components/PaymentModal';
+import { DeviceService } from '../src/services/DeviceService';
 
 /* ============================================================================
 * Función         : runWhenIdle
@@ -76,12 +79,49 @@ export default function RootLayout() {
   const [listo, setListo] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  // ── Estado de modales de pago vencido ──────────────────────────────────────
+  const paymentOverdue = useSettingsStore((s) => s.paymentOverdue);
+  const hasSubscription = useSettingsStore((s) => s.hasSubscription);
+  const setHasSubscription = useSettingsStore((s) => s.setHasSubscription);
+  const setPaymentOverdue = useSettingsStore((s) => s.setPaymentOverdue);
+  const userName = useSettingsStore((s) => s.userName ?? '');
+  const userPhoneForPayment = useSettingsStore((s) => s.userPhone ?? '');
+  const showOverdueAlert = useGuardStore((s) => s.showOverdueAlert);
+  const setShowOverdueAlert = useGuardStore((s) => s.setShowOverdueAlert);
+
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
+  const [overdueIsAfterAlert, setOverdueIsAfterAlert] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [deviceId, setDeviceId] = useState('');
+
   // Ocultar splash screen nativa al montar el componente.
   // expo-router sólo llama SplashScreen.hideAsync() cuando <Stack> monta pero
   // nuestro return anticipado (spinner) lo impide → la splash blanca persiste.
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
   }, []);
+
+  // Cargar deviceId para el modal de pago
+  useEffect(() => {
+    DeviceService.getDeviceId().then(setDeviceId).catch(() => {});
+  }, []);
+
+  // Mostrar aviso de pago vencido al abrir la app si hay deuda registrada
+  useEffect(() => {
+    if (listo && isOnboarded && paymentOverdue && !hasSubscription) {
+      setOverdueIsAfterAlert(false);
+      setShowOverdueModal(true);
+    }
+  }, [listo, isOnboarded, paymentOverdue, hasSubscription]);
+
+  // Mostrar aviso cuando AlertService disparó alerta con pago vencido
+  useEffect(() => {
+    if (showOverdueAlert) {
+      setOverdueIsAfterAlert(true);
+      setShowOverdueModal(true);
+      setShowOverdueAlert(false);
+    }
+  }, [showOverdueAlert, setShowOverdueAlert]);
 
   useEffect(() => {
     if (!__DEV__) {
@@ -271,6 +311,33 @@ export default function RootLayout() {
           options={{ title: 'Probar Alerta', presentation: 'modal' }}
         />
       </Stack>
+
+      {/* Modal global: aviso de suscripción vencida */}
+      <PaymentOverdueModal
+        visible={showOverdueModal}
+        afterAlert={overdueIsAfterAlert}
+        onPay={() => {
+          setShowOverdueModal(false);
+          setShowPaymentModal(true);
+        }}
+        onDismissed={() => {
+          setShowOverdueModal(false);
+        }}
+      />
+
+      {/* Modal global: pasarela de pago */}
+      <PaymentModal
+        visible={showPaymentModal}
+        deviceId={deviceId}
+        userName={userName}
+        userPhone={userPhoneForPayment}
+        onClose={() => setShowPaymentModal(false)}
+        onSuccess={() => {
+          setShowPaymentModal(false);
+          setHasSubscription(true);
+          setPaymentOverdue(false);
+        }}
+      />
     </>
   );
 }
