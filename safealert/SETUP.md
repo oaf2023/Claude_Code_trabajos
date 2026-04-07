@@ -90,6 +90,64 @@ o en iOS:
 npx expo run:ios
 ```
 
+## Distribucion Android
+
+### 1. Preparar firma release
+
+- Crear un keystore de produccion fuera del repositorio.
+- Configurar estas variables en el entorno local o CI antes de compilar release:
+
+```bash
+MYAPP_RELEASE_STORE_FILE=C:/ruta-segura/safealert-release.keystore
+MYAPP_RELEASE_STORE_PASSWORD=tu_password
+MYAPP_RELEASE_KEY_ALIAS=tu_alias
+MYAPP_RELEASE_KEY_PASSWORD=tu_password_de_clave
+```
+
+- Si esas variables no estan definidas, Android usa la firma debug solo como fallback para pruebas internas.
+
+### 2. Generar APK para instalar por QR
+
+```bash
+npx eas build -p android --profile preview
+```
+
+- El perfil `preview` genera una APK instalable.
+- Subi esa APK a un hosting estable y genera un QR a la URL de descarga.
+- En el dispositivo Android hay que habilitar la instalacion desde origen desconocido la primera vez.
+
+### 3. Generar AAB para Google Play
+
+```bash
+npx eas build -p android --profile production
+```
+
+- El perfil `production` genera un Android App Bundle listo para Google Play Internal Testing o publicacion posterior.
+- Incrementa `versionCode` en cada release Android antes de publicar una nueva build.
+
+### 4. Comandos utiles
+
+```bash
+npm run build:android:preview
+npm run build:android:production
+```
+
+### 5. Automatizar keystore y QR
+
+Crear keystore release:
+
+```bash
+pwsh -File .\scripts\New-AndroidReleaseKeystore.ps1 -KeystorePath C:\secure\safealert-release.keystore -KeyAlias safealert-release
+```
+
+Generar landing con QR a una APK ya publicada:
+
+```bash
+pwsh -File .\scripts\New-AndroidInstallQr.ps1 -DownloadUrl https://mi-host/safealert.apk -Version 1.0.0
+```
+
+Esto escribe una landing HTML en `dist/android-distribution/` para subirla al hosting que uses.
+
 ## Flujo de alerta vigente
 
 1. El usuario pulsa SOS manual.

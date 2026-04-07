@@ -1,0 +1,12 @@
+{
+  "appName": "SafeAlert",
+  "slug": "safealert",
+  "scheme": "safealert",
+  "androidPackage": "com.safealert.app",
+  "version": "1.0.0",
+  "versionCode": "1",
+  "versionName": "1.0.0",
+  "easProjectId": "73c6606f-12cc-49fd-8ae8-1f198f1f198f",
+  "generatedAt": "2026-03-28T17:33:42",
+  "copiedAab": "C:\\Claude_Code_trabajos\\safealert\\Publicar\\artefactos\\app-release.aab"
+}
