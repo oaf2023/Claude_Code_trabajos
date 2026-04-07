@@ -33,11 +33,13 @@ import functions from '@react-native-firebase/functions';
 import { PaymentService, PlanType } from '../services/PaymentService';
 import { PaymentTicket, TicketData } from './PaymentTicket';
 import { COLORS } from '../config/constants';
+import { PAYMENTS_ENABLED } from '../config/features';
 
 // ─── En builds de desarrollo se omite MercadoPago ────────────────────────────
-// __DEV__ es true cuando Metro está corriendo (emulador o dispositivo físico
-// en modo debug). En release APK __DEV__ es false y el flujo real se ejecuta.
-const DEV_BYPASS_PAYMENT = __DEV__;
+// DEV_BYPASS_PAYMENT es true cuando PAYMENTS_ENABLED=false (pasarela desactivada
+// por env) o cuando __DEV__ es true (Metro corriendo). Esto evita depender
+// únicamente de __DEV__ que Hermes puede optimizar a false en assembleDebug.
+const DEV_BYPASS_PAYMENT = __DEV__ || !PAYMENTS_ENABLED;
 
 interface PaymentModalProps {
   visible: boolean;
