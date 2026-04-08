@@ -16,7 +16,22 @@ const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || 'TEST-0000000000000000-00
 const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
 
 export const mpWebhook = onRequest(async (req, res) => {
-  const { type, 'data.id': dataId } = req.query;
+  const { type, 'data.id': dataId, action } = req.query;
+
+  // Manejo de suscripciones (preapproval)
+  if (type === 'subscription_preapproval' || action === 'subscription_preapproval.created' || action === 'subscription_preapproval.updated') {
+    const preapprovalId = dataId || req.body?.data?.id;
+    if (preapprovalId) {
+      try {
+        // En un entorno real, usaríamos client.preapproval.get({ id: preapprovalId })
+        // Por ahora simulamos la activación basada en el evento
+        console.log(`[mpWebhook] Procesando suscripción preapproval: ${preapprovalId}`);
+        // Lógica para marcar al usuario como suscrito en Firestore
+      } catch (error) {
+        console.error('[mpWebhook] Error procesando suscripción:', error);
+      }
+    }
+  }
 
   if (type === 'payment' && dataId) {
     try {

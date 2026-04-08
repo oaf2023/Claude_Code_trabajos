@@ -21,8 +21,8 @@ export const COLLECTION_ALERTS = 'alerts';
 export const COLLECTION_SETTINGS = 'settings';
 
 // SMS message format
-export const SMS_PREFIX = '[SAFEALERT]';
-export const SMS_TEST_PREFIX = '[SAFEALERT-TEST]';
+export const SMS_PREFIX = '🚨 AVISO';
+export const SMS_TEST_PREFIX = '🧪 PRUEBA';
 
 // Colors
 export const COLORS = {

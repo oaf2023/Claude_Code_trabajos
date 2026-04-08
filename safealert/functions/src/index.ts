@@ -7,3 +7,4 @@ export { sendAlertSMS, sendAudioFollowUp, sendLocationPulseUpdate } from './send
 export { cleanupOldAlerts } from './cleanupOldAlerts';
 export { createPaymentOrder } from './createPaymentOrder';
 export { mpWebhook } from './mpWebhook';
+export { syncUserToPythonAnywhere } from './users';
