@@ -5,7 +5,7 @@
 - Nombre: SafeAlert
 - Slug Expo: safealert
 - Scheme: safealert
-- Version actual: 1.0.0
+- Version actual: 1.1.0
 - Package Android: com.safealert.app
 - Project ID EAS: 73c6606f-12cc-49fd-8ae8-1f198f1f198f
 
@@ -28,9 +28,10 @@
 
 - applicationId: com.safealert.app
 - namespace: com.safealert.app
-- versionCode: 1
-- versionName: 1.0.0
+- versionCode: 2
+- versionName: 1.1.0
 
 ## Accion requerida antes de nueva subida
 
 - Incrementar `versionCode` antes de publicar cualquier nueva build en Google Play.
+- El versionCode debe ser siempre mayor al de la build anterior subida a Play Console.

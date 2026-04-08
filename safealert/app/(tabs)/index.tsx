@@ -23,19 +23,89 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { WakeWordService } from '../../src/services/WakeWordService';
+import { DeviceService } from '../../src/services/DeviceService';
+import { PaymentService } from '../../src/services/PaymentService';
+import { PaymentModal } from '../../src/components/PaymentModal';
 import { useGuardStore } from '../../src/stores/useGuardStore';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
 import { COLORS } from '../../src/config/constants';
-import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
+import { buildVisibleTriggerWords } from '../../src/utils/triggerWords';
+import {
+  REMOTE_AUDIO_GUARD_CONFIGURED,
+  WAKE_WORD_FOREGROUND_ONLY,
+} from '../../src/config/features';
 
+/* ============================================================================
+* Función         : resolveGuardButtonCopy
+* Descripción     : Traduce el estado operativo de guardia a una etiqueta breve para el botón principal.
+* Fecha           : 2026-03-30
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : HomeScreen, guardStatusMessage, alertPhase
+* Ingesta         : isArmed: boolean, alertPhase: string, guardStatusMessage: string | null
+* Devolución      : { icon: string; label: string }
+* Uso             : resolveGuardButtonCopy(isArmed, alertPhase, guardStatusMessage)
+* ============================================================================ */
+function resolveGuardButtonCopy(
+  isArmed: boolean,
+  alertPhase: string,
+  guardStatusMessage: string | null
+): { icon: string; label: string } {
+  if (!isArmed) {
+    return { icon: '🔓', label: 'ACTIVAR\nGUARDIA' };
+  }
+
+  if (alertPhase === 'countdown') {
+    return { icon: '⚠️', label: 'ALERTA\nDETECTADA' };
+  }
+
+  if (alertPhase === 'capturing' || alertPhase === 'sending') {
+    return { icon: '📤', label: 'ENVIANDO\nALERTA' };
+  }
+
+  const normalizedStatus = (guardStatusMessage || '').toLowerCase();
+
+  if (normalizedStatus.includes('analizando')) {
+    return { icon: '🧠', label: 'ANALIZANDO\nAUDIO' };
+  }
+
+  if (normalizedStatus.includes('detecté') || normalizedStatus.includes('coincidencia')) {
+    return { icon: '🚨', label: 'ALERTA\nPOR VOZ' };
+  }
+
+  if (normalizedStatus.includes('grab')) {
+    return { icon: '🎙️', label: 'GRABANDO\nAUDIO' };
+  }
+
+  if (normalizedStatus.includes('problema') || normalizedStatus.includes('error')) {
+    return { icon: '⚠️', label: 'REVISAR\nGUARDIA' };
+  }
+
+  return { icon: '🛡️', label: 'GUARDIA\nACTIVA' };
+}
+
+/* ============================================================================
+
+* Función         : HomeScreen
+* Descripción     : Renderiza la pantalla principal y resume las palabras de activación configuradas.
+* Fecha           : 2026-03-30
+* Versión         : 1.1.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : useGuardStore, useSettingsStore, useAlert, WakeWordService
+* Ingesta         : Sin argumentos
+* Devolución      : JSX.Element
+* Uso             : Pantalla principal accesible desde la tab Inicio.
+* ============================================================================ */
 export default function HomeScreen() {
   const isArmed = useGuardStore((s) => s.isArmed);
   const setArmed = useGuardStore((s) => s.setArmed);
   const resetAlertState = useGuardStore((s) => s.resetAlertState);
   const setLastAlert = useGuardStore((s) => s.setLastAlert);
+  const guardStatusMessage = useGuardStore((s) => s.guardStatusMessage);
+  const lastHeardTranscript = useGuardStore((s) => s.lastHeardTranscript);
 
   const {
     alertPhase,
@@ -51,11 +121,34 @@ export default function HomeScreen() {
   const contacts = useContactsStore((s) => s.contacts);
   const activeCount = contacts.filter((c) => c.active).length;
   const userId = useSettingsStore((s) => s.userId);
+  const triggerWords = useSettingsStore((s) => s.triggerWords);
+  const hasSubscription = useSettingsStore((s) => s.hasSubscription);
+  const userName = useSettingsStore((s) => s.userName ?? '');
+  const userPhone = useSettingsStore((s) => s.userPhone ?? '');
+  const visibleTriggerWords = buildVisibleTriggerWords(triggerWords);
   const wakeWordAvailable = WakeWordService.isAvailable();
+  const guardEngineLabel = REMOTE_AUDIO_GUARD_CONFIGURED
+    ? 'API remota de audio'
+    : 'motor local de wake word';
+  const guardButtonCopy = resolveGuardButtonCopy(
+    isArmed,
+    alertPhase,
+    guardStatusMessage
+  );
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const [isSendingManual, setIsSendingManual] = useState(false);
   const [isBlackScreen, setIsBlackScreen] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [deviceId, setDeviceId] = useState('');
+
+  // Cargar device ID y verificar suscripción al montar
+  useEffect(() => {
+    DeviceService.getDeviceId().then((id) => {
+      setDeviceId(id);
+      PaymentService.checkSubscription(id);
+    });
+  }, []);
 
   const dismissAlertFeedback = () => {
     resetAlertState();
@@ -138,6 +231,11 @@ export default function HomeScreen() {
       await WakeWordService.stop();
       setArmed(false);
     } else {
+      // Verificar suscripción antes de activar guardia
+      if (!hasSubscription) {
+        setShowPayment(true);
+        return;
+      }
       try {
         await WakeWordService.start();
         setArmed(true);
@@ -168,6 +266,11 @@ export default function HomeScreen() {
 
     if (activeCount === 0) {
       Alert.alert('Sin contactos', 'Agrega contactos de confianza primero.');
+      return;
+    }
+    // Verificar suscripción antes de enviar alerta manual
+    if (!hasSubscription) {
+      setShowPayment(true);
       return;
     }
     setIsSendingManual(true);
@@ -304,9 +407,9 @@ export default function HomeScreen() {
               accessibilityLabel={isArmed ? 'Desactivar modo guardia' : 'Activar modo guardia'}
               accessibilityHint="Controla la escucha automática solo cuando la función está disponible"
             >
-              <Text style={styles.guardButtonIcon}>{isArmed ? '🛡️' : '🔓'}</Text>
+              <Text style={styles.guardButtonIcon}>{guardButtonCopy.icon}</Text>
               <Text style={styles.guardButtonText}>
-                {isArmed ? 'DESACTIVAR\nGUARDIA' : 'ACTIVAR\nGUARDIA'}
+                {guardButtonCopy.label}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -317,6 +420,22 @@ export default function HomeScreen() {
                 ? 'La detección automática está activa mientras SafeAlert permanece abierto en Android.'
                 : 'La detección automática está activa para esta compilación.'}
             </Text>
+          ) : null}
+
+          <Text style={styles.guardHint}>
+            Motor activo: {guardEngineLabel}
+          </Text>
+
+          {isArmed && guardStatusMessage ? (
+            <View style={styles.guardStatusCard}>
+              <Text style={styles.guardStatusTitle}>Estado de escucha</Text>
+              <Text style={styles.guardStatusText}>{guardStatusMessage}</Text>
+              {lastHeardTranscript ? (
+                <Text style={styles.guardTranscriptText}>
+                  Te escuché: "{lastHeardTranscript}"
+                </Text>
+              ) : null}
+            </View>
           ) : null}
         </View>
       ) : (
@@ -399,8 +518,11 @@ export default function HomeScreen() {
       {wakeWordAvailable ? (
         <View style={styles.keywordsCard}>
           <Text style={styles.keywordsTitle}>Palabras de activación</Text>
+          <Text style={styles.keywordsSummary}>
+            {visibleTriggerWords.join(' · ')}
+          </Text>
           <View style={styles.keywordsList}>
-            {['ayuda', 'socorro', 'auxilio'].map((word) => (
+            {visibleTriggerWords.map((word) => (
               <View key={word} style={styles.keywordBadge}>
                 <Text style={styles.keywordBadgeText}>{word}</Text>
               </View>
@@ -415,6 +537,19 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       ) : null}
+
+      {/* Modal de suscripción */}
+      <PaymentModal
+        visible={showPayment}
+        deviceId={deviceId}
+        userName={userName}
+        userPhone={userPhone}
+        onClose={() => setShowPayment(false)}
+        onSuccess={() => {
+          setShowPayment(false);
+          useSettingsStore.getState().setHasSubscription(true);
+        }}
+      />
     </ScrollView>
   );
 }
@@ -584,6 +719,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+  guardStatusCard: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    gap: 6,
+  },
+  guardStatusTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  guardStatusText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 20,
+  },
+  guardTranscriptText: {
+    fontSize: 13,
+    color: COLORS.safe,
+    lineHeight: 18,
+  },
   guardUnavailableCard: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
@@ -660,6 +819,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   keywordsTitle: { fontSize: 14, fontWeight: '600', color: COLORS.text },
+  keywordsSummary: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: COLORS.textMuted,
+  },
   keywordsList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   keywordBadge: {
     backgroundColor: COLORS.dangerLight,

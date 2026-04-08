@@ -23,10 +23,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import functions from '@react-native-firebase/functions';
 import { useContacts } from '../../src/hooks/useContacts';
 import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
+import { DeviceService } from '../../src/services/DeviceService';
 import { isValidPhone } from '../../src/utils/formatPhone';
 import { COLORS } from '../../src/config/constants';
 import {
@@ -63,8 +63,15 @@ export default function AddEditContactScreen() {
 
   // Payment states
   const [showPayment, setShowPayment] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-  const hasSubscription = useSettingsStore(s => s.hasSubscription); // Asumiremos que extendemos settingsStore o consultamos directo
+  const [deviceId, setDeviceId] = useState('');
+  const { contacts } = useContactsStore();
+  const hasSubscription = useSettingsStore(s => s.hasSubscription);
+  const userName = useSettingsStore(s => s.userName ?? '');
+  const userPhone = useSettingsStore(s => s.userPhone ?? '');
+
+  useEffect(() => {
+    DeviceService.getDeviceId().then(setDeviceId);
+  }, []);
 
   useEffect(() => {
     if (!isNew && existingContact) {
@@ -114,30 +121,13 @@ export default function AddEditContactScreen() {
       await performActualSave();
       return;
     }
-    
-    // Si no tiene suscripción y es el primer contacto (o nueva suscripción), interceptamos.
-    if (!hasSubscription) {
-      setSaving(true);
-      try {
-        const createPayment = functions().httpsCallable('createPaymentOrder');
-        const response = await createPayment({
-          userName: name.trim(),
-          phoneNumber: phone,
-        });
 
-        const data = response.data as any;
-        if (data.success && data.initPoint) {
-          setPaymentUrl(data.initPoint);
-          setShowPayment(true);
-        } else {
-          Alert.alert('Error', 'No se pudo iniciar el proceso de pago.');
-        }
-      } catch (e: any) {
-        Alert.alert('Error de pago', e.message || 'Error conectando con Mercado Pago.');
-      } finally {
-        setSaving(false);
-      }
-      return; // Detenemos el guardado hasta que complete el pago
+    // Primer contacto gratis; a partir del segundo se requiere suscripción
+    const isFirstContact = contacts.length === 0 && isNew;
+
+    if (!hasSubscription && !isFirstContact) {
+      setShowPayment(true);
+      return;
     }
 
     await performActualSave();
@@ -174,7 +164,7 @@ export default function AddEditContactScreen() {
   const handlePaymentSuccess = async () => {
     setShowPayment(false);
     useSettingsStore.getState().setHasSubscription(true);
-    Alert.alert('¡Pago completado!', 'Guardando tu contacto...', [
+    Alert.alert('¡Suscripción activa!', 'Guardando tu contacto...', [
       { text: 'OK', onPress: () => performActualSave() }
     ]);
   };
@@ -276,7 +266,9 @@ export default function AddEditContactScreen() {
         {PAYMENTS_ENABLED ? (
           <PaymentModal
             visible={showPayment}
-            paymentUrl={paymentUrl}
+            deviceId={deviceId}
+            userName={userName || name.trim()}
+            userPhone={userPhone || phone}
             onClose={() => setShowPayment(false)}
             onSuccess={handlePaymentSuccess}
           />

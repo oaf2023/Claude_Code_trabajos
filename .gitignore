@@ -29,3 +29,9 @@ safealert/functions/.env
 safealert/*.tsbuildinfo
 safealert/ios
 safealert/android
+
+*.aab
+*.apk
+
+*.aab
+*.apk

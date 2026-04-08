@@ -15,6 +15,8 @@ import {
 } from 'react-native-wakeword';
 import { ALERT_COUNTDOWN_SECONDS } from '../config/constants';
 import {
+  AUDIO_GUARD_CHUNK_MS,
+  REMOTE_AUDIO_GUARD_CONFIGURED,
   WAKE_WORD_DISABLED_REASON,
   WAKE_WORD_FOREGROUND_ONLY,
   WAKE_WORD_LICENSE_KEY,
@@ -23,6 +25,8 @@ import {
 import { useGuardStore } from '../stores/useGuardStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { AlertService } from './AlertService';
+import { AudioAlertApiService } from './AudioAlertApiService';
+import { AudioRecordingService } from './AudioRecordingService';
 import { PermissionsService } from './PermissionsService';
 
 /* ============================================================================
@@ -81,6 +85,8 @@ class WakeWordServiceClass {
   private initializationPromise: Promise<void> | null = null;
   private fallbackToSimulation = false;
   private isRunning = false;
+  private remoteLoopPromise: Promise<void> | null = null;
+  private remoteLoopSession = 0;
   private runtimeUnavailableReason: string | null = null;
 
   constructor() {
@@ -112,6 +118,11 @@ class WakeWordServiceClass {
       throw new Error(
         'Debes conceder acceso al micrófono para activar la vigilancia por voz.'
       );
+    }
+
+    if (this.shouldUseRemoteAudioGuard()) {
+      await this.startDetection();
+      return;
     }
 
     await this.initializeNativeBridge();
@@ -200,6 +211,29 @@ class WakeWordServiceClass {
     return Math.min(Math.max(configured, 0.3), 0.95);
   }
 
+  private setGuardFeedback(message: string | null, transcript?: string | null): void {
+    const guardStore = useGuardStore.getState();
+    guardStore.setGuardStatusMessage(message);
+    if (transcript !== undefined) {
+      guardStore.setLastHeardTranscript(transcript);
+    }
+  }
+
+  /* ============================================================================
+  * Función         : shouldUseRemoteAudioGuard
+  * Descripción     : Determina si el modo guardia debe usar detección remota por audio.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : start, startDetection
+  * Ingesta         : Sin argumentos
+  * Devolución      : boolean
+  * Uso             : this.shouldUseRemoteAudioGuard()
+  * ============================================================================ */
+  private shouldUseRemoteAudioGuard(): boolean {
+    return REMOTE_AUDIO_GUARD_CONFIGURED && AudioAlertApiService.isConfigured();
+  }
+
   private async initializeNativeBridge(): Promise<void> {
     if (this.bridgeInstance || this.fallbackToSimulation) {
       return;
@@ -229,6 +263,7 @@ class WakeWordServiceClass {
       this.bridgeInstance = instance;
       this.fallbackToSimulation = false;
       this.runtimeUnavailableReason = null;
+      this.setGuardFeedback('Guardia por voz lista para escuchar.', null);
     })()
       .catch((error: unknown) => {
         this.bridgeInstance = null;
@@ -261,6 +296,11 @@ class WakeWordServiceClass {
   private async startDetection(): Promise<void> {
     if (this.isRunning) return;
 
+    if (this.shouldUseRemoteAudioGuard()) {
+      await this.startRemoteAudioGuard();
+      return;
+    }
+
     try {
       if (!this.bridgeInstance) {
         await this.initializeNativeBridge();
@@ -272,6 +312,7 @@ class WakeWordServiceClass {
         useGuardStore.getState().setArmed(true);
         useSettingsStore.getState().updateSettings({ guardModeEnabled: true });
         this.runtimeUnavailableReason = null;
+        this.setGuardFeedback('Modo guardia simulado activo. La detección automática real no está disponible.', null);
         return;
       }
 
@@ -285,6 +326,7 @@ class WakeWordServiceClass {
       useGuardStore.getState().setArmed(true);
       useSettingsStore.getState().updateSettings({ guardModeEnabled: true });
       this.runtimeUnavailableReason = null;
+      this.setGuardFeedback('Escuchando palabras de activación...', null);
     } catch (error) {
       this.isRunning = false;
       const message =
@@ -313,6 +355,14 @@ class WakeWordServiceClass {
   }
 
   private async suspendDetection(): Promise<void> {
+    if (this.shouldUseRemoteAudioGuard()) {
+      this.remoteLoopSession += 1;
+      this.isRunning = false;
+      await AudioRecordingService.cancelSnippetRecording();
+      this.setGuardFeedback(null, null);
+      return;
+    }
+
     if (this.fallbackToSimulation) {
       this.isRunning = false;
       return;
@@ -337,7 +387,124 @@ class WakeWordServiceClass {
     }
 
     await this.suspendDetection();
-    this.startCountdown(normalizeDetectedKeyword(rawKeyword));
+    const detectedKeyword = normalizeDetectedKeyword(rawKeyword);
+    this.setGuardFeedback(
+      `Coincidencia detectada: ${detectedKeyword}. Enviando alerta...`,
+      rawKeyword
+    );
+    useGuardStore.getState().setDetectedKeyword(detectedKeyword);
+    void this.dispatchDetectedAlert(detectedKeyword);
+  }
+
+  /* ============================================================================
+  * Función         : startRemoteAudioGuard
+  * Descripción     : Inicia el loop de detección remota por chunks de audio.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : AudioRecordingService, AudioAlertApiService, useGuardStore
+  * Ingesta         : Sin argumentos
+  * Devolución      : Promise<void>
+  * Uso             : await this.startRemoteAudioGuard()
+  * ============================================================================ */
+  private async startRemoteAudioGuard(): Promise<void> {
+    if (this.isRunning) {
+      return;
+    }
+
+    const sessionId = this.remoteLoopSession + 1;
+    this.remoteLoopSession = sessionId;
+    this.isRunning = true;
+    this.runtimeUnavailableReason = null;
+    useGuardStore.getState().setArmed(true);
+    useSettingsStore.getState().updateSettings({ guardModeEnabled: true });
+    this.setGuardFeedback('Guardia lista. Voy grabando fragmentos cortos para detectar una frase de ayuda.', null);
+
+    console.log('[WakeWordService] Iniciando guardia remota por audio...', {
+      sessionId,
+      chunkMs: AUDIO_GUARD_CHUNK_MS,
+    });
+
+    const loopPromise = this.runRemoteAudioGuardLoop(sessionId).finally(() => {
+      if (this.remoteLoopPromise === loopPromise) {
+        this.remoteLoopPromise = null;
+      }
+    });
+    this.remoteLoopPromise = loopPromise;
+  }
+
+  /* ============================================================================
+  * Función         : runRemoteAudioGuardLoop
+  * Descripción     : Ejecuta la escucha remota por audio mientras el modo guardia permanezca activo.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : AudioRecordingService, AudioAlertApiService, startCountdown
+  * Ingesta         : sessionId: number
+  * Devolución      : Promise<void>
+  * Uso             : void this.runRemoteAudioGuardLoop(sessionId)
+  * ============================================================================ */
+  private async runRemoteAudioGuardLoop(sessionId: number): Promise<void> {
+    while (
+      this.remoteLoopSession === sessionId &&
+      useGuardStore.getState().isArmed &&
+      AppState.currentState === 'active'
+    ) {
+      try {
+        this.setGuardFeedback('Grabando 2 segundos de audio...', null);
+        const snippet = await AudioRecordingService.recordSnippet(AUDIO_GUARD_CHUNK_MS);
+        if (!snippet || this.remoteLoopSession !== sessionId) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+          continue;
+        }
+
+        const configuredWords = useSettingsStore.getState().triggerWords;
+        this.setGuardFeedback('Analizando el audio grabado...', null);
+        const detection = await AudioAlertApiService.detectAlertFromFile(
+          snippet.uri,
+          configuredWords
+        );
+
+        if (this.remoteLoopSession !== sessionId) {
+          return;
+        }
+
+        if (detection.alertDetected) {
+          this.remoteLoopSession += 1;
+          this.isRunning = false;
+          const detectedKeyword =
+            detection.matchedKeyword || normalizeDetectedKeyword(detection.transcript);
+          console.log('[WakeWordService] Alerta detectada por audio remoto.', {
+            sessionId,
+            detectedKeyword,
+            transcript: detection.transcript,
+          });
+          this.setGuardFeedback(
+            `Detecté una posible alerta: ${detectedKeyword}. Enviando alerta...`,
+            detection.transcript || null
+          );
+          useGuardStore.getState().setDetectedKeyword(detectedKeyword);
+          void this.dispatchDetectedAlert(detectedKeyword);
+          return;
+        }
+
+        this.setGuardFeedback(
+          detection.transcript
+            ? 'Escuché una frase, pero no coincidió con las palabras de activación.'
+            : 'No detecté una frase clara. Sigo escuchando.',
+          detection.transcript || null
+        );
+      } catch (error) {
+        console.warn('[WakeWordService] Error en detección remota por audio:', error);
+        this.setGuardFeedback('Hubo un problema temporal al analizar el audio. Voy a reintentar.', null);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+
+    if (this.remoteLoopSession === sessionId) {
+      this.isRunning = false;
+      this.setGuardFeedback('Guardia remota detenida.', null);
+    }
   }
 
   private startCountdown(keyword: string): void {

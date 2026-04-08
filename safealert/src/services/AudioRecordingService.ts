@@ -15,7 +15,45 @@ import { AUDIO_RECORDING_SECONDS } from '../config/constants';
 import { buildAlertAudioStoragePath } from '../config/features';
 import { auth, ensureAuthenticated } from '../config/firebase';
 
+let activeSnippetRecording: Audio.Recording | null = null;
+
 export const AudioRecordingService = {
+  /* ============================================================================
+  * Función         : cancelSnippetRecording
+  * Descripción     : Cancela la grabación corta activa para liberar el micrófono del modo guardia.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : WakeWordService
+  * Ingesta         : Sin argumentos
+  * Devolución      : Promise<void>
+  * Uso             : await AudioRecordingService.cancelSnippetRecording()
+  * ============================================================================ */
+  async cancelSnippetRecording(): Promise<void> {
+    if (!activeSnippetRecording) {
+      return;
+    }
+
+    try {
+      await activeSnippetRecording.stopAndUnloadAsync();
+    } catch {
+      // No-op: liberar el recurso es best effort.
+    } finally {
+      activeSnippetRecording = null;
+    }
+  },
+
+  /* ============================================================================
+  * Función         : configure
+  * Descripción     : Configura el modo de audio para grabación en foreground.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.1
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : recordSnippet, recordAndUpload
+  * Ingesta         : Sin argumentos
+  * Devolución      : Promise<void>
+  * Uso             : await AudioRecordingService.configure()
+  * ============================================================================ */
   async configure(): Promise<void> {
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
@@ -27,6 +65,69 @@ export const AudioRecordingService = {
     });
   },
 
+  /* ============================================================================
+  * Función         : recordSnippet
+  * Descripción     : Graba un fragmento corto para evaluación remota del modo guardia.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : WakeWordService
+  * Ingesta         : durationMs: number
+  * Devolución      : Promise<{ uri: string; mimeType: string } | null>
+  * Uso             : await AudioRecordingService.recordSnippet(2000)
+  * ============================================================================ */
+  async recordSnippet(
+    durationMs: number
+  ): Promise<{ uri: string; mimeType: string } | null> {
+    try {
+      if (activeSnippetRecording) {
+        console.warn('[AudioRecordingService] Se omite un snippet porque ya hay una grabación en curso.');
+        return null;
+      }
+
+      const permission = await Audio.requestPermissionsAsync();
+      if (!permission.granted) {
+        return null;
+      }
+
+      await this.configure();
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      activeSnippetRecording = recording;
+
+      await new Promise((resolve) => setTimeout(resolve, durationMs));
+
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      activeSnippetRecording = null;
+      if (!uri) {
+        return null;
+      }
+
+      return {
+        uri,
+        mimeType: 'audio/m4a',
+      };
+    } catch (error) {
+      console.warn('[AudioRecordingService] Error recording guard snippet:', error);
+      await this.cancelSnippetRecording();
+      return null;
+    }
+  },
+
+  /* ============================================================================
+  * Función         : recordAndUpload
+  * Descripción     : Graba el audio de una alerta y lo sube a Firebase Storage.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.1
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : AlertService, Firebase Storage
+  * Ingesta         : userId, alertId
+  * Devolución      : Promise<{ audioUrl: string; audioPath: string } | null>
+  * Uso             : await AudioRecordingService.recordAndUpload(userId, alertId)
+  * ============================================================================ */
   async recordAndUpload(
     userId: string,
     alertId: string

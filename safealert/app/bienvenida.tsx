@@ -1,14 +1,14 @@
 /* ============================================================================
 * Archivo         : bienvenida.tsx
-* Descripción     : Onboarding inicial con validación real y accesibilidad básica.
+* Descripción     : Onboarding inicial con validación real y captura de selfie obligatoria.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-03-30
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
-* Uso             : Pantalla inicial de alta del usuario.
+* Uso             : Pantalla inicial de alta del usuario con selfie.
 * ============================================================================ */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -19,24 +19,36 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 import { useSettingsStore } from '../src/stores/useSettingsStore';
-import { COLORS } from '../src/config/constants';
+import { COLORS, COLLECTION_USERS } from '../src/config/constants';
 import { isValidPhone, toE164 } from '../src/utils/formatPhone';
 
 export default function BienvenidaScreen() {
   const [telefono, setTelefono] = useState('');
   const [nombre, setNombre] = useState('');
-  const [paso, setPaso] = useState<1 | 2>(1);
+  const [selfie, setSelfie] = useState<string | null>(null);
+  const [paso, setPaso] = useState<1 | 2 | 3>(1);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+
   const setOnboarded = useSettingsStore((s) => s.setOnboarded);
   const setUserPhone = useSettingsStore((s) => s.setUserPhone);
   const setUserName = useSettingsStore((s) => s.setUserName);
+  const setUserSelfieUrl = useSettingsStore((s) => s.setUserSelfieUrl);
 
   /* ============================================================================
   * Función         : continuarPaso1
   * Descripción     : Valida el nombre antes de avanzar al segundo paso del onboarding.
-  * Fecha           : 2026-03-19
+  * Fecha           : 2026-03-30
   * Versión         : 1.0.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : Estado local del onboarding
@@ -59,17 +71,17 @@ export default function BienvenidaScreen() {
   };
 
   /* ============================================================================
-  * Función         : finalizar
-  * Descripción     : Cierra el onboarding guardando nombre y teléfono normalizado.
-  * Fecha           : 2026-03-19
+  * Función         : continuarPaso2
+  * Descripción     : Valida el teléfono antes de avanzar al tercer paso (selfie).
+  * Fecha           : 2026-03-30
   * Versión         : 1.0.0
   * Lenguaje        : TypeScript 5.9
-  * Conexiones      : useSettingsStore, formatPhone, router
+  * Conexiones      : Estado local, isValidPhone
   * Ingesta         : Sin argumentos
   * Devolución      : void
-  * Uso             : onPress={finalizar}
+  * Uso             : onPress={continuarPaso2}
   * ============================================================================ */
-  const finalizar = () => {
+  const continuarPaso2 = () => {
     if (!isValidPhone(telefono)) {
       Alert.alert(
         'Número inválido',
@@ -77,11 +89,92 @@ export default function BienvenidaScreen() {
       );
       return;
     }
+    setPaso(3);
+  };
 
-    setUserName(nombre.trim());
-    setUserPhone(toE164(telefono));
-    setOnboarded(true);
-    router.replace('/(tabs)');
+  /* ============================================================================
+  * Función         : tomarFoto
+  * Descripción     : Captura una imagen con la cámara frontal.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.0.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : expo-camera
+  * Ingesta         : Sin argumentos
+  * Devolución      : Promise<void>
+  * Uso             : onPress={tomarFoto}
+  * ============================================================================ */
+  const tomarFoto = async () => {
+    if (!permission?.granted) {
+      const { granted } = await requestPermission();
+      if (!granted) {
+        Alert.alert('Permiso denegado', 'Necesitamos la cámara para tomar tu selfie de seguridad.');
+        return;
+      }
+    }
+
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.7,
+          base64: false,
+          exif: false,
+        });
+        if (photo) setSelfie(photo.uri);
+      } catch (error) {
+        console.error('Error capturando foto:', error);
+        Alert.alert('Error', 'No se pudo tomar la foto. Intenta de nuevo.');
+      }
+    }
+  };
+
+  /* ============================================================================
+  * Función         : finalizar
+  * Descripción     : Sube la selfie a Firebase Storage y crea el usuario en Firestore.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : Firebase Firestore, Firebase Storage, useSettingsStore
+  * Ingesta         : Sin argumentos
+  * Devolución      : Promise<void>
+  * Uso             : onPress={finalizar}
+  * ============================================================================ */
+  const finalizar = async () => {
+    if (!selfie) {
+      Alert.alert('¡Falta tu selfie!', 'Toma una foto para que podamos identificarte visualmente.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const phoneE164 = toE164(telefono);
+      const filename = `selfies/${phoneE164}_${Date.now()}.jpg`;
+      const reference = storage().ref(filename);
+
+      // Subir archivo
+      await reference.putFile(selfie);
+      const downloadURL = await reference.getDownloadURL();
+
+      // Guardar en Firestore para activar el trigger de PythonAnywhere
+      await firestore().collection(COLLECTION_USERS).doc(phoneE164).set({
+        userName: nombre.trim(),
+        userPhone: phoneE164,
+        selfieUrl: downloadURL,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Guardar localmente
+      setUserName(nombre.trim());
+      setUserPhone(phoneE164);
+      setUserSelfieUrl(downloadURL);
+      setOnboarded(true);
+
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Error al finalizar el registro:', error);
+      Alert.alert('Error de conexión', 'No pudimos guardar tus datos. Revisa tu conexión.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (paso === 1) {
@@ -108,16 +201,12 @@ export default function BienvenidaScreen() {
               returnKeyType="next"
               onSubmitEditing={continuarPaso1}
               autoCapitalize="words"
-              accessibilityLabel="Tu nombre"
-              accessibilityHint="Se usa para personalizar tus alertas"
             />
           </View>
 
           <TouchableOpacity
             style={styles.botonPrincipal}
             onPress={continuarPaso1}
-            accessibilityRole="button"
-            accessibilityLabel="Continuar al paso del teléfono"
           >
             <Text style={styles.botonTexto}>CONTINUAR →</Text>
           </TouchableOpacity>
@@ -126,61 +215,102 @@ export default function BienvenidaScreen() {
     );
   }
 
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.escudo}>📱</Text>
-        <Text style={styles.titulo}>Hola, {nombre}!</Text>
-        <Text style={styles.subtitulo}>¿Cuál es tu número de teléfono?</Text>
+  if (paso === 2) {
+    return (
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.escudo}>📱</Text>
+          <Text style={styles.titulo}>Hola, {nombre}!</Text>
+          <Text style={styles.subtitulo}>¿Cuál es tu número de teléfono?</Text>
 
-        <View style={styles.tarjeta}>
-          <Text style={styles.pregunta}>Número para identificar tus alertas</Text>
-          <Text style={styles.ayuda}>
-            Tus contactos de confianza verán este número cuando les mandes una alerta
+          <View style={styles.tarjeta}>
+            <Text style={styles.pregunta}>Número para identificar tus alertas</Text>
+            <Text style={styles.ayuda}>
+              Tus contactos de confianza verán este número cuando les mandes una alerta
+            </Text>
+            <TextInput
+              style={[styles.input, styles.inputPhone]}
+              placeholder="Ej: +54 9 3364..."
+              placeholderTextColor={COLORS.textMuted}
+              value={telefono}
+              onChangeText={setTelefono}
+              keyboardType="phone-pad"
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={continuarPaso2}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.botonPrincipal}
+            onPress={continuarPaso2}
+          >
+            <Text style={styles.botonTexto}>CONTINUAR →</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setPaso(1)}
+          >
+            <Text style={styles.botonSecundarioTexto}>← Volver</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.nota}>
+            🔒 Tu número solo se usa para identificarte en emergencias.
+            No se comparte con terceros.
           </Text>
-          <TextInput
-            style={[styles.input, styles.inputPhone]}
-            placeholder="Ej: +54 9 3364 286176"
-            placeholderTextColor={COLORS.textMuted}
-            value={telefono}
-            onChangeText={setTelefono}
-            keyboardType="phone-pad"
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={finalizar}
-            maxLength={20}
-            accessibilityLabel="Tu número de teléfono"
-            accessibilityHint="Incluye el código de país para que tus contactos te reconozcan"
-          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  // Paso 3: Selfie
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.escudo}>📸</Text>
+        <Text style={styles.titulo}>Foto de Perfil</Text>
+        <Text style={styles.subtitulo}>Es obligatoria para que tus contactos te identifiquen visualmente.</Text>
+
+        <View style={styles.cameraContainer}>
+          {selfie ? (
+            <Image source={{ uri: selfie }} style={styles.preview} />
+          ) : (
+            <CameraView 
+               style={styles.camera} 
+               facing="front" 
+               ref={cameraRef}
+            />
+          )}
         </View>
 
-        <TouchableOpacity
-          style={styles.botonPrincipal}
-          onPress={finalizar}
-          accessibilityRole="button"
-          accessibilityLabel="Finalizar onboarding y entrar a la app"
-        >
-          <Text style={styles.botonTexto}>¡EMPEZAR! 🚀</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.botonSecundario}
-          onPress={() => setPaso(1)}
-          accessibilityRole="button"
-          accessibilityLabel="Volver al paso anterior"
-        >
-          <Text style={styles.botonSecundarioTexto}>← Volver</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.nota}>
-          🔒 Tu número solo se usa para identificarte en emergencias.
-          No se comparte con terceros.
-        </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {isUploading ? (
+          <ActivityIndicator size="large" color={COLORS.white} />
+        ) : (
+          <>
+            {selfie ? (
+              <View style={{ width: '100%', gap: 10 }}>
+                <TouchableOpacity style={styles.botonPrincipal} onPress={finalizar}>
+                  <Text style={styles.botonTexto}>¡TODO LISTO! 🚀</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSelfie(null)}>
+                  <Text style={styles.botonSecundarioTexto}>Tomar otra foto</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity style={styles.botonPrincipal} onPress={tomarFoto}>
+                <Text style={styles.botonTexto}>TOMAR FOTO 📸</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={() => setPaso(2)}>
+              <Text style={styles.botonSecundarioTexto}>← Volver al teléfono</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </View>
   );
 }
 
@@ -195,7 +325,7 @@ const styles = StyleSheet.create({
   },
   escudo: { fontSize: 80 },
   titulo: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 'bold',
     color: COLORS.white,
     textAlign: 'center',
@@ -204,6 +334,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FEE2E2',
     textAlign: 'center',
+    marginBottom: 10,
   },
   tarjeta: {
     backgroundColor: COLORS.white,
@@ -232,37 +363,49 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     textAlign: 'center',
     fontWeight: 'bold',
-    marginTop: 8,
+    backgroundColor: '#F9FAFB',
   },
-  inputPhone: {
-    fontSize: 26,
-  },
+  inputPhone: { fontSize: 24 },
   botonPrincipal: {
     backgroundColor: COLORS.white,
     borderRadius: 50,
-    paddingVertical: 20,
+    paddingVertical: 18,
     paddingHorizontal: 48,
     width: '100%',
     alignItems: 'center',
     elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   botonTexto: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '900',
     color: COLORS.danger,
-  },
-  botonSecundario: {
-    paddingVertical: 12,
+    letterSpacing: 1,
   },
   botonSecundarioTexto: {
+    color: COLORS.white,
     fontSize: 16,
-    color: '#FEE2E2',
+    fontWeight: '600',
+    textAlign: 'center',
   },
+  cameraContainer: {
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    overflow: 'hidden',
+    borderWidth: 5,
+    borderColor: COLORS.white,
+    backgroundColor: '#333',
+  },
+  camera: { flex: 1 },
+  preview: { flex: 1 },
   nota: {
     fontSize: 12,
     color: '#FEE2E2',
     textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 16,
+    opacity: 0.8,
   },
 });

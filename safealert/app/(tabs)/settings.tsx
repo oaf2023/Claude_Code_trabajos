@@ -25,34 +25,86 @@ import { COLORS } from '../../src/config/constants';
 import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
 import { WakeWordService } from '../../src/services/WakeWordService';
 import { NotificationService } from '../../src/services/NotificationService';
+import {
+  buildVisibleTriggerWords,
+  normalizeTriggerWord,
+} from '../../src/utils/triggerWords';
 
+/* ============================================================================
+
+* Función         : SettingsScreen
+* Descripción     : Renderiza ajustes operativos y la gestión de palabras de activación.
+* Fecha           : 2026-03-30
+* Versión         : 1.1.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : useSettingsStore, WakeWordService, NotificationService
+* Ingesta         : Sin argumentos
+* Devolución      : JSX.Element
+* Uso             : Pantalla de configuración accesible desde tabs.
+* ============================================================================ */
 export default function SettingsScreen() {
   const settings = useSettingsStore();
   const updateSettings = useSettingsStore((s) => s.updateSettings);
+  const visibleTriggerWords = buildVisibleTriggerWords(settings.triggerWords);
 
   const [messageTemplate, setMessageTemplate] = useState(
     settings.messageTemplate
   );
   const [newKeyword, setNewKeyword] = useState('');
 
+  /* ============================================================================
+
+  * Función         : addKeyword
+  * Descripción     : Agrega una nueva palabra de activación usando el último estado persistido.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : useSettingsStore, normalizeTriggerWord, buildVisibleTriggerWords
+  * Ingesta         : Sin argumentos
+  * Devolución      : void
+  * Uso             : onPress y onSubmitEditing del input de nueva palabra.
+  * ============================================================================ */
   const addKeyword = () => {
-    const word = newKeyword.trim().toLowerCase();
+    const word = normalizeTriggerWord(newKeyword);
     if (!word) return;
-    if (settings.triggerWords.includes(word)) {
+
+    const currentTriggerWords = buildVisibleTriggerWords(
+      useSettingsStore.getState().triggerWords
+    );
+
+    if (currentTriggerWords.includes(word)) {
       Alert.alert('Ya existe', `"${word}" ya está en la lista.`);
       return;
     }
-    updateSettings({ triggerWords: [...settings.triggerWords, word] });
+
+    updateSettings({ triggerWords: [...currentTriggerWords, word] });
     setNewKeyword('');
   };
 
+  /* ============================================================================
+
+  * Función         : removeKeyword
+  * Descripción     : Quita una palabra de activación sin permitir que la lista quede vacía.
+  * Fecha           : 2026-03-30
+  * Versión         : 1.1.0
+  * Lenguaje        : TypeScript 5.9
+  * Conexiones      : useSettingsStore, buildVisibleTriggerWords
+  * Ingesta         : word: string
+  * Devolución      : void
+  * Uso             : removeKeyword('socorro')
+  * ============================================================================ */
   const removeKeyword = (word: string) => {
-    if (settings.triggerWords.length <= 1) {
+    const currentTriggerWords = buildVisibleTriggerWords(
+      useSettingsStore.getState().triggerWords
+    );
+
+    if (currentTriggerWords.length <= 1) {
       Alert.alert('Mínimo 1', 'Debe haber al menos una palabra de activación.');
       return;
     }
+
     updateSettings({
-      triggerWords: settings.triggerWords.filter((w) => w !== word),
+      triggerWords: currentTriggerWords.filter((currentWord) => currentWord !== word),
     });
   };
 
@@ -191,7 +243,7 @@ export default function SettingsScreen() {
               El modelo español instalado escucha en Android. Mantén esta lista alineada con el modelo cargado para evitar falsas expectativas.
             </Text>
             <View style={styles.keywordsList}>
-              {settings.triggerWords.map((word) => (
+              {visibleTriggerWords.map((word) => (
                 <TouchableOpacity
                   key={word}
                   style={styles.keywordChip}
