@@ -31,6 +31,7 @@ import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
+import { useGuardMode } from '../../src/hooks/useGuardMode';
 import { COLORS } from '../../src/config/constants';
 import { buildVisibleTriggerWords } from '../../src/utils/triggerWords';
 import {
@@ -116,6 +117,12 @@ export default function HomeScreen() {
     cancelCountdown,
     isAlerting,
   } = useAlert();
+
+  // Integración con el nuevo Modo Guardia Nativo (Vosk)
+  const { isGuardActive, activateGuard, deactivateGuard } = useGuardMode(() => {
+    // Cuando detecta voz, disparamos la alerta manual (SOS)
+    if (!isAlerting) triggerManual();
+  });
 
   const { loading: contactsLoading } = useContacts();
   const contacts = useContactsStore((s) => s.contacts);
@@ -229,6 +236,7 @@ export default function HomeScreen() {
 
     if (isArmed) {
       await WakeWordService.stop();
+      await deactivateGuard(); // Apagar escucha nativa Vosk
       setArmed(false);
     } else {
       // Verificar suscripción antes de activar guardia
@@ -238,6 +246,7 @@ export default function HomeScreen() {
       }
       try {
         await WakeWordService.start();
+        await activateGuard(); // Encender escucha nativa Vosk (Foreground Service)
         setArmed(true);
         Vibration.vibrate(200);
       } catch (e: any) {
