@@ -32,14 +32,24 @@ import {
 import functions from '@react-native-firebase/functions';
 import { PaymentService, PlanType } from '../services/PaymentService';
 import { PaymentTicket, TicketData } from './PaymentTicket';
+import { DeviceService } from '../services/DeviceService';
 import { COLORS } from '../config/constants';
 import { PAYMENTS_ENABLED } from '../config/features';
 
-// ─── En builds de desarrollo se omite MercadoPago ────────────────────────────
-// DEV_BYPASS_PAYMENT es true cuando PAYMENTS_ENABLED=false (pasarela desactivada
-// por env) o cuando __DEV__ es true (Metro corriendo). Esto evita depender
-// únicamente de __DEV__ que Hermes puede optimizar a false en assembleDebug.
-const DEV_BYPASS_PAYMENT = __DEV__ || !PAYMENTS_ENABLED;
+// ─── Lógica de bypass dinámica (Emulador saltará pasarela) ──────────────
+// Se inicializa en true preventivamente si estamos en __DEV__ para no
+// bloquear al desarrollador mientras carga el chequeo de DeviceInfo.
+const [isBypassMode, setIsBypassMode] = useState(__DEV__ || !PAYMENTS_ENABLED);
+
+React.useEffect(() => {
+  if (visible) {
+    // Verificamos si es emulador o dispositivo real para decidir el flujo
+    DeviceService.isEmulator().then(emu => {
+      // Si es emulador O pagos desactivados por config, forzamos bypass
+      setIsBypassMode(emu || !PAYMENTS_ENABLED);
+    });
+  }
+}, [visible]);
 
 interface PaymentModalProps {
   visible: boolean;
@@ -303,13 +313,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </TouchableOpacity>
             </View>
 
-            {/* Banner modo dev */}
-            {DEV_BYPASS_PAYMENT && (
+            {/* Banner modo bypass (emulador/development) */}
+            {isBypassMode && (
               <View style={styles.devBanner}>
-                <Text style={styles.devBannerTitle}>⚙️ MODO DESARROLLO</Text>
+                <Text style={styles.devBannerTitle}>⚙️ ENTORNO DE PRUEBA / EMULADOR</Text>
                 <Text style={styles.devBannerText}>
-                  Pasarela de pago desactivada. El ticket se genera
-                  directamente en PythonAnywhere sin cargo real.
+                  La pasarela de pago real se omite en este entorno.
+                  El ticket se generará sin cargo real para pruebas corporativas.
                 </Text>
               </View>
             )}
@@ -318,20 +328,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <ActivityIndicator size="large" color={COLORS.warning} style={styles.loader} />
             )}
 
-            {/* —— Flujo DEV —— */}
-            {DEV_BYPASS_PAYMENT && !loading && (
+            {/* —— Flujo BYPASS —— */}
+            {isBypassMode && !loading && (
               <TouchableOpacity
                 style={styles.devBypassButton}
                 onPress={handleDevBypass}
                 accessibilityRole="button"
-                accessibilityLabel="Simular pago aprobado (solo desarrollo)"
+                accessibilityLabel="Confirmar suscripción de prueba"
               >
-                <Text style={styles.devBypassButtonText}>🧪 Simular pago aprobado</Text>
+                <Text style={styles.devBypassButtonText}>✅ Confirmar suscripción de prueba</Text>
               </TouchableOpacity>
             )}
 
             {/* —— Flujo PRODUCCIÓN —— */}
-            {!DEV_BYPASS_PAYMENT && !loading && !paymentUrl && (
+            {!isBypassMode && !loading && !paymentUrl && (
               <TouchableOpacity
                 style={styles.payButton}
                 onPress={handleGeneratePayment}
@@ -342,7 +352,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </TouchableOpacity>
             )}
 
-            {!DEV_BYPASS_PAYMENT && !loading && !!paymentUrl && (
+            {!isBypassMode && !loading && !!paymentUrl && (
               <>
                 <TouchableOpacity
                   style={styles.payButton}

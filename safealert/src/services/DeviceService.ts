@@ -122,4 +122,30 @@ async function getDeviceUniqueId(): Promise<string> {
   }
 }
 
-export const DeviceService = { getDeviceId, getMacAddress, getDeviceUniqueId };
+/* ============================================================================
+* Función         : isEmulator
+* Descripción     : Detecta si la aplicación se está ejecutando en un emulador
+*                   (Android Studio AVD o iOS Simulator) versus dispositivo real.
+* Fecha           : 2026-04-09
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : react-native-device-info, PaymentModal
+* Ingesta         : void
+* Devolución      : Promise<boolean>
+* Uso             : const emu = await DeviceService.isEmulator()
+* ============================================================================ */
+async function isEmulator(): Promise<boolean> {
+  try {
+    return await DeviceInfo.isEmulator();
+  } catch (error) {
+    console.warn('[DeviceService] isEmulator check error:', error);
+    return false;
+  }
+}
+
+export const DeviceService = {
+  getDeviceId,
+  getMacAddress,
+  getDeviceUniqueId,
+  isEmulator,
+};
