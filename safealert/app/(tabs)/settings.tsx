@@ -142,6 +142,16 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Cómo Funciona */}
+      <TouchableOpacity
+        style={styles.permissionsLink}
+        onPress={() => router.push('/como-funciona')}
+      >
+        <Text style={styles.permissionsLinkText}>
+          ℹ️ Cómo funciona SafeAlert →
+        </Text>
+      </TouchableOpacity>
+
       {/* Permisos */}
       <TouchableOpacity
         style={styles.permissionsLink}

@@ -28,7 +28,9 @@ import { NotificationService } from '../src/services/NotificationService';
 import { WakeWordService } from '../src/services/WakeWordService';
 import { PaymentOverdueModal } from '../src/components/PaymentOverdueModal';
 import { PaymentModal } from '../src/components/PaymentModal';
+import { TrialExpiredModal } from '../src/components/TrialExpiredModal';
 import { DeviceService } from '../src/services/DeviceService';
+import { TrialService } from '../src/services/TrialService';
 
 /* ============================================================================
 * Función         : runWhenIdle
@@ -94,6 +96,9 @@ export default function RootLayout() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [deviceId, setDeviceId] = useState('');
 
+  // ── Estado de modal de período de prueba vencido ───────────────────────────
+  const [showTrialExpiredModal, setShowTrialExpiredModal] = useState(false);
+
   // Ocultar splash screen nativa al montar el componente.
   // expo-router sólo llama SplashScreen.hideAsync() cuando <Stack> monta pero
   // nuestro return anticipado (spinner) lo impide → la splash blanca persiste.
@@ -122,6 +127,25 @@ export default function RootLayout() {
       setShowOverdueAlert(false);
     }
   }, [showOverdueAlert, setShowOverdueAlert]);
+
+  // Verificar período de prueba al iniciar la app
+  useEffect(() => {
+    if (!listo || !isOnboarded) return;
+
+    const verificarPrueba = async () => {
+      try {
+        const id = await DeviceService.getDeviceId();
+        const estado = await TrialService.checkPrueba(id);
+        if (estado.activo && estado.expirado && !estado.pago) {
+          setShowTrialExpiredModal(true);
+        }
+      } catch (error) {
+        console.warn('[RootLayout] Error verificando período de prueba:', error);
+      }
+    };
+
+    void verificarPrueba();
+  }, [listo, isOnboarded]);
 
   useEffect(() => {
     if (!__DEV__) {
@@ -310,6 +334,10 @@ export default function RootLayout() {
           name="test-alert"
           options={{ title: 'Probar Alerta', presentation: 'modal' }}
         />
+        <Stack.Screen
+          name="como-funciona"
+          options={{ title: 'Cómo Funciona SafeAlert', presentation: 'modal' }}
+        />
       </Stack>
 
       {/* Modal global: aviso de suscripción vencida */}
@@ -337,6 +365,16 @@ export default function RootLayout() {
           setHasSubscription(true);
           setPaymentOverdue(false);
         }}
+      />
+
+      {/* Modal global: período de prueba vencido */}
+      <TrialExpiredModal
+        visible={showTrialExpiredModal}
+        onSuscribirse={() => {
+          setShowTrialExpiredModal(false);
+          setShowPaymentModal(true);
+        }}
+        onCerrar={() => setShowTrialExpiredModal(false)}
       />
     </>
   );

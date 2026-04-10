@@ -12,6 +12,8 @@ import { contactsCol } from '../config/firebase';
 import { Contact, ContactFormData } from '../types/Contact';
 import { toE164 } from '../utils/formatPhone';
 import firestore from '@react-native-firebase/firestore';
+import { DeviceService } from './DeviceService';
+import { TrialService } from './TrialService';
 
 /* ============================================================================
 * Función         : hydrateAndSortContacts
@@ -149,6 +151,17 @@ export const ContactsService = {
       addedAt: Date.now(),
     };
     const ref = await contactsCol(userId).add(contact);
+
+    // Sincronizar con safealert_tel.db en PythonAnywhere (fire & forget)
+    void DeviceService.getDeviceId().then((deviceId) => {
+      void TrialService.syncContacto(
+        deviceId,
+        contact.name,
+        contact.phone,
+        contact.priority === 0
+      );
+    }).catch(() => {});
+
     return { id: ref.id, ...contact };
   },
 
@@ -190,7 +203,18 @@ export const ContactsService = {
   * Uso             : await ContactsService.remove(userId, contactId)
   * ============================================================================ */
   async remove(userId: string, contactId: string): Promise<void> {
+    // Obtener teléfono antes de eliminar para el borrado lógico en SQLite
+    const snap = await contactsCol(userId).doc(contactId).get();
+    const contactData = snap.data() as Omit<Contact, 'id'> | undefined;
+
     await contactsCol(userId).doc(contactId).delete();
+
+    // Marcar como borrado en safealert_tel.db (fire & forget)
+    if (contactData?.phone) {
+      void DeviceService.getDeviceId().then((deviceId) => {
+        void TrialService.borrarContacto(deviceId, contactData.phone);
+      }).catch(() => {});
+    }
   },
 
   /* ============================================================================
