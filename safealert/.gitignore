@@ -48,6 +48,9 @@ functions/.env
 # typescript
 *.tsbuildinfo
 
+# coverage
+coverage/
+
 # generated native folders
 /ios
 /android
