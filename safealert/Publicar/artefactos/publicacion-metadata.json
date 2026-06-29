@@ -1,12 +1,12 @@
-{
-  "appName": "SafeAlert",
-  "slug": "safealert",
-  "scheme": "safealert",
-  "androidPackage": "com.safealert.app",
-  "version": "1.1.0",
-  "versionCode": "2",
-  "versionName": "1.1.0",
-  "easProjectId": "73c6606f-12cc-49fd-8ae8-1f198f1f198f",
-  "generatedAt": "2026-03-30T09:13:59",
-  "copiedAab": "C:\\Claude_Code_trabajos\\safealert\\Publicar\\artefactos\\app-release.aab"
+﻿{
+    "appName":  "SafeAlert",
+    "slug":  "safealert",
+    "scheme":  "safealert",
+    "androidPackage":  "com.safealert.app",
+    "version":  "1.1.0",
+    "versionCode":  "3",
+    "versionName":  "1.1.0",
+    "easProjectId":  "73c6606f-12cc-49fd-8ae8-1f198f1f198f",
+    "generatedAt":  "2026-04-14T12:43:47",
+    "copiedAab":  "C:\\Claude_Code_trabajos\\safealert\\Publicar\\artefactos\\app-release.aab"
 }

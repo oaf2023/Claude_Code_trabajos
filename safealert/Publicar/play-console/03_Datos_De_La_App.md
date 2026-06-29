@@ -28,7 +28,7 @@
 
 - applicationId: com.safealert.app
 - namespace: com.safealert.app
-- versionCode: 2
+- versionCode: 3
 - versionName: 1.1.0
 
 ## Accion requerida antes de nueva subida

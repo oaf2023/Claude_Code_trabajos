@@ -20,6 +20,9 @@ import sqlite3
 from datetime import datetime, timedelta
 from functools import wraps
 
+import firebase_admin
+from firebase_admin import auth as firebase_auth, credentials
+
 from flask import request, jsonify, g
 from flask_cors import CORS
 
@@ -30,6 +33,8 @@ if path not in sys.path:
 
 # Importación de la App Factory del ERP (AdminDigital)
 from app import create_app
+from collections import defaultdict
+from time import time
 
 # ---------------------------------------------------------------------------
 # Configuración Original de SafeAlert (extraída de modelodeapp.py)
@@ -41,18 +46,44 @@ DB_PATH = os.environ.get(
 )
 INTERNAL_KEY = os.environ.get("SAFEALERT_INTERNAL_KEY", "")
 MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "")
-AUDIO_ALERT_API_KEY = os.environ.get("AUDIO_ALERT_API_KEY", "Familia2026##")
+AUDIO_ALERT_API_KEY = os.environ.get("AUDIO_ALERT_API_KEY", "")
 AUDIO_STORAGE_DIR = "/home/oaf/agrupacion_api/audio"
 TEL_DB_PATH = os.environ.get(
     "SAFEALERT_TEL_DB_PATH",
     "/home/oaf/agrupacion_api/usuarios/safealert_tel.db"
 )
 
+# --- Rate limiter simple en memoria ---
+_rate_limit_store: dict[str, list[float]] = defaultdict(list)
+RATE_LIMIT_WINDOW = 60
+RATE_LIMIT_MAX = 30
+
+def _rate_limit(key: str) -> bool:
+    now = time()
+    window = _rate_limit_store[key]
+    _rate_limit_store[key] = [t for t in window if now - t < RATE_LIMIT_WINDOW]
+    if len(_rate_limit_store[key]) >= RATE_LIMIT_MAX:
+        return False
+    _rate_limit_store[key].append(now)
+    return True
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s — %(message)s"
 )
 logger = logging.getLogger("safealert")
+
+# Inicialización de Firebase Admin
+try:
+    FIREBASE_CRED_PATH = os.environ.get("FIREBASE_CREDENTIALS_PATH", "")
+    if FIREBASE_CRED_PATH and os.path.exists(FIREBASE_CRED_PATH):
+        cred = credentials.Certificate(FIREBASE_CRED_PATH)
+        firebase_admin.initialize_app(cred)
+    else:
+        firebase_admin.initialize_app()
+    logger.info("[SafeAlert] Firebase Admin inicializado correctamente.")
+except Exception as exc:
+    logger.warning("[SafeAlert] Firebase Admin no disponible: %s", exc)
 
 # Inicialización de la App del ERP (Fase 1-4)
 flask_app = create_app()
@@ -212,9 +243,27 @@ def require_internal_key(f):
         return f(*args, **kwargs)
     return wrapper
 
+def require_firebase_auth(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Token requerido"}), 401
+        try:
+            token = auth_header.split(" ", 1)[1]
+            decoded = firebase_auth.verify_id_token(token)
+            g.firebase_uid = decoded.get("uid", "")
+        except Exception:
+            return jsonify({"error": "Token inválido o expirado"}), 401
+        return f(*args, **kwargs)
+    return wrapper
+
 def verify_mp_signature(x_signature: str, x_request_id: str, data_id: str) -> bool:
-    if not MP_WEBHOOK_SECRET: return True
-    if not x_signature: return False
+    if not MP_WEBHOOK_SECRET:
+        logger.error("[SafeAlert] MP_WEBHOOK_SECRET no configurado — no se puede verificar firma.")
+        return False
+    if not x_signature:
+        return False
     try:
         parts = dict(p.split("=", 1) for p in x_signature.split(",") if "=" in p)
         ts, v1 = parts.get("ts", ""), parts.get("v1", "")
@@ -233,13 +282,21 @@ def health():
     return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat()})
 
 @flask_app.route("/api/users/register", methods=["POST"])
+@require_firebase_auth
 def register_user():
+    if not _rate_limit(f"register:{request.remote_addr}"):
+        return jsonify({"error": "Demasiadas solicitudes"}), 429
+
     data = request.get_json(silent=True) or {}
     device_id, name, phone = data.get("device_id", "").strip(), data.get("name", "").strip(), data.get("phone", "").strip()
     mac, uid = data.get("mac_address", "").strip(), data.get("device_unique_id", "").strip()
 
     if not device_id or not name or not phone:
         return jsonify({"error": "device_id, name y phone son requeridos"}), 400
+
+    import re
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
+        return jsonify({"error": "device_id inválido"}), 400
 
     now = datetime.utcnow().isoformat()
     db = get_db()
@@ -255,7 +312,15 @@ def register_user():
     return jsonify({"success": True, "status": status})
 
 @flask_app.route("/api/users/status/<device_id>", methods=["GET"])
+@require_firebase_auth
 def user_status(device_id: str):
+    if not _rate_limit(f"status:{request.remote_addr}"):
+        return jsonify({"error": "Demasiadas solicitudes"}), 429
+
+    import re
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
+        return jsonify({"error": "device_id inválido"}), 400
+
     db = get_db()
     row = db.execute("SELECT * FROM users WHERE device_id = ?", (device_id,)).fetchone()
     if not row: return jsonify({"device_id": device_id, "status": "not_registered", "plan_type": None, "expires_at": None})
@@ -272,6 +337,7 @@ def user_status(device_id: str):
     return jsonify({"device_id": device_id, "status": status, "plan_type": row["plan_type"], "expires_at": expires_at_str})
 
 @flask_app.route("/api/payments/confirm", methods=["POST"])
+@require_internal_key
 def confirm_payment():
     data = request.get_json(silent=True) or {}
     device_id, plan_type, mp_ref = data.get("device_id", ""), data.get("plan_type", ""), data.get("mp_reference", "")
@@ -289,8 +355,12 @@ def mp_webhook():
     try: data = json.loads(payload)
     except: return jsonify({"error": "JSON inválido"}), 400
     
-    if data.get("live_mode") is not False and MP_WEBHOOK_SECRET and sig:
-        if not verify_mp_signature(sig, rid, did): return jsonify({"error": "Firma inválida"}), 401
+    if not sig:
+        logger.warning("[SafeAlert] Webhook MP recibido sin firma — rechazado.")
+        return jsonify({"error": "Firma requerida"}), 401
+    if not verify_mp_signature(sig, rid, did):
+        logger.warning("[SafeAlert] Webhook MP con firma inválida — rechazado.")
+        return jsonify({"error": "Firma inválida"}), 401
     
     event_type = data.get("type", "")
     db, now = get_db(), datetime.utcnow().isoformat()
@@ -548,4 +618,5 @@ def tel_estado_prueba(device_id: str):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    flask_app.run(debug=True)
+    DEBUG_MODE = os.environ.get("FLASK_DEBUG", "0") == "1"
+    flask_app.run(debug=DEBUG_MODE)

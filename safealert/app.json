@@ -13,7 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.safealert.app",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "SafeAlert necesita acceso al micrófono para grabar mensajes de voz en caso de emergencia.",
@@ -50,7 +50,7 @@
     },
     "android": {
       "package": "com.safealert.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -101,7 +101,10 @@
         }
       ],
       "./plugins/withManifestConflictFix",
-      "expo-font"
+      "expo-font",
+      "@sentry/react-native",
+      "expo-secure-store",
+      "expo-localization"
     ],
     "extra": {
       "router": {

@@ -1,9 +1,12 @@
 /* ============================================================================
 * Archivo         : features.ts
 * Descripción     : Feature flags y utilidades de configuración operativa del MVP.
+*                   ⚠️  Las variables EXPO_PUBLIC_* se incrustan en el APK.
+*                   Ningún secreto debe residir aquí. Para claves sensibles,
+*                   usar un backend proxy (Firebase Function) como intermediario.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-06-29
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : Importar flags y utilidades desde los servicios y pantallas.
 * ============================================================================ */

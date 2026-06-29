@@ -29,11 +29,11 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import functions from '@react-native-firebase/functions';
+import { functions } from '../config/firebase';
 import { PaymentService, PlanType } from '../services/PaymentService';
 import { PaymentTicket, TicketData } from './PaymentTicket';
 import { DeviceService } from '../services/DeviceService';
-import { COLORS } from '../config/constants';
+import { color } from '../theme';
 import { PAYMENTS_ENABLED } from '../config/features';
 
 // ─── Lógica de bypass dinámica (Emulador saltará pasarela) ──────────────
@@ -324,7 +324,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             )}
 
             {loading && (
-              <ActivityIndicator size="large" color={COLORS.warning} style={styles.loader} />
+              <ActivityIndicator size="large" color={color.warning} style={styles.loader} />
             )}
 
             {/* —— Flujo BYPASS —— */}

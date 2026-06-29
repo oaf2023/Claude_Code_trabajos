@@ -22,12 +22,14 @@ import {
   PermissionsService,
   PermissionsStatus,
 } from '../src/services/PermissionsService';
-import { COLORS } from '../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../src/theme';
+import { Icon } from '../src/theme/Icon';
 import { BACKGROUND_LOCATION_ENABLED } from '../src/config/features';
 
 type PermissionItem = {
   key: keyof PermissionsStatus;
   title: string;
+  icon: React.ComponentProps<typeof Icon>['name'];
   description: string;
   critical: boolean;
   onRequest: () => Promise<void>;
@@ -63,7 +65,8 @@ export default function PermissionsScreen() {
   const permissions: PermissionItem[] = [
     {
       key: 'microphone',
-      title: '🎙️ Micrófono',
+      title: 'Micrófono',
+      icon: 'mic' as const,
       description:
         'Opcional. Solo se usa si decides adjuntar un mensaje de voz a la alerta.',
       critical: false,
@@ -74,7 +77,8 @@ export default function PermissionsScreen() {
     },
     {
       key: 'locationForeground',
-      title: '📍 Ubicación (cuando se usa)',
+      title: 'Ubicación (cuando se usa)',
+      icon: 'location-on' as const,
       description: 'Para enviar tu posición a los contactos.',
       critical: true,
       onRequest: async () => {
@@ -84,7 +88,8 @@ export default function PermissionsScreen() {
     },
     {
       key: 'notifications',
-      title: '🔔 Notificaciones',
+      title: 'Notificaciones',
+      icon: 'notifications' as const,
       description:
         'Necesarias para recordatorios locales y para avisarte del estado de la app.',
       critical: true,
@@ -98,7 +103,8 @@ export default function PermissionsScreen() {
   if (BACKGROUND_LOCATION_ENABLED) {
     permissions.push({
       key: 'locationBackground',
-      title: '🗺️ Ubicación en segundo plano',
+      title: 'Ubicación en segundo plano',
+      icon: 'map' as const,
       description:
         'Opcional. Solo se habilita en compilaciones que realmente usen seguimiento en segundo plano.',
       critical: false,
@@ -110,22 +116,29 @@ export default function PermissionsScreen() {
   }
 
   const statusColor = (s: string) => {
-    if (s === 'granted') return COLORS.safe;
-    if (s === 'blocked') return COLORS.danger;
-    return COLORS.warning;
+    if (s === 'granted') return color.safe;
+    if (s === 'blocked') return color.danger;
+    return color.warning;
+  };
+
+  const statusIcon = (s: string): React.ComponentProps<typeof Icon>['name'] => {
+    if (s === 'granted') return 'check-circle';
+    if (s === 'blocked') return 'cancel';
+    if (s === 'denied') return 'warning';
+    return 'help';
   };
 
   const statusLabel = (s: string) => {
-    if (s === 'granted') return '✅ Concedido';
-    if (s === 'blocked') return '🚫 Bloqueado';
-    if (s === 'denied') return '⚠️ No concedido';
-    return '❓ No disponible';
+    if (s === 'granted') return 'Concedido';
+    if (s === 'blocked') return 'Bloqueado';
+    if (s === 'denied') return 'No concedido';
+    return 'No disponible';
   };
 
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={COLORS.danger} size="large" />
+        <ActivityIndicator color={color.danger} size="large" />
       </View>
     );
   }
@@ -149,20 +162,21 @@ export default function PermissionsScreen() {
         return (
           <View key={perm.key} style={styles.permCard}>
             <View style={styles.permHeader}>
-              <Text style={styles.permTitle}>
-                {perm.title}
-                {perm.critical && (
-                  <Text style={styles.requiredBadge}> (requerido)</Text>
-                )}
-              </Text>
-              <Text
-                style={[
-                  styles.permStatus,
-                  { color: statusColor(currentStatus) },
-                ]}
-              >
-                {statusLabel(currentStatus)}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 }}>
+                <Icon name={perm.icon} size={20} color={color.textPrimary} />
+                <Text style={styles.permTitle}>
+                  {perm.title}
+                  {perm.critical && (
+                    <Text style={styles.requiredBadge}> (requerido)</Text>
+                  )}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Icon name={statusIcon(currentStatus)} size={16} color={statusColor(currentStatus)} />
+                <Text style={[styles.permStatus, { color: statusColor(currentStatus) }]}>
+                  {statusLabel(currentStatus)}
+                </Text>
+              </View>
             </View>
             <Text style={styles.permDesc}>{perm.description}</Text>
             {!isGranted && (
@@ -197,7 +211,10 @@ export default function PermissionsScreen() {
           accessibilityLabel="Cerrar pantalla de permisos"
           accessibilityHint="Vuelve a la pantalla anterior porque los permisos críticos ya están listos"
         >
-          <Text style={styles.doneButtonText}>✅ Todo listo</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            <Icon name="check-circle" size={20} color={color.textInverse} />
+            <Text style={styles.doneButtonText}>Todo listo</Text>
+          </View>
         </TouchableOpacity>
       )}
     </ScrollView>
@@ -205,15 +222,15 @@ export default function PermissionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: color.background },
   content: { padding: 20, gap: 14, paddingBottom: 40 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
-  title: { fontSize: 22, fontWeight: 'bold', color: COLORS.text },
-  subtitle: { fontSize: 14, color: COLORS.textMuted, lineHeight: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', color: color.textPrimary },
+  subtitle: { fontSize: 14, color: color.textSecondary, lineHeight: 20 },
 
   permCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -230,25 +247,25 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
   },
-  permTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text, flex: 1 },
-  requiredBadge: { fontSize: 12, color: COLORS.danger, fontWeight: '400' },
+  permTitle: { fontSize: 15, fontWeight: '600', color: color.textPrimary, flex: 1 },
+  requiredBadge: { fontSize: 12, color: color.danger, fontWeight: '400' },
   permStatus: { fontSize: 13, fontWeight: '500' },
-  permDesc: { fontSize: 13, color: COLORS.textMuted, lineHeight: 18 },
+  permDesc: { fontSize: 13, color: color.textSecondary, lineHeight: 18 },
   permButton: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 8,
     padding: 10,
     alignItems: 'center',
   },
-  permButtonBlocked: { backgroundColor: COLORS.neutral },
-  permButtonText: { color: COLORS.white, fontWeight: '600', fontSize: 14 },
+  permButtonBlocked: { backgroundColor: color.neutral400 },
+  permButtonText: { color: color.textInverse, fontWeight: '600', fontSize: 14 },
 
   doneButton: {
-    backgroundColor: COLORS.safe,
+    backgroundColor: color.safe,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginTop: 8,
   },
-  doneButtonText: { color: COLORS.white, fontWeight: 'bold', fontSize: 16 },
+  doneButtonText: { color: color.textInverse, fontWeight: 'bold', fontSize: 16 },
 });

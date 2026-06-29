@@ -16,10 +16,12 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { COLORS } from '../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../src/theme';
+import { Icon } from '../src/theme/Icon';
 
 interface PasoProps {
   numero: string;
+  icon?: React.ComponentProps<typeof Icon>['name'];
   titulo: string;
   detalle: string;
 }
@@ -28,18 +30,22 @@ interface PasoProps {
 * Función         : Paso
 * Descripción     : Renderiza un paso de la guía con ícono numerado y descripción.
 * Fecha           : 2026-04-10
-* Versión         : 1.0.0
+* Versión         : 2.0.0
 * Lenguaje        : TypeScript 5.9
 * Conexiones      : ComoFuncionaScreen
-* Ingesta         : numero, titulo, detalle
+* Ingesta         : numero, icon?, titulo, detalle
 * Devolución      : JSX.Element
 * Uso             : <Paso numero="1" titulo="..." detalle="..." />
 * ============================================================================ */
-function Paso({ numero, titulo, detalle }: PasoProps) {
+function Paso({ numero, icon: pasoIcon, titulo, detalle }: PasoProps) {
   return (
     <View style={styles.paso}>
       <View style={styles.pasoNumero}>
-        <Text style={styles.pasoNumeroText}>{numero}</Text>
+        {pasoIcon ? (
+          <Icon name={pasoIcon} size={18} color={color.textInverse} />
+        ) : (
+          <Text style={styles.pasoNumeroText}>{numero}</Text>
+        )}
       </View>
       <View style={styles.pasoContenido}>
         <Text style={styles.pasoTitulo}>{titulo}</Text>
@@ -69,7 +75,7 @@ export default function ComoFuncionaScreen() {
     >
       {/* Encabezado */}
       <View style={styles.header}>
-        <Text style={styles.headerIcon}>🛡️</Text>
+        <Icon name="shield" size={48} color={color.textInverse} />
         <Text style={styles.headerTitle}>Cómo Funciona SafeAlert</Text>
         <Text style={styles.headerSub}>
           Tu escudo de emergencia personal. Fácil, rápido y silencioso.
@@ -128,24 +134,28 @@ export default function ComoFuncionaScreen() {
 
         <Paso
           numero="🔑"
+          icon="vpn-key"
           titulo="Palabras de activación personalizadas"
           detalle='Podés agregar tus propias palabras en "Ajustes → Activación por voz". El modelo de voz español escucha continuamente cuando la guardia está activa.'
         />
 
         <Paso
           numero="📍"
+          icon="location-on"
           titulo="Ubicación en tiempo real"
           detalle='Tu ubicación GPS se adjunta automáticamente a cada alerta. Cuanto más precisa sea la señal GPS, más rápido podrán encontrarte.'
         />
 
         <Paso
           numero="🎙️"
+          icon="mic"
           titulo="Grabación de audio de 60 segundos"
           detalle='Cuando se activa la alerta, SafeAlert graba 60 segundos del entorno y los sube al servidor seguro. Tus contactos pueden solicitar el audio si es necesario.'
         />
 
         <Paso
           numero="🔔"
+          icon="notifications"
           titulo="Recordatorios diarios"
           detalle='Activá los recordatorios desde Ajustes para recibir una notificación diaria que te recuerde revisar que la guardia esté activa y los contactos actualizados.'
         />
@@ -166,10 +176,22 @@ export default function ComoFuncionaScreen() {
       {/* Sección: Consejos */}
       <View style={styles.seccion}>
         <Text style={styles.seccionTitulo}>Consejos de uso</Text>
-        <Text style={styles.consejo}>💡 Cargá siempre el teléfono antes de salir solo/a.</Text>
-        <Text style={styles.consejo}>💡 Informale a tus contactos que los agregaste para que reconozcan los mensajes.</Text>
-        <Text style={styles.consejo}>💡 Activá la guardia cuando estés en situaciones de riesgo o lugares desconocidos.</Text>
-        <Text style={styles.consejo}>💡 Practicá una alerta de prueba con un contacto de confianza para verificar que funciona.</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="lightbulb" size={16} color={color.warning} />
+          <Text style={styles.consejo}>Cargá siempre el teléfono antes de salir solo/a.</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="lightbulb" size={16} color={color.warning} />
+          <Text style={styles.consejo}>Informale a tus contactos que los agregaste para que reconozcan los mensajes.</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="lightbulb" size={16} color={color.warning} />
+          <Text style={styles.consejo}>Activá la guardia cuando estés en situaciones de riesgo o lugares desconocidos.</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="lightbulb" size={16} color={color.warning} />
+          <Text style={styles.consejo}>Practicá una alerta de prueba con un contacto de confianza para verificar que funciona.</Text>
+        </View>
       </View>
 
       <View style={styles.footer}>
@@ -182,7 +204,7 @@ export default function ComoFuncionaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: color.background,
   },
   content: {
     padding: 20,
@@ -191,19 +213,16 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     gap: 8,
   },
-  headerIcon: {
-    fontSize: 48,
-  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.white,
+    color: color.textInverse,
     textAlign: 'center',
   },
   headerSub: {
@@ -214,7 +233,7 @@ const styles = StyleSheet.create({
   },
 
   seccion: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -225,24 +244,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   seccionDestacada: {
-    backgroundColor: COLORS.dangerLight,
+    backgroundColor: color.dangerLight,
     borderWidth: 1,
-    borderColor: COLORS.danger,
+    borderColor: color.danger,
   },
   seccionTitulo: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: color.textPrimary,
     marginBottom: 4,
   },
   seccionCuerpo: {
     fontSize: 14,
-    color: COLORS.text,
+    color: color.textPrimary,
     lineHeight: 22,
   },
   bold: {
     fontWeight: '700',
-    color: COLORS.danger,
+    color: color.danger,
   },
 
   paso: {
@@ -254,13 +273,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   pasoNumeroText: {
-    color: COLORS.white,
+    color: color.textInverse,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -271,17 +290,17 @@ const styles = StyleSheet.create({
   pasoTitulo: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text,
+    color: color.textPrimary,
   },
   pasoDetalle: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     lineHeight: 19,
   },
 
   consejo: {
     fontSize: 13,
-    color: COLORS.text,
+    color: color.textPrimary,
     lineHeight: 20,
   },
 
@@ -291,6 +310,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
   },
 });

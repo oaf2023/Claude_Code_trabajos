@@ -24,10 +24,11 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
+import { firestore, firestoreFieldValue, storage } from '../src/config/firebase';
 import { useSettingsStore } from '../src/stores/useSettingsStore';
-import { COLORS, COLLECTION_USERS } from '../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../src/theme';
+import { Icon } from '../src/theme/Icon';
+import { COLLECTION_USERS } from '../src/config/constants';
 import { isValidPhone, toE164 } from '../src/utils/formatPhone';
 
 export default function BienvenidaScreen() {
@@ -159,7 +160,7 @@ export default function BienvenidaScreen() {
         userName: nombre.trim(),
         userPhone: phoneE164,
         selfieUrl: downloadURL,
-        createdAt: firestore.FieldValue.serverTimestamp(),
+        createdAt: firestoreFieldValue.serverTimestamp(),
       });
 
       // Guardar localmente
@@ -184,7 +185,7 @@ export default function BienvenidaScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.escudo}>🛡️</Text>
+          <Icon name="shield" size={80} color={color.textInverse} />
           <Text style={styles.titulo}>SafeAlert</Text>
           <Text style={styles.subtitulo}>Tu seguridad, siempre a mano</Text>
 
@@ -194,7 +195,7 @@ export default function BienvenidaScreen() {
             <TextInput
               style={styles.input}
               placeholder="Ej: María García"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={color.textSecondary}
               value={nombre}
               onChangeText={setNombre}
               autoFocus
@@ -208,7 +209,10 @@ export default function BienvenidaScreen() {
             style={styles.botonPrincipal}
             onPress={continuarPaso1}
           >
-            <Text style={styles.botonTexto}>CONTINUAR →</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Text style={styles.botonTexto}>CONTINUAR</Text>
+              <Icon name="arrow-forward" size={20} color={color.danger} />
+            </View>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -222,7 +226,7 @@ export default function BienvenidaScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.escudo}>📱</Text>
+          <Icon name="smartphone" size={80} color={color.textInverse} />
           <Text style={styles.titulo}>Hola, {nombre}!</Text>
           <Text style={styles.subtitulo}>¿Cuál es tu número de teléfono?</Text>
 
@@ -234,7 +238,7 @@ export default function BienvenidaScreen() {
             <TextInput
               style={[styles.input, styles.inputPhone]}
               placeholder="Ej: +54 9 3364..."
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={color.textSecondary}
               value={telefono}
               onChangeText={setTelefono}
               keyboardType="phone-pad"
@@ -248,19 +252,28 @@ export default function BienvenidaScreen() {
             style={styles.botonPrincipal}
             onPress={continuarPaso2}
           >
-            <Text style={styles.botonTexto}>CONTINUAR →</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Text style={styles.botonTexto}>CONTINUAR</Text>
+              <Icon name="arrow-forward" size={20} color={color.danger} />
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => setPaso(1)}
           >
-            <Text style={styles.botonSecundarioTexto}>← Volver</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+            <Icon name="arrow-back" size={16} color={color.textInverse} />
+            <Text style={styles.botonSecundarioTexto}>Volver</Text>
+          </View>
           </TouchableOpacity>
 
-          <Text style={styles.nota}>
-            🔒 Tu número solo se usa para identificarte en emergencias.
-            No se comparte con terceros.
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+            <Icon name="lock" size={14} color="#FEE2E2" />
+            <Text style={styles.nota}>
+              Tu número solo se usa para identificarte en emergencias.
+              No se comparte con terceros.
+            </Text>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     );
@@ -270,7 +283,7 @@ export default function BienvenidaScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.escudo}>📸</Text>
+        <Icon name="camera-alt" size={80} color={color.textInverse} />
         <Text style={styles.titulo}>Foto de Perfil</Text>
         <Text style={styles.subtitulo}>Es obligatoria para que tus contactos te identifiquen visualmente.</Text>
 
@@ -287,13 +300,16 @@ export default function BienvenidaScreen() {
         </View>
 
         {isUploading ? (
-          <ActivityIndicator size="large" color={COLORS.white} />
+          <ActivityIndicator size="large" color={color.textInverse} />
         ) : (
           <>
             {selfie ? (
               <View style={{ width: '100%', gap: 10 }}>
                 <TouchableOpacity style={styles.botonPrincipal} onPress={finalizar}>
-                  <Text style={styles.botonTexto}>¡TODO LISTO! 🚀</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                    <Icon name="check-circle" size={20} color={color.danger} />
+                    <Text style={styles.botonTexto}>TODO LISTO</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setSelfie(null)}>
                   <Text style={styles.botonSecundarioTexto}>Tomar otra foto</Text>
@@ -301,11 +317,17 @@ export default function BienvenidaScreen() {
               </View>
             ) : (
               <TouchableOpacity style={styles.botonPrincipal} onPress={tomarFoto}>
-                <Text style={styles.botonTexto}>TOMAR FOTO 📸</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                  <Icon name="camera-alt" size={20} color={color.danger} />
+                  <Text style={styles.botonTexto}>TOMAR FOTO</Text>
+                </View>
               </TouchableOpacity>
             )}
             <TouchableOpacity onPress={() => setPaso(2)}>
-              <Text style={styles.botonSecundarioTexto}>← Volver al teléfono</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+              <Icon name="arrow-back" size={16} color={color.textInverse} />
+              <Text style={styles.botonSecundarioTexto}>Volver al teléfono</Text>
+            </View>
             </TouchableOpacity>
           </>
         )}
@@ -315,7 +337,7 @@ export default function BienvenidaScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.danger },
+  container: { flex: 1, backgroundColor: color.danger },
   content: {
     flexGrow: 1,
     alignItems: 'center',
@@ -323,11 +345,10 @@ const styles = StyleSheet.create({
     padding: 28,
     gap: 20,
   },
-  escudo: { fontSize: 80 },
   titulo: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: color.textInverse,
     textAlign: 'center',
   },
   subtitulo: {
@@ -337,7 +358,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   tarjeta: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.textInverse,
     borderRadius: 20,
     padding: 24,
     width: '100%',
@@ -346,28 +367,28 @@ const styles = StyleSheet.create({
   pregunta: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: color.textPrimary,
     textAlign: 'center',
   },
   ayuda: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   input: {
     borderWidth: 2,
-    borderColor: COLORS.danger,
+    borderColor: color.danger,
     borderRadius: 14,
     padding: 16,
-    color: COLORS.text,
+    color: color.textPrimary,
     textAlign: 'center',
     fontWeight: 'bold',
     backgroundColor: '#F9FAFB',
   },
   inputPhone: { fontSize: 24 },
   botonPrincipal: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.textInverse,
     borderRadius: 50,
     paddingVertical: 18,
     paddingHorizontal: 48,
@@ -382,11 +403,11 @@ const styles = StyleSheet.create({
   botonTexto: {
     fontSize: 20,
     fontWeight: '900',
-    color: COLORS.danger,
+    color: color.danger,
     letterSpacing: 1,
   },
   botonSecundarioTexto: {
-    color: COLORS.white,
+    color: color.textInverse,
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
@@ -397,7 +418,7 @@ const styles = StyleSheet.create({
     borderRadius: 140,
     overflow: 'hidden',
     borderWidth: 5,
-    borderColor: COLORS.white,
+    borderColor: color.textInverse,
     backgroundColor: '#333',
   },
   camera: { flex: 1 },

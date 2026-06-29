@@ -20,7 +20,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import { COLORS } from '../config/constants';
+import { color } from '../theme';
 
 interface TrialExpiredModalProps {
   /** Controla la visibilidad del modal */
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 20,
     padding: 28,
     width: '100%',
@@ -116,17 +116,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: color.textPrimary,
     textAlign: 'center',
   },
   body: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
   primaryBtn: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 12,
     paddingHorizontal: 24,
     paddingVertical: 14,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryBtnText: {
-    color: COLORS.white,
+    color: color.textInverse,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   secondaryBtnText: {
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     fontSize: 14,
     fontWeight: '500',
   },

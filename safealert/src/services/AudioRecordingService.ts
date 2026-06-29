@@ -9,11 +9,10 @@
 * ============================================================================ */
 
 import { Audio } from 'expo-av';
-import { Platform } from 'react-native';
-import storage from '@react-native-firebase/storage';
 import { AUDIO_RECORDING_SECONDS } from '../config/constants';
 import { buildAlertAudioStoragePath } from '../config/features';
 import { auth, ensureAuthenticated } from '../config/firebase';
+import { storage } from '../config/firebase';
 
 let activeSnippetRecording: Audio.Recording | null = null;
 
@@ -45,9 +44,9 @@ export const AudioRecordingService = {
 
   /* ============================================================================
   * Función         : configure
-  * Descripción     : Configura el modo de audio para grabación en foreground.
-  * Fecha           : 2026-03-30
-  * Versión         : 1.0.1
+  * Descripción     : Configura el modo de audio para grabación persistente, incluyendo segundo plano.
+  * Fecha           : 2026-04-09
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : recordSnippet, recordAndUpload
   * Ingesta         : Sin argumentos
@@ -57,11 +56,12 @@ export const AudioRecordingService = {
   async configure(): Promise<void> {
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
-      staysActiveInBackground: false,
+      staysActiveInBackground: true,
       playsInSilentModeIOS: true,
       interruptionModeIOS: 1, // InterruptionModeIOS.DuckOthers
-      interruptionModeAndroid: 2, // InterruptionModeAndroid.DuckOthers
+      interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix
       shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
     });
   },
 
@@ -120,27 +120,19 @@ export const AudioRecordingService = {
   /* ============================================================================
   * Función         : recordAndUpload
   * Descripción     : Graba el audio de una alerta y lo sube a Firebase Storage.
-  * Fecha           : 2026-03-30
-  * Versión         : 1.0.1
+  * Fecha           : 2026-04-09
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : AlertService, Firebase Storage
   * Ingesta         : userId, alertId
-  * Devolución      : Promise<{ audioUrl: string; audioPath: string } | null>
+  * Devolución      : Promise<{ audioUrl: string; audioPath: string; localUri: string } | null>
   * Uso             : await AudioRecordingService.recordAndUpload(userId, alertId)
   * ============================================================================ */
   async recordAndUpload(
     userId: string,
     alertId: string
-  ): Promise<{ audioUrl: string; audioPath: string } | null> {
+  ): Promise<{ audioUrl: string; audioPath: string; localUri: string } | null> {
     try {
-      if (__DEV__ && Platform.OS === 'android') {
-        console.warn(
-          '[AudioRecordingService] Se omite la subida del audio en Android dev para evitar falsos negativos de Storage durante las pruebas locales.',
-          { userId, alertId }
-        );
-        return null;
-      }
-
       const authenticatedUserId = await ensureAuthenticated().catch(() => null);
       if (!authenticatedUserId || authenticatedUserId !== userId) {
         console.warn(
@@ -189,7 +181,7 @@ export const AudioRecordingService = {
 
       const audioUrl = await ref.getDownloadURL();
 
-      return { audioUrl, audioPath };
+      return { audioUrl, audioPath, localUri: uri };
     } catch (error) {
       console.warn('[AudioRecordingService] Error recording audio:', error);
       return null;

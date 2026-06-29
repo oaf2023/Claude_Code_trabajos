@@ -11,7 +11,7 @@
 import { contactsCol } from '../config/firebase';
 import { Contact, ContactFormData } from '../types/Contact';
 import { toE164 } from '../utils/formatPhone';
-import firestore from '@react-native-firebase/firestore';
+import { firestore } from '../config/firebase';
 import { DeviceService } from './DeviceService';
 import { TrialService } from './TrialService';
 

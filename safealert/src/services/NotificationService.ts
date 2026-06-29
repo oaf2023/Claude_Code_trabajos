@@ -2,8 +2,8 @@
 * Archivo         : NotificationService.ts
 * Descripción     : Gestión de notificaciones locales y recordatorios del MVP.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-06-29
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : NotificationService.configure() y scheduleDailyReminder()
 * ============================================================================ */
@@ -40,12 +40,13 @@ export const NotificationService = {
 
   async requestPermissions(): Promise<Notifications.PermissionStatus> {
     const response = await Notifications.requestPermissionsAsync();
-    return response.status;
+    return (response as any).status;
   },
 
   async scheduleDailyReminder(hour: number): Promise<string | null> {
     const permissions = await this.getPermissionsStatus();
-    if (!(permissions.granted || permissions.status === 'granted')) {
+    const p = permissions as any;
+    if (!(p.granted || p.status === 'granted')) {
       return null;
     }
 

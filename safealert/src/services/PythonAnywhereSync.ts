@@ -1,15 +1,20 @@
 /* ============================================================================
 * Archivo         : PythonAnywhereSync.ts
 * Descripción     : Servicio para sincronización de perfiles con PythonAnywhere.
+*                   ⚠️  Esta sincronización expone la clave en el cliente.
+*                   Migrar a Firebase Function como proxy para eliminar
+*                   este riesgo. Por ahora la clave se lee de variable de entorno.
 * Autor           : oafon
-* Fecha           : 2026-03-30
-* Versión         : 1.1.0
+* Fecha           : 2026-06-29
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : import { syncProfileToBackend } from './PythonAnywhereSync';
 * ============================================================================ */
 
-const PYTHONANYWHERE_API_URL = 'https://oaf.pythonanywhere.com/api/v1/sync-user';
-const SYNC_SECRET_KEY = 'TEMP_SECRET_123'; // Debería venir de un config seguro
+import { PA_API_URL } from '../config/features';
+
+const PYTHONANYWHERE_API_URL = `${PA_API_URL}/api/v1/sync-user`;
+const SYNC_SECRET_KEY = process.env.EXPO_PUBLIC_PA_SYNC_SECRET || '';
 
 export interface UserProfileSync {
   userId: string;

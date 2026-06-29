@@ -18,12 +18,16 @@ import {
   Alert,
   Switch,
   ActivityIndicator,
+  ViewStyle,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useContacts } from '../../src/hooks/useContacts';
 import { Contact } from '../../src/types/Contact';
 import { formatDisplayPhone } from '../../src/utils/formatPhone';
-import { COLORS } from '../../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../../src/theme';
+import { Icon } from '../../src/theme/Icon';
+import { Card } from '../../src/theme/Card';
+import { Button } from '../../src/theme/Button';
 
 function ContactItem({
   contact,
@@ -41,14 +45,13 @@ function ContactItem({
   onPrioritize: () => void;
 }) {
   return (
-    <View
-      style={[styles.contactCard, isPriority ? styles.contactCardPriority : null]}
-      accessible
-      accessibilityRole="summary"
-      accessibilityLabel={`${contact.name}, ${formatDisplayPhone(contact.phone)}${
-        isPriority ? ', contacto prioritario para llamada asistida' : ''
-      }`}
-    >
+    <Card style={[styles.contactCardRow, isPriority ? styles.contactCardPriority : undefined] as ViewStyle[]}>
+      <View accessible accessibilityRole="summary"
+        accessibilityLabel={`${contact.name}, ${formatDisplayPhone(contact.phone)}${
+          isPriority ? ', contacto prioritario para llamada asistida' : ''
+        }`}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 }}
+      >
       <View style={styles.contactAvatar}>
         <Text style={styles.contactAvatarText}>
           {contact.name.charAt(0).toUpperCase()}
@@ -66,8 +69,8 @@ function ContactItem({
         onValueChange={onToggle}
         accessibilityLabel={`Activar o desactivar a ${contact.name}`}
         accessibilityHint="Controla si este contacto recibe alertas reales"
-        trackColor={{ false: COLORS.border, true: COLORS.safeLight }}
-        thumbColor={contact.active ? COLORS.safe : COLORS.neutral}
+        trackColor={{ false: color.border, true: color.safeLight }}
+        thumbColor={contact.active ? color.safe : color.neutral400}
       />
       <TouchableOpacity
         onPress={onPrioritize}
@@ -79,7 +82,7 @@ function ContactItem({
             : `Marcar a ${contact.name} como contacto principal`
         }
       >
-        <Text style={styles.actionBtnText}>{isPriority ? '⭐' : '☆'}</Text>
+        <Icon name={isPriority ? 'star' : 'star-border'} size={20} color={color.warning} />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={onEdit}
@@ -87,7 +90,7 @@ function ContactItem({
         accessibilityRole="button"
         accessibilityLabel={`Editar contacto ${contact.name}`}
       >
-        <Text style={styles.actionBtnText}>✏️</Text>
+        <Icon name="edit" size={20} color={color.textSecondary} />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={onDelete}
@@ -95,9 +98,10 @@ function ContactItem({
         accessibilityRole="button"
         accessibilityLabel={`Eliminar contacto ${contact.name}`}
       >
-        <Text style={styles.actionBtnText}>🗑️</Text>
+        <Icon name="delete" size={20} color={color.danger} />
       </TouchableOpacity>
     </View>
+    </Card>
   );
 }
 
@@ -165,7 +169,7 @@ export default function ContactsScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={COLORS.danger} size="large" />
+        <ActivityIndicator color={color.danger} size="large" />
       </View>
     );
   }
@@ -174,7 +178,7 @@ export default function ContactsScreen() {
     <View style={styles.container}>
       {contacts.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyEmoji}>👥</Text>
+          <Icon name="people" size={64} color={color.neutral400} />
           <Text style={styles.emptyTitle}>Sin contactos de confianza</Text>
           <Text style={styles.emptySub}>
             Agrega personas que recibirán tu ubicación en emergencias.
@@ -208,27 +212,30 @@ export default function ContactsScreen() {
         />
       )}
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => router.push('/contacts/new')}
-        accessibilityRole="button"
-        accessibilityLabel="Agregar nuevo contacto de confianza"
-        accessibilityHint="Abre el formulario para sumar un contacto"
-      >
-        <Text style={styles.fabText}>＋</Text>
-      </TouchableOpacity>
+      <View style={styles.fabContainer}>
+        <Button
+          title=""
+          icon="add"
+          onPress={() => router.push('/contacts/new')}
+          variant="danger"
+          size="lg"
+          style={styles.fab}
+          accessibilityLabel="Agregar nuevo contacto de confianza"
+          accessibilityHint="Abre el formulario para sumar un contacto"
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: color.background },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   list: { padding: 16, gap: 8, paddingBottom: 80 },
   listHeader: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
   },
   headerCard: {
@@ -239,62 +246,42 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     textAlign: 'center',
-    color: COLORS.textMuted,
+    color: color.textSecondary,
   },
 
-  contactCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 14,
+  contactCardRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+    gap: spacing.sm,
+    padding: spacing.md,
   },
   contactCardPriority: {
     borderWidth: 1,
-    borderColor: COLORS.warning,
+    borderColor: color.warning,
   },
   contactAvatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.dangerLight,
+    backgroundColor: color.dangerLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   contactAvatarText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.danger,
+    color: color.danger,
   },
   contactInfo: { flex: 1 },
-  contactName: { fontSize: 15, fontWeight: '600', color: COLORS.text },
-  contactPhone: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
-  channelBadge: {
-    marginTop: 6,
-    alignSelf: 'flex-start',
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.dangerDark,
-    backgroundColor: COLORS.dangerLight,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
+  contactName: { fontSize: 15, fontWeight: '600', color: color.textPrimary },
+  contactPhone: { fontSize: 13, color: color.textSecondary, marginTop: 2 },
   priorityBadge: {
     marginTop: 6,
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.warning,
+    color: color.warning,
   },
   actionBtn: { padding: 6 },
-  actionBtnText: { fontSize: 18 },
-
   emptyState: {
     flex: 1,
     alignItems: 'center',
@@ -302,30 +289,25 @@ const styles = StyleSheet.create({
     padding: 40,
     gap: 12,
   },
-  emptyEmoji: { fontSize: 64 },
-  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.text },
+  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: color.textPrimary },
   emptySub: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
 
-  fab: {
+  fabContainer: {
     position: 'absolute',
     bottom: 24,
     right: 24,
+  },
+  fab: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.danger,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 6,
-    shadowColor: COLORS.danger,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
-  fabText: { fontSize: 28, color: COLORS.white, lineHeight: 32 },
+
 });

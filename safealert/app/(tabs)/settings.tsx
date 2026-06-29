@@ -21,7 +21,8 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
-import { COLORS } from '../../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../../src/theme';
+import { Icon } from '../../src/theme/Icon';
 import { WAKE_WORD_FOREGROUND_ONLY } from '../../src/config/features';
 import { WakeWordService } from '../../src/services/WakeWordService';
 import { NotificationService } from '../../src/services/NotificationService';
@@ -147,9 +148,10 @@ export default function SettingsScreen() {
         style={styles.permissionsLink}
         onPress={() => router.push('/como-funciona')}
       >
-        <Text style={styles.permissionsLinkText}>
-          ℹ️ Cómo funciona SafeAlert →
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="info" size={20} color={color.textPrimary} />
+          <Text style={styles.permissionsLinkText}>Cómo funciona SafeAlert →</Text>
+        </View>
       </TouchableOpacity>
 
       {/* Permisos */}
@@ -157,9 +159,10 @@ export default function SettingsScreen() {
         style={styles.permissionsLink}
         onPress={() => router.push('/permissions')}
       >
-        <Text style={styles.permissionsLinkText}>
-          🔐 Ver estado de permisos →
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <Icon name="lock" size={20} color={color.textPrimary} />
+          <Text style={styles.permissionsLinkText}>Ver estado de permisos →</Text>
+        </View>
       </TouchableOpacity>
 
       {/* Audio toggle */}
@@ -175,8 +178,8 @@ export default function SettingsScreen() {
           <Switch
             value={settings.audioEnabled}
             onValueChange={(v) => updateSettings({ audioEnabled: v })}
-            trackColor={{ false: COLORS.border, true: COLORS.dangerLight }}
-            thumbColor={settings.audioEnabled ? COLORS.danger : COLORS.neutral}
+            trackColor={{ false: color.border, true: color.dangerLight }}
+            thumbColor={settings.audioEnabled ? color.danger : color.neutral400}
           />
         </View>
       </View>
@@ -193,9 +196,9 @@ export default function SettingsScreen() {
           <Switch
             value={settings.reminderNotificationsEnabled}
             onValueChange={toggleDailyReminder}
-            trackColor={{ false: COLORS.border, true: COLORS.dangerLight }}
+            trackColor={{ false: color.border, true: color.dangerLight }}
             thumbColor={
-              settings.reminderNotificationsEnabled ? COLORS.danger : COLORS.neutral
+              settings.reminderNotificationsEnabled ? color.danger : color.neutral400
             }
           />
         </View>
@@ -260,7 +263,7 @@ export default function SettingsScreen() {
                   onPress={() => removeKeyword(word)}
                 >
                   <Text style={styles.keywordChipText}>{word}</Text>
-                  <Text style={styles.keywordChipRemove}> ✕</Text>
+                  <Icon name="close" size={14} color={color.danger} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -370,16 +373,68 @@ export default function SettingsScreen() {
           </Text>
         )}
       </View>
+
+      {/* Privacy section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Privacidad y datos</Text>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={async () => {
+            const { PrivacyService } = await import('../../src/services/PrivacyService');
+            Alert.alert(
+              'Gestión de datos',
+              'Exportar: descargá todos tus datos almacenados.\nEliminar: borrá tu cuenta y todos los datos asociados.',
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                  text: 'Exportar datos',
+                  onPress: async () => {
+                    const result = await PrivacyService.requestDataExport(settings.userId || '');
+                    Alert.alert(result.success ? 'Solicitado' : 'Error', result.message);
+                  },
+                },
+                {
+                  text: 'Eliminar cuenta',
+                  style: 'destructive',
+                  onPress: () => {
+                    Alert.alert(
+                      '¿Eliminar cuenta?',
+                      'Esta acción borrará todos tus datos locales. Los datos en servidores pueden tardar hasta 30 días en eliminarse.',
+                      [
+                        { text: 'Cancelar', style: 'cancel' },
+                        {
+                          text: 'Eliminar',
+                          style: 'destructive',
+                          onPress: async () => {
+                            const result = await PrivacyService.deleteAccount(settings.userId || '');
+                            Alert.alert(result.success ? 'Cuenta eliminada' : 'Error', result.message);
+                          },
+                        },
+                      ]
+                    );
+                  },
+                },
+              ]
+            );
+          }}
+        >
+          <Icon name="shield" size={20} color={color.textPrimary} />
+          <Text style={{ fontSize: 15, fontWeight: '500', color: color.textPrimary, flex: 1 }}>
+            Administrar mis datos
+          </Text>
+          <Icon name="chevron-right" size={20} color={color.neutral400} />
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: color.background },
   content: { padding: 20, gap: 16, paddingBottom: 40 },
 
   permissionsLink: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     elevation: 2,
@@ -388,10 +443,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 3,
   },
-  permissionsLinkText: { fontSize: 15, color: COLORS.text, fontWeight: '500' },
+  permissionsLinkText: { fontSize: 15, color: color.textPrimary, fontWeight: '500' },
 
   section: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     gap: 10,
@@ -401,79 +456,77 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 3,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text },
-  sectionSub: { fontSize: 13, color: COLORS.textMuted, lineHeight: 18 },
-  sectionBullet: { fontSize: 13, color: COLORS.text, lineHeight: 20 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: color.textPrimary },
+  sectionSub: { fontSize: 13, color: color.textSecondary, lineHeight: 18 },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowInfo: { flex: 1 },
-  rowLabel: { fontSize: 14, fontWeight: '600', color: COLORS.text },
-  rowSub: { fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  rowLabel: { fontSize: 14, fontWeight: '600', color: color.textPrimary },
+  rowSub: { fontSize: 12, color: color.textSecondary, marginTop: 2 },
 
   textarea: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    color: COLORS.text,
+    color: color.textPrimary,
     minHeight: 90,
     textAlignVertical: 'top',
   },
   saveButton: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
   },
-  saveButtonText: { fontSize: 14, fontWeight: '600', color: COLORS.white },
+  saveButtonText: { fontSize: 14, fontWeight: '600', color: color.textInverse },
 
   keywordsList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   keywordChip: {
-    backgroundColor: COLORS.dangerLight,
+    backgroundColor: color.dangerLight,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 6,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  keywordChipText: { fontSize: 14, color: COLORS.danger, fontWeight: '500' },
-  keywordChipRemove: { fontSize: 11, color: COLORS.danger },
+  keywordChipText: { fontSize: 14, color: color.danger, fontWeight: '500' },
   addKeywordRow: { flexDirection: 'row', gap: 8 },
   addKeywordInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     borderRadius: 8,
     padding: 10,
     fontSize: 14,
   },
   addKeywordBtn: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 8,
     padding: 10,
     justifyContent: 'center',
   },
-  addKeywordBtnText: { color: COLORS.white, fontWeight: '600', fontSize: 13 },
+  addKeywordBtnText: { color: color.textInverse, fontWeight: '600', fontSize: 13 },
 
   sensitivityButtons: { flexDirection: 'row', gap: 8 },
   sensitivityBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     borderRadius: 8,
     padding: 10,
     alignItems: 'center',
   },
   sensitivityBtnActive: {
-    borderColor: COLORS.danger,
-    backgroundColor: COLORS.dangerLight,
+    borderColor: color.danger,
+    backgroundColor: color.dangerLight,
   },
   sensitivityBtnText: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
     lineHeight: 16,
   },
-  sensitivityBtnTextActive: { color: COLORS.danger, fontWeight: '600' },
+  sensitivityBtnTextActive: { color: color.danger, fontWeight: '600' },
 });

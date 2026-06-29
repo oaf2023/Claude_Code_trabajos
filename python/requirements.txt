@@ -3,3 +3,4 @@ flask-cors==4.0.1
 mercadopago==2.3.0
 gunicorn==22.0.0
 python-dotenv==1.0.1
+firebase-admin==6.6.0

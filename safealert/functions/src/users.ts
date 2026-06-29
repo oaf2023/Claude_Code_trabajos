@@ -13,7 +13,7 @@ import * as admin from 'firebase-admin';
 
 // URL de la API en PythonAnywhere (home/oaf/ayudame)
 const PYTHONANYWHERE_API_URL = process.env.PYTHONANYWHERE_API_URL || 'https://oaf.pythonanywhere.com/api/v1/sync-user';
-const SYNC_SECRET_KEY = process.env.SYNC_SECRET_KEY || 'TEMP_SECRET_123';
+const SYNC_SECRET_KEY = process.env.SYNC_SECRET_KEY || '';
 
 /**
  * Trigger que se activa cuando un nuevo usuario completa su registro en la App.
@@ -23,6 +23,11 @@ export const syncUserToPythonAnywhere = onDocumentCreated('users/{userId}', asyn
   const snapshot = event.data;
   if (!snapshot) {
     console.log('No hay datos en el evento de creación de usuario.');
+    return;
+  }
+
+  if (!SYNC_SECRET_KEY) {
+    console.error('[Sync] SYNC_SECRET_KEY no configurada — abortando sincronización.');
     return;
   }
 

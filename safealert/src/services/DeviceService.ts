@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 
 const STORAGE_KEY = '@safealert/device_id';
+let cachedDeviceId: string | null = null;
+let pendingDeviceIdPromise: Promise<string> | null = null;
 
 /* ============================================================================
 * Función         : generateUUID
@@ -52,8 +54,8 @@ function generateUUID(): string {
 * Descripción     : Recupera el ID de dispositivo persistido en AsyncStorage.
 *                   Si no existe, genera uno nuevo y lo almacena.
 *                   El ID es estable durante toda la vida de la instalación.
-* Fecha           : 2026-04-01
-* Versión         : 1.0.0
+* Fecha           : 2026-04-13
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Conexiones      : AsyncStorage, generateUUID
 * Ingesta         : void
@@ -61,19 +63,37 @@ function generateUUID(): string {
 * Uso             : const deviceId = await DeviceService.getDeviceId()
 * ============================================================================ */
 async function getDeviceId(): Promise<string> {
+  if (cachedDeviceId) {
+    return cachedDeviceId;
+  }
+
+  if (pendingDeviceIdPromise) {
+    return pendingDeviceIdPromise;
+  }
+
+  pendingDeviceIdPromise = (async () => {
   try {
     const stored = await AsyncStorage.getItem(STORAGE_KEY);
     if (stored && stored.startsWith('sa-')) {
+      cachedDeviceId = stored;
       return stored;
     }
     const newId = generateUUID();
     await AsyncStorage.setItem(STORAGE_KEY, newId);
+    cachedDeviceId = newId;
     return newId;
   } catch (error) {
     console.error('[DeviceService] Error accediendo AsyncStorage:', error);
     // Fallback temporal: no persiste pero evita crash
-    return generateUUID();
+    const fallbackId = generateUUID();
+    cachedDeviceId = fallbackId;
+    return fallbackId;
+  } finally {
+    pendingDeviceIdPromise = null;
   }
+  })();
+
+  return pendingDeviceIdPromise;
 }
 
 /* ============================================================================

@@ -1,9 +1,10 @@
 /* ============================================================================
 * Archivo         : index.tsx
-* Descripción     : Pantalla principal del MVP con SOS manual y estado real.
+* Descripción     : Pantalla principal simplificada con design system,
+*                   iconos Material y chequeo de protección visible.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-06-29
+* Versión         : 2.0.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : Pantalla Home de la app.
 * ============================================================================ */
@@ -32,74 +33,44 @@ import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
 import { useGuardMode } from '../../src/hooks/useGuardMode';
-import { COLORS } from '../../src/config/constants';
 import { buildVisibleTriggerWords } from '../../src/utils/triggerWords';
 import {
   REMOTE_AUDIO_GUARD_CONFIGURED,
   WAKE_WORD_FOREGROUND_ONLY,
 } from '../../src/config/features';
+import { color, spacing, borderRadius, typography, shadow } from '../../src/theme';
+import { Icon } from '../../src/theme/Icon';
+import { Button } from '../../src/theme/Button';
+import { Card } from '../../src/theme/Card';
+import { DeviceDiagnostic, ProtectionLevel } from '../../src/services/DeviceDiagnostic';
 
-/* ============================================================================
-* Función         : resolveGuardButtonCopy
-* Descripción     : Traduce el estado operativo de guardia a una etiqueta breve para el botón principal.
-* Fecha           : 2026-03-30
-* Versión         : 1.0.0
-* Lenguaje        : TypeScript 5.9
-* Conexiones      : HomeScreen, guardStatusMessage, alertPhase
-* Ingesta         : isArmed: boolean, alertPhase: string, guardStatusMessage: string | null
-* Devolución      : { icon: string; label: string }
-* Uso             : resolveGuardButtonCopy(isArmed, alertPhase, guardStatusMessage)
-* ============================================================================ */
-function resolveGuardButtonCopy(
-  isArmed: boolean,
-  alertPhase: string,
-  guardStatusMessage: string | null
-): { icon: string; label: string } {
-  if (!isArmed) {
-    return { icon: '🔓', label: 'ACTIVAR\nGUARDIA' };
-  }
-
-  if (alertPhase === 'countdown') {
-    return { icon: '⚠️', label: 'ALERTA\nDETECTADA' };
-  }
-
-  if (alertPhase === 'capturing' || alertPhase === 'sending') {
-    return { icon: '📤', label: 'ENVIANDO\nALERTA' };
-  }
-
-  const normalizedStatus = (guardStatusMessage || '').toLowerCase();
-
-  if (normalizedStatus.includes('analizando')) {
-    return { icon: '🧠', label: 'ANALIZANDO\nAUDIO' };
-  }
-
-  if (normalizedStatus.includes('detecté') || normalizedStatus.includes('coincidencia')) {
-    return { icon: '🚨', label: 'ALERTA\nPOR VOZ' };
-  }
-
-  if (normalizedStatus.includes('grab')) {
-    return { icon: '🎙️', label: 'GRABANDO\nAUDIO' };
-  }
-
-  if (normalizedStatus.includes('problema') || normalizedStatus.includes('error')) {
-    return { icon: '⚠️', label: 'REVISAR\nGUARDIA' };
-  }
-
-  return { icon: '🛡️', label: 'GUARDIA\nACTIVA' };
+function resolveGuardIcon(isArmed: boolean, alertPhase: string, status: string | null): { icon: React.ComponentProps<typeof Icon>['name']; label: string } {
+  if (!isArmed) return { icon: 'lock-open', label: 'ACTIVAR\nGUARDIA' };
+  if (alertPhase === 'countdown') return { icon: 'warning', label: 'ALERTA\nDETECTADA' };
+  if (alertPhase === 'capturing' || alertPhase === 'sending') return { icon: 'send', label: 'ENVIANDO\nALERTA' };
+  const s = (status || '').toLowerCase();
+  if (s.includes('analizando')) return { icon: 'psychology', label: 'ANALIZANDO\nAUDIO' };
+  if (s.includes('detecté') || s.includes('coincidencia')) return { icon: 'emergency', label: 'ALERTA\nPOR VOZ' };
+  if (s.includes('grab')) return { icon: 'mic', label: 'GRABANDO\nAUDIO' };
+  if (s.includes('problema') || s.includes('error')) return { icon: 'warning', label: 'REVISAR\nGUARDIA' };
+  return { icon: 'shield', label: 'GUARDIA\nACTIVA' };
 }
 
-/* ============================================================================
+function ProtectionBadge({ level }: { level: ProtectionLevel }) {
+  const config = {
+    active: { icon: 'check-circle' as const, color: color.safe, bg: color.safeLight, label: 'Protección activa' },
+    limited: { icon: 'warning' as const, color: color.warning, bg: color.warningLight, label: 'Protección limitada' },
+    stopped: { icon: 'cancel' as const, color: color.danger, bg: color.dangerLight, label: 'Protección detenida' },
+  };
+  const c = config[level];
+  return (
+    <View style={[localStyles.protectionBadge, { backgroundColor: c.bg }]}>
+      <Icon name={c.icon} size={16} color={c.color} />
+      <Text style={[localStyles.protectionBadgeText, { color: c.color }]}>{c.label}</Text>
+    </View>
+  );
+}
 
-* Función         : HomeScreen
-* Descripción     : Renderiza la pantalla principal y resume las palabras de activación configuradas.
-* Fecha           : 2026-03-30
-* Versión         : 1.1.0
-* Lenguaje        : TypeScript 5.9
-* Conexiones      : useGuardStore, useSettingsStore, useAlert, WakeWordService
-* Ingesta         : Sin argumentos
-* Devolución      : JSX.Element
-* Uso             : Pantalla principal accesible desde la tab Inicio.
-* ============================================================================ */
 export default function HomeScreen() {
   const isArmed = useGuardStore((s) => s.isArmed);
   const setArmed = useGuardStore((s) => s.setArmed);
@@ -118,9 +89,7 @@ export default function HomeScreen() {
     isAlerting,
   } = useAlert();
 
-  // Integración con el nuevo Modo Guardia Nativo (Vosk)
   const { isGuardActive, activateGuard, deactivateGuard } = useGuardMode(() => {
-    // Cuando detecta voz, disparamos la alerta manual (SOS)
     if (!isAlerting) triggerManual();
   });
 
@@ -137,727 +106,351 @@ export default function HomeScreen() {
   const guardEngineLabel = REMOTE_AUDIO_GUARD_CONFIGURED
     ? 'API remota de audio'
     : 'motor local de wake word';
-  const guardButtonCopy = resolveGuardButtonCopy(
-    isArmed,
-    alertPhase,
-    guardStatusMessage
-  );
+  const guardButton = resolveGuardIcon(isArmed, alertPhase, guardStatusMessage);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const [isSendingManual, setIsSendingManual] = useState(false);
   const [isBlackScreen, setIsBlackScreen] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [deviceId, setDeviceId] = useState('');
+  const [protectionLevel, setProtectionLevel] = useState<ProtectionLevel>('active');
 
-  // Cargar device ID y verificar suscripción al montar
   useEffect(() => {
     DeviceService.getDeviceId().then((id) => {
       setDeviceId(id);
       PaymentService.checkSubscription(id);
     });
+    DeviceDiagnostic.run().then((r) => setProtectionLevel(r.level));
+    const stop = DeviceDiagnostic.startPolling(30000);
+    return stop;
   }, []);
 
-  const dismissAlertFeedback = () => {
-    resetAlertState();
-    setLastAlert(null);
-  };
-
-  const alertStatusLabel =
-    lastAlert?.status === 'pending'
-      ? '⏳ Alerta registrada. Pendiente de procesamiento.'
-      : lastAlert?.status === 'partial'
-        ? `⚠️ Alerta enviada parcialmente a ${lastAlert.contacts.length} contactos`
-        : lastAlert?.status === 'failed'
-          ? '❌ La alerta no pudo enviarse desde el backend.'
-          : lastAlert
-            ? `✅ Alerta enviada a ${lastAlert.contacts.length} contactos`
-            : '';
-
-  const alertStatusSubLabel =
-    lastAlert?.status === 'pending'
-      ? 'El backend todavía no confirmó el envío del mensaje. Si este entorno no tiene Twilio configurado, no saldrá SMS real.'
-      : lastAlert?.status === 'failed'
-        ? lastAlert.contacts.find((contact) => contact.lastError)?.lastError
-          ? `Detalle backend: ${lastAlert.contacts.find((contact) => contact.lastError)?.lastError}`
-          : 'Revisá la configuración de Functions y del proveedor SMS antes de repetir la prueba.'
-        : lastAlert?.status === 'partial'
-          ? 'Al menos un contacto no recibió la notificación y requiere revisión.'
-          : lastAlert
-            ? new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR')
-            : '';
-
-  const shouldShowAlertFeedback = !!lastAlert;
-
-  // Toggle Black Screen (Incognito)
-  const toggleBlackScreen = () => {
-    setIsBlackScreen(!isBlackScreen);
-    Vibration.vibrate(100);
-  };
-
-  // Pulse animation for active guard mode
   useEffect(() => {
     if (isArmed) {
       const pulse = Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.12,
-            duration: 1200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1200,
-            useNativeDriver: true,
-          }),
+          Animated.timing(pulseAnim, { toValue: 1.12, duration: 1200, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
         ])
       );
       pulse.start();
       return () => pulse.stop();
-    } else {
-      pulseAnim.setValue(1);
     }
+    pulseAnim.setValue(1);
   }, [isArmed, pulseAnim]);
+
+  const dismissAlertFeedback = () => { resetAlertState(); setLastAlert(null); };
+
+  const alertStatusLabel = !lastAlert ? ''
+    : lastAlert.status === 'pending' ? 'Alerta registrada. Pendiente de procesamiento.'
+    : lastAlert.status === 'partial' ? `Alerta enviada parcialmente a ${lastAlert.contacts.length} contactos`
+    : lastAlert.status === 'failed' ? 'La alerta no pudo enviarse desde el backend.'
+    : `Alerta enviada a ${lastAlert.contacts.length} contactos`;
+
+  const alertStatusSubLabel = !lastAlert ? ''
+    : lastAlert.status === 'pending' ? 'El backend todavía no confirmó el envío.'
+    : lastAlert.status === 'failed'
+      ? lastAlert.contacts.find((c) => c.lastError)?.lastError || 'Revisá la configuración de Functions.'
+    : lastAlert.status === 'partial' ? 'Al menos un contacto no recibió la notificación.'
+    : new Date(lastAlert.triggeredAt).toLocaleTimeString('es-AR');
+
+  const toggleBlackScreen = () => { setIsBlackScreen(!isBlackScreen); Vibration.vibrate(100); };
 
   const toggleGuard = async () => {
     if (!wakeWordAvailable) {
       Alert.alert('No disponible', WakeWordService.getUnavailableReason());
       return;
     }
-
     if (!userId) return;
     if (activeCount === 0) {
-      Alert.alert(
-        'Sin contactos',
-        'Agrega al menos un contacto antes de activar el modo guardia.',
-        [{ text: 'Ir a Contactos', onPress: () => router.push('/contacts') }]
-      );
+      Alert.alert('Sin contactos', 'Agrega al menos un contacto antes de activar el modo guardia.',
+        [{ text: 'Ir a Contactos', onPress: () => router.push('/contacts') }]);
       return;
     }
-
-    if (isArmed) {
-      await WakeWordService.stop();
-      await deactivateGuard(); // Apagar escucha nativa Vosk
-      setArmed(false);
-    } else {
-      // Verificar suscripción antes de activar guardia
-      if (!hasSubscription) {
-        setShowPayment(true);
-        return;
+    try {
+      if (isArmed) {
+        await deactivateGuard();
+        setArmed(false);
+      } else {
+        if (!hasSubscription) { setShowPayment(true); return; }
+        const started = await activateGuard();
+        if (started) setArmed(true);
       }
-      try {
-        await WakeWordService.start();
-        await activateGuard(); // Encender escucha nativa Vosk (Foreground Service)
-        setArmed(true);
-        Vibration.vibrate(200);
-      } catch (e: any) {
-        Alert.alert(
-          'Error',
-          e?.message || 'No se pudo activar el modo guardia. Verifica los permisos.',
-          [{ text: 'Ver Permisos', onPress: () => router.push('/permissions') }]
-        );
-      }
+      Vibration.vibrate(200);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'No se pudo activar el modo guardia.',
+        [{ text: 'Ver Permisos', onPress: () => router.push('/permissions') }]);
     }
   };
 
   const handlePanicButton = async () => {
-    if (!userId) {
-      Alert.alert(
-        'Sesión no disponible',
-        'Todavía no se pudo inicializar la sesión segura. Reintenta en unos segundos.'
-      );
-      return;
-    }
-
-    if (contactsLoading) {
-      Alert.alert('Cargando', 'Todavía estamos cargando tus contactos. Reintenta en unos segundos.');
-      return;
-    }
-
-    if (activeCount === 0) {
-      Alert.alert('Sin contactos', 'Agrega contactos de confianza primero.');
-      return;
-    }
-    // Verificar suscripción antes de enviar alerta manual
-    if (!hasSubscription) {
-      setShowPayment(true);
-      return;
-    }
+    if (!userId) { Alert.alert('Sesión no disponible', 'Reintenta en unos segundos.'); return; }
+    if (contactsLoading) { Alert.alert('Cargando', 'Esperá mientras cargamos tus contactos.'); return; }
+    if (activeCount === 0) { Alert.alert('Sin contactos', 'Agregá contactos de confianza primero.'); return; }
+    if (!hasSubscription) { setShowPayment(true); return; }
     setIsSendingManual(true);
     Vibration.vibrate([0, 200, 100, 200]);
-    try {
-      await triggerManual();
-    } catch (e: any) {
-      Alert.alert('Error', e.message || 'No se pudo enviar la alerta.');
-    } finally {
-      setIsSendingManual(false);
-    }
+    try { await triggerManual(); }
+    catch (e: any) { Alert.alert('Error', e.message || 'No se pudo enviar la alerta.'); }
+    finally { setIsSendingManual(false); }
   };
 
-  // Black Screen Overlay (Incognito Mode)
   if (isBlackScreen) {
     return (
-      <TouchableOpacity 
-        activeOpacity={1} 
-        onLongPress={toggleBlackScreen} 
-        delayLongPress={5000}
-        style={styles.blackScreen}
-        accessibilityRole="button"
-        accessibilityLabel="Salir del modo incógnito"
-        accessibilityHint="Mantén pulsado cinco segundos para volver a la pantalla principal"
+      <TouchableOpacity activeOpacity={1} onLongPress={toggleBlackScreen} delayLongPress={5000}
+        style={localStyles.blackScreen}
+        accessibilityRole="button" accessibilityLabel="Salir del modo incógnito"
+        accessibilityHint="Mantén pulsado cinco segundos para volver"
       >
         <StatusBar hidden />
       </TouchableOpacity>
     );
   }
 
-  // Countdown overlay
   if (alertPhase === 'countdown') {
     return (
-      <View style={styles.countdownOverlay}>
-        <Text style={styles.countdownTitle}>⚠️ ALERTA DETECTADA</Text>
-        <Text style={styles.countdownWord}>Palabra: "{detectedKeyword}"</Text>
-        <View style={styles.countdownCircle}>
-          <Text style={styles.countdownNumber}>{countdownSeconds}</Text>
+      <View style={localStyles.countdownOverlay}>
+        <Icon name="warning" size={48} color="#FCA5A5" />
+        <Text style={localStyles.countdownTitle}>ALERTA DETECTADA</Text>
+        <Text style={localStyles.countdownWord}>Palabra: "{detectedKeyword}"</Text>
+        <View style={localStyles.countdownCircle}>
+          <Text style={localStyles.countdownNumber}>{countdownSeconds}</Text>
         </View>
-        <Text style={styles.countdownSub}>
-          Enviando alerta a {activeCount} contactos...
-        </Text>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={cancelCountdown}
-          accessibilityRole="button"
-          accessibilityLabel="Cancelar alerta detectada"
-          accessibilityHint="Detiene el envío antes de avisar a tus contactos"
+        <Text style={localStyles.countdownSub}>Enviando alerta a {activeCount} contactos...</Text>
+        <TouchableOpacity style={localStyles.cancelButton} onPress={cancelCountdown}
+          accessibilityRole="button" accessibilityLabel="Cancelar alerta"
         >
-          <Text style={styles.cancelButtonText}>✕ CANCELAR</Text>
+          <Text style={localStyles.cancelButtonText}>CANCELAR</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-    >
-      {shouldShowAlertFeedback && lastAlert ? (
-        <View style={styles.successBanner}>
-          <Text style={styles.successBannerText}>
-            {alertStatusLabel}
-          </Text>
-          <Text style={styles.successBannerSub}>
-            {alertStatusSubLabel}
-          </Text>
+    <ScrollView style={localStyles.container} contentContainerStyle={localStyles.content}>
+      {/* Protection badge */}
+      <ProtectionBadge level={protectionLevel} />
 
-          {(lastAlert.status === 'sent' || lastAlert.status === 'partial') && !lastAlert.isTest && lastAlert.contacts[0]?.phone ? (
-            <TouchableOpacity
-              style={styles.assistedCallButton}
-              onPress={() => Linking.openURL(`tel:${lastAlert.contacts[0].phone}`)}
-              accessibilityRole="button"
-              accessibilityLabel={`Abrir teléfono para llamar a ${lastAlert.contacts[0].name}`}
-              accessibilityHint="Abre el marcador del sistema con el contacto prioritario"
-            >
-              <Text style={styles.assistedCallButtonText}>
-                Abrir teléfono para llamar a {lastAlert.contacts[0].name}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
+      {/* Alert feedback banner */}
+      {lastAlert ? (
+        <Card variant={lastAlert.status === 'failed' ? 'warning' : lastAlert.status === 'partial' ? 'warning' : 'success'}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            <Icon name={lastAlert.status === 'failed' ? 'close' : lastAlert.status === 'partial' ? 'warning' : 'check-circle'}
+              size={20} color={lastAlert.status === 'failed' ? color.danger : lastAlert.status === 'partial' ? color.warning : color.safe} />
+            <Text style={localStyles.successBannerText}>{alertStatusLabel}</Text>
+          </View>
+          <Text style={localStyles.successBannerSub}>{alertStatusSubLabel}</Text>
 
           {lastAlert.audioUrl ? (
-            <Text style={styles.audioStatusDone}>
-              🎙️ El audio de seguimiento quedó adjunto a la alerta.
+            <Text style={{ fontSize: 12, color: color.safe, marginTop: spacing.sm, fontWeight: '600' }}>
+              Audio de seguimiento adjunto a la alerta.
             </Text>
           ) : null}
 
-          <TouchableOpacity
-            style={styles.incognitoToggle}
-            onPress={toggleBlackScreen}
-            accessibilityRole="button"
-            accessibilityLabel="Activar modo incógnito"
-            accessibilityHint="Oscurece la pantalla principal mientras sigues con la app abierta"
-          >
-            <Text style={styles.incognitoToggleText}>🕶️ ACTIVAR MODO INCÓGNITO</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.clearAlertButton}
-            onPress={dismissAlertFeedback}
-            accessibilityRole="button"
-            accessibilityLabel="Terminar alerta"
-            accessibilityHint="Limpia el banner de estado y devuelve la pantalla principal al modo normal"
-          >
-            <Text style={styles.clearAlertButtonText}>TERMINAR ALERTA</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
+            <TouchableOpacity style={localStyles.incognitoToggle} onPress={toggleBlackScreen}
+              accessibilityRole="button" accessibilityLabel="Modo incógnito">
+              <Icon name="visibility-off" size={16} color="#FFF" />
+              <Text style={{ color: '#FFF', fontSize: 12, fontWeight: 'bold' }}>INCÓGNITO</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={localStyles.clearAlertButton} onPress={dismissAlertFeedback}
+              accessibilityRole="button" accessibilityLabel="Terminar alerta">
+              <Text style={{ color: color.textInverse, fontSize: 14, fontWeight: '700' }}>TERMINAR</Text>
+            </TouchableOpacity>
+          </View>
+        </Card>
       ) : null}
 
       {alertPhase === 'capturing' || alertPhase === 'sending' ? (
-        <View style={styles.sendingBanner}>
-          <Text style={styles.sendingText}>
-            {alertPhase === 'capturing'
-              ? '📍 Obteniendo ubicación...'
-              : '📤 Enviando alerta...'}
+        <View style={localStyles.sendingBanner}>
+          <Icon name="location-on" size={18} color={color.warning} />
+          <Text style={localStyles.sendingText}>
+            {alertPhase === 'capturing' ? 'Obteniendo ubicación...' : 'Enviando alerta...'}
           </Text>
         </View>
       ) : null}
 
+      {/* Guard section */}
       {wakeWordAvailable ? (
-        <View style={styles.guardSection}>
-          <Text style={styles.guardLabel}>
-            {isArmed ? '🟢 Modo guardia ACTIVO' : '⚪ Modo guardia INACTIVO'}
-          </Text>
+        <View style={localStyles.guardSection}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+            <Icon name="circle" size={10} color={isArmed ? color.safe : color.neutral400} />
+            <Text style={localStyles.guardLabel}>
+              {isArmed ? 'Modo guardia ACTIVO' : 'Modo guardia INACTIVO'}
+            </Text>
+          </View>
 
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
             <TouchableOpacity
-              style={[styles.guardButton, isArmed && styles.guardButtonArmed]}
-              onPress={toggleGuard}
-              activeOpacity={0.8}
+              style={[localStyles.guardButton, isArmed && localStyles.guardButtonArmed]}
+              onPress={toggleGuard} activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={isArmed ? 'Desactivar modo guardia' : 'Activar modo guardia'}
-              accessibilityHint="Controla la escucha automática solo cuando la función está disponible"
             >
-              <Text style={styles.guardButtonIcon}>{guardButtonCopy.icon}</Text>
-              <Text style={styles.guardButtonText}>
-                {guardButtonCopy.label}
-              </Text>
+              <Icon name={guardButton.icon} size={40} color={color.textInverse} />
+              <Text style={localStyles.guardButtonText}>{guardButton.label}</Text>
             </TouchableOpacity>
           </Animated.View>
 
           {isArmed ? (
-            <Text style={styles.guardHint}>
+            <Text style={localStyles.guardHint}>
               {WAKE_WORD_FOREGROUND_ONLY
-                ? 'La detección automática está activa mientras SafeAlert permanece abierto en Android.'
-                : 'La detección automática está activa para esta compilación.'}
+                ? 'Detección activa mientras SafeAlert permanezca abierto.'
+                : 'Detección automática activa.'}
             </Text>
           ) : null}
 
-          <Text style={styles.guardHint}>
-            Motor activo: {guardEngineLabel}
-          </Text>
+          <Text style={localStyles.guardHint}>Motor: {guardEngineLabel}</Text>
 
           {isArmed && guardStatusMessage ? (
-            <View style={styles.guardStatusCard}>
-              <Text style={styles.guardStatusTitle}>Estado de escucha</Text>
-              <Text style={styles.guardStatusText}>{guardStatusMessage}</Text>
+            <Card variant="elevated">
+              <Text style={{ fontWeight: '700', color: color.textPrimary }}>Estado de escucha</Text>
+              <Text style={{ fontSize: 14, color: color.textSecondary, lineHeight: 20 }}>{guardStatusMessage}</Text>
               {lastHeardTranscript ? (
-                <Text style={styles.guardTranscriptText}>
-                  Te escuché: "{lastHeardTranscript}"
-                </Text>
+                <Text style={{ fontSize: 13, color: color.safe }}>Te escuché: "{lastHeardTranscript}"</Text>
               ) : null}
-            </View>
+            </Card>
           ) : null}
         </View>
       ) : (
-        <View style={styles.guardUnavailableCard}>
-          <Text style={styles.guardUnavailableTitle}>Modo guardia automático</Text>
-          <Text style={styles.guardUnavailableText}>
-            {WakeWordService.getUnavailableReason()} Usa el botón SOS manual mientras terminas la configuración del motor de voz.
+        <Card>
+          <Text style={{ fontWeight: '700', color: color.textPrimary }}>Modo guardia automático</Text>
+          <Text style={{ fontSize: 14, color: color.textSecondary, lineHeight: 20 }}>
+            {WakeWordService.getUnavailableReason()} Usá el botón SOS manual.
           </Text>
-        </View>
+        </Card>
       )}
 
-      {/* Contact count */}
-      <View
-        style={[
-          styles.infoCard,
-          activeCount === 0 && styles.infoCardWarning,
-        ]}
-      >
-        <Text style={styles.infoCardEmoji}>
-          {activeCount === 0 ? '⚠️' : '👥'}
-        </Text>
-        <View>
-          <Text style={styles.infoCardTitle}>
-            {contactsLoading
-              ? 'Cargando contactos de confianza'
-              : activeCount === 0
-              ? 'Sin contactos de confianza'
-              : `${activeCount} contacto${activeCount !== 1 ? 's' : ''} activo${activeCount !== 1 ? 's' : ''}`}
-          </Text>
-          <Text style={styles.infoCardSub}>
-            {contactsLoading
-              ? 'Esperá un momento mientras sincronizamos tu lista guardada'
-              : activeCount === 0
-              ? 'Toca para agregar contactos'
-              : 'Recibirán tu ubicación en emergencias'}
-          </Text>
+      {/* Contacts card */}
+      <Card onPress={() => router.push('/contacts')}
+        style={activeCount === 0 ? { backgroundColor: color.warningLight } : undefined}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+          <Icon name={activeCount === 0 ? 'warning' : 'people'} size={28}
+            color={activeCount === 0 ? color.warning : color.neutral400} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: color.textPrimary }}>
+              {contactsLoading ? 'Cargando contactos...'
+                : activeCount === 0 ? 'Sin contactos de confianza'
+                : `${activeCount} contacto${activeCount !== 1 ? 's' : ''} activo${activeCount !== 1 ? 's' : ''}`}
+            </Text>
+            <Text style={{ fontSize: 12, color: color.textSecondary, marginTop: 2 }}>
+              {activeCount === 0 ? 'Tocá para agregar contactos' : 'Recibirán tu ubicación en emergencias'}
+            </Text>
+          </View>
+          <Icon name="chevron-right" size={20} color={color.neutral400} />
         </View>
-        <TouchableOpacity
-          onPress={() => router.push('/contacts')}
-          accessibilityRole="button"
-          accessibilityLabel="Abrir gestión de contactos"
-          accessibilityHint="Permite revisar, activar o editar contactos de confianza"
-        >
-          <Text style={styles.infoCardLink}>→</Text>
-        </TouchableOpacity>
-      </View>
+      </Card>
 
-      {/* Manual panic button */}
+      {/* Panic button */}
       <TouchableOpacity
-        style={[
-          styles.panicButton,
-          (isSendingManual || isAlerting) && styles.panicButtonDisabled,
-        ]}
+        style={[localStyles.panicButton, (isSendingManual || isAlerting) && { backgroundColor: '#FCA5A5' }]}
         onPress={handlePanicButton}
         disabled={isSendingManual || isAlerting}
         activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={isSendingManual ? 'Enviando alerta manual' : 'Enviar alerta SOS ahora'}
-        accessibilityHint="Envía tu ubicación actual a tus contactos activos"
+        accessibilityRole="button" accessibilityLabel="Enviar alerta SOS"
       >
-        <Text style={styles.panicButtonText}>
-          {isSendingManual ? '📤 Enviando...' : '🆘 ENVIAR ALERTA AHORA'}
+        <Icon name="emergency" size={28} color={color.textInverse} />
+        <Text style={localStyles.panicButtonText}>
+          {isSendingManual ? 'Enviando...' : 'ENVIAR ALERTA AHORA'}
         </Text>
-        <Text style={styles.panicButtonSub}>
-          Envía tu ubicación inmediatamente
-        </Text>
+        <Text style={{ fontSize: 12, color: '#FEE2E2', marginTop: 4 }}>Ubicación a tus contactos</Text>
       </TouchableOpacity>
 
-      {/* Test alert link */}
-      <TouchableOpacity
-        style={styles.testLink}
+      {/* Test alert */}
+      <Button title="Probar alerta (sin SMS real)" variant="ghost" size="sm"
         onPress={() => router.push('/test-alert')}
-        accessibilityRole="button"
-        accessibilityLabel="Abrir prueba de alerta"
-        accessibilityHint="Permite ensayar el flujo sin enviar SMS reales"
-      >
-        <Text style={styles.testLinkText}>🧪 Probar alerta (sin SMS real)</Text>
-      </TouchableOpacity>
+        accessibilityLabel="Probar alerta sin SMS real" />
 
       {wakeWordAvailable ? (
-        <View style={styles.keywordsCard}>
-          <Text style={styles.keywordsTitle}>Palabras de activación</Text>
-          <Text style={styles.keywordsSummary}>
+        <Card onPress={() => router.push('/settings')}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: color.textPrimary }}>Palabras de activación</Text>
+          <Text style={{ fontSize: 12, color: color.textSecondary }}>
             {visibleTriggerWords.join(' · ')}
           </Text>
-          <View style={styles.keywordsList}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
             {visibleTriggerWords.map((word) => (
-              <View key={word} style={styles.keywordBadge}>
-                <Text style={styles.keywordBadgeText}>{word}</Text>
+              <View key={word} style={{ backgroundColor: color.dangerLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4 }}>
+                <Text style={{ fontSize: 13, color: color.danger, fontWeight: '500' }}>{word}</Text>
               </View>
             ))}
           </View>
-          <TouchableOpacity
-            onPress={() => router.push('/settings')}
-            accessibilityRole="button"
-            accessibilityLabel="Abrir ajustes de activación por voz"
-          >
-            <Text style={styles.editKeywords}>Personalizar →</Text>
-          </TouchableOpacity>
-        </View>
+        </Card>
       ) : null}
 
-      {/* Modal de suscripción */}
       <PaymentModal
         visible={showPayment}
         deviceId={deviceId}
         userName={userName}
         userPhone={userPhone}
         onClose={() => setShowPayment(false)}
-        onSuccess={() => {
-          setShowPayment(false);
-          useSettingsStore.getState().setHasSubscription(true);
-        }}
+        onSuccess={() => { setShowPayment(false); useSettingsStore.getState().setHasSubscription(true); }}
       />
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: 20, gap: 16 },
+const localStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: color.background },
+  content: { padding: spacing.xl, gap: spacing.lg, width: '100%', maxWidth: 720, alignSelf: 'center' },
 
-  // Countdown overlay
+  protectionBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full, alignSelf: 'flex-start',
+  },
+  protectionBadgeText: { fontSize: 13, fontWeight: '600' },
+
   countdownOverlay: {
-    flex: 1,
-    backgroundColor: '#7F1D1D',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    gap: 20,
+    flex: 1, backgroundColor: color.dangerDark, alignItems: 'center',
+    justifyContent: 'center', padding: spacing['3xl'], gap: spacing.xl,
   },
-  countdownTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-  },
+  countdownTitle: { ...typography.h1, color: color.textInverse, textAlign: 'center' },
   countdownWord: { fontSize: 18, color: '#FCA5A5', textAlign: 'center' },
   countdownCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: COLORS.danger,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: '#FCA5A5',
+    width: 120, height: 120, borderRadius: 60,
+    backgroundColor: color.danger, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 4, borderColor: '#FCA5A5',
   },
-  countdownNumber: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
+  countdownNumber: { fontSize: 56, fontWeight: 'bold', color: color.textInverse },
   countdownSub: { fontSize: 16, color: '#FEE2E2', textAlign: 'center' },
   cancelButton: {
-    backgroundColor: '#F59E0B',
-    paddingHorizontal: 48,
-    paddingVertical: 20,
-    borderRadius: 18,
-    marginTop: 20,
-    minWidth: 260,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    backgroundColor: color.warning, paddingHorizontal: 48, paddingVertical: 20,
+    borderRadius: borderRadius.xl, marginTop: spacing.xl, minWidth: 260,
+    alignItems: 'center', justifyContent: 'center', ...shadow.lg,
   },
-  cancelButtonText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    letterSpacing: 0.5,
-  },
+  cancelButtonText: { ...typography.button, color: color.textInverse },
 
-  // Banners
-  successBanner: {
-    backgroundColor: COLORS.safeLight,
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.safe,
+  successBannerText: { fontSize: 15, fontWeight: '600', color: color.safe, flex: 1 },
+  successBannerSub: { fontSize: 12, color: color.textSecondary, marginTop: spacing.xs },
+  sendingBanner: {
+    backgroundColor: color.warningLight, borderRadius: borderRadius.md, padding: spacing.md,
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
   },
-  successBannerText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.safe,
-  },
-  successBannerSub: { fontSize: 12, color: COLORS.neutral, marginTop: 2 },
-  deliverySummaryCard: {
-    marginTop: 12,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: 12,
-    gap: 6,
-  },
-  deliverySummaryTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  deliverySummaryLine: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: COLORS.textMuted,
+  sendingText: { fontSize: 15, color: color.warning },
+  incognitoToggle: {
+    backgroundColor: '#000', paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+    borderRadius: borderRadius.sm, flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
   },
   clearAlertButton: {
-    marginTop: 12,
-    backgroundColor: COLORS.danger,
-    borderRadius: 14,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  clearAlertButtonText: {
-    color: COLORS.white,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  
-  audioStatusDone: {
-    fontSize: 12,
-    color: COLORS.safe,
-    marginTop: 8,
-    fontWeight: '600',
+    backgroundColor: color.danger, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm,
+    borderRadius: borderRadius.sm, alignItems: 'center', justifyContent: 'center',
   },
 
-  assistedCallButton: {
-    marginTop: 12,
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    alignSelf: 'flex-start',
-  },
-  assistedCallButtonText: {
-    color: COLORS.safe,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  sendingBanner: {
-    backgroundColor: COLORS.warningLight,
-    borderRadius: 12,
-    padding: 14,
-  },
-  sendingText: { fontSize: 15, color: COLORS.warning, textAlign: 'center' },
-
-  // Guard button
-  guardSection: { alignItems: 'center', gap: 12, marginVertical: 8 },
-  guardLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textMuted },
+  guardSection: { alignItems: 'center', gap: spacing.md, marginVertical: spacing.sm },
+  guardLabel: { fontSize: 14, fontWeight: '600', color: color.textSecondary },
   guardButton: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: COLORS.neutral,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    width: 180, height: 180, borderRadius: 90, backgroundColor: color.neutral500,
+    alignItems: 'center', justifyContent: 'center', gap: spacing.sm, ...shadow.md,
   },
-  guardButtonArmed: { backgroundColor: COLORS.safe },
-  guardButtonIcon: { fontSize: 40 },
-  guardButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-  },
-  guardHint: {
-    fontSize: 13,
-    color: COLORS.safe,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  guardStatusCard: {
-    width: '100%',
-    backgroundColor: COLORS.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: 14,
-    gap: 6,
-  },
-  guardStatusTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  guardStatusText: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    lineHeight: 20,
-  },
-  guardTranscriptText: {
-    fontSize: 13,
-    color: COLORS.safe,
-    lineHeight: 18,
-  },
-  guardUnavailableCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    gap: 8,
-  },
-  guardUnavailableTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  guardUnavailableText: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    lineHeight: 20,
-  },
+  guardButtonArmed: { backgroundColor: color.safe },
+  guardButtonText: { ...typography.buttonSmall, color: color.textInverse, textAlign: 'center' },
+  guardHint: { fontSize: 13, color: color.safe, textAlign: 'center', fontStyle: 'italic' },
 
-  // Info card
-  infoCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  infoCardWarning: { backgroundColor: COLORS.warningLight },
-  infoCardEmoji: { fontSize: 28 },
-  infoCardTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text },
-  infoCardSub: { fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
-  infoCardLink: { fontSize: 20, color: COLORS.neutral },
-
-  // Panic button
   panicButton: {
-    backgroundColor: COLORS.danger,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: COLORS.danger,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    backgroundColor: color.danger, borderRadius: borderRadius.lg, padding: spacing['2xl'],
+    alignItems: 'center', gap: spacing.sm, ...shadow.md,
   },
-  panicButtonDisabled: { backgroundColor: '#FCA5A5' },
-  panicButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  panicButtonSub: { fontSize: 12, color: '#FEE2E2', marginTop: 4 },
+  panicButtonText: { ...typography.button, color: color.textInverse },
 
-  // Test link
-  testLink: { alignItems: 'center', paddingVertical: 8 },
-  testLinkText: { fontSize: 14, color: COLORS.textMuted },
-
-  // Keywords card
-  keywordsCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    gap: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  keywordsTitle: { fontSize: 14, fontWeight: '600', color: COLORS.text },
-  keywordsSummary: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: COLORS.textMuted,
-  },
-  keywordsList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  keywordBadge: {
-    backgroundColor: COLORS.dangerLight,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  keywordBadgeText: { fontSize: 13, color: COLORS.danger, fontWeight: '500' },
-  editKeywords: { fontSize: 13, color: COLORS.textMuted },
-  
-  // Black Screen & Incognito
-  blackScreen: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  incognitoToggle: {
-    marginTop: 10,
-    backgroundColor: '#000000',
-    padding: 8,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  incognitoToggleText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+  blackScreen: { flex: 1, backgroundColor: '#000' },
 });

@@ -25,7 +25,7 @@ import {
   BackHandler,
   SafeAreaView,
 } from 'react-native';
-import { COLORS } from '../config/constants';
+import { color } from '../theme';
 import { useSettingsStore } from '../stores/useSettingsStore';
 
 interface PaymentOverdueModalProps {
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     borderWidth: 1.5,
-    borderColor: COLORS.danger,
+    borderColor: color.danger,
   },
   icon: {
     fontSize: 48,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   btnPay: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 32,

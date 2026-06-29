@@ -1,20 +1,31 @@
+/* ============================================================================
+* Archivo         : _layout.tsx (tabs)
+* Descripción     : Layout de las cuatro tabs principales con iconos Material.
+* Autor           : oafon
+* Fecha           : 2026-06-29
+* Versión         : 2.1.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : Layout compartido de las pestañas Inicio, Historial, Contactos y Ajustes.
+* ============================================================================ */
+
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../src/config/constants';
+import { Icon } from '../../src/theme/Icon';
+import { color } from '../../src/theme';
 
 function TabIcon({
   label,
-  emoji,
+  iconName,
   focused,
 }: {
   label: string;
-  emoji: string;
+  iconName: React.ComponentProps<typeof Icon>['name'];
   focused: boolean;
 }) {
   return (
     <View style={styles.tabItem}>
-      <Text style={[styles.emoji, focused && styles.emojiFocused]}>{emoji}</Text>
+      <Icon name={iconName} size={22} color={focused ? color.danger : color.neutral400} />
       <Text style={[styles.label, focused && styles.labelFocused]}>{label}</Text>
     </View>
   );
@@ -24,16 +35,16 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.danger,
-        tabBarInactiveTintColor: COLORS.neutral,
+        tabBarActiveTintColor: color.danger,
+        tabBarInactiveTintColor: color.neutral400,
         tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopColor: COLORS.border,
+          backgroundColor: color.surface,
+          borderTopColor: color.border,
           height: 65,
           paddingBottom: 8,
         },
-        headerStyle: { backgroundColor: COLORS.danger },
-        headerTintColor: COLORS.white,
+        headerStyle: { backgroundColor: color.danger },
+        headerTintColor: color.textInverse,
         headerTitleStyle: { fontWeight: 'bold', fontSize: 18 },
         tabBarShowLabel: false,
       }}
@@ -43,7 +54,16 @@ export default function TabsLayout() {
         options={{
           title: 'SafeAlert',
           tabBarIcon: ({ focused }) => (
-            <TabIcon label="Inicio" emoji="🛡️" focused={focused} />
+            <TabIcon label="Inicio" iconName="shield" focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'Historial',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon label="Historial" iconName="history" focused={focused} />
           ),
         }}
       />
@@ -52,7 +72,7 @@ export default function TabsLayout() {
         options={{
           title: 'Contactos',
           tabBarIcon: ({ focused }) => (
-            <TabIcon label="Contactos" emoji="👥" focused={focused} />
+            <TabIcon label="Contactos" iconName="people" focused={focused} />
           ),
         }}
       />
@@ -61,7 +81,7 @@ export default function TabsLayout() {
         options={{
           title: 'Configuración',
           tabBarIcon: ({ focused }) => (
-            <TabIcon label="Config" emoji="⚙️" focused={focused} />
+            <TabIcon label="Config" iconName="settings" focused={focused} />
           ),
         }}
       />
@@ -75,8 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 6,
   },
-  emoji: { fontSize: 22, opacity: 0.5 },
-  emojiFocused: { opacity: 1 },
-  label: { fontSize: 10, marginTop: 2, color: COLORS.neutral },
-  labelFocused: { color: COLORS.danger, fontWeight: '600' },
+  label: { fontSize: 10, marginTop: 2, color: color.neutral400 },
+  labelFocused: { color: color.danger, fontWeight: '600' },
 });

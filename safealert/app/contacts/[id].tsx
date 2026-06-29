@@ -28,7 +28,8 @@ import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { DeviceService } from '../../src/services/DeviceService';
 import { isValidPhone } from '../../src/utils/formatPhone';
-import { COLORS } from '../../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../../src/theme';
+import { Icon } from '../../src/theme/Icon';
 import {
   PAYMENTS_DISABLED_REASON,
   PAYMENTS_ENABLED,
@@ -236,8 +237,8 @@ export default function AddEditContactScreen() {
           <Switch
             value={makePrimary}
             onValueChange={setMakePrimary}
-            trackColor={{ false: COLORS.border, true: COLORS.warningLight }}
-            thumbColor={makePrimary ? COLORS.warning : COLORS.neutral}
+            trackColor={{ false: color.border, true: color.warningLight }}
+            thumbColor={makePrimary ? color.warning : color.neutral400}
             accessibilityLabel="Usar como contacto principal"
           />
         </View>
@@ -279,38 +280,38 @@ export default function AddEditContactScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: color.background },
   content: { padding: 24, gap: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: COLORS.text },
-  subtitle: { fontSize: 14, color: COLORS.textMuted, lineHeight: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', color: color.textPrimary },
+  subtitle: { fontSize: 14, color: color.textSecondary, lineHeight: 20 },
   testingBanner: {
-    backgroundColor: COLORS.warningLight,
+    backgroundColor: color.warningLight,
     borderRadius: 10,
     padding: 14,
     gap: 4,
   },
-  testingBannerTitle: { fontSize: 14, fontWeight: '700', color: COLORS.warning },
-  testingBannerText: { fontSize: 12, color: COLORS.text, lineHeight: 18 },
+  testingBannerTitle: { fontSize: 14, fontWeight: '700', color: color.warning },
+  testingBannerText: { fontSize: 12, color: color.textPrimary, lineHeight: 18 },
 
   field: { gap: 6 },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.text },
+  label: { fontSize: 14, fontWeight: '600', color: color.textPrimary },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     borderRadius: 10,
     padding: 14,
     fontSize: 16,
-    color: COLORS.text,
+    color: color.textPrimary,
   },
-  inputError: { borderColor: COLORS.danger },
-  errorText: { fontSize: 12, color: COLORS.danger },
-  hint: { fontSize: 12, color: COLORS.textMuted },
+  inputError: { borderColor: color.danger },
+  errorText: { fontSize: 12, color: color.danger },
+  hint: { fontSize: 12, color: color.textSecondary },
   deliveryCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     padding: 14,
     gap: 10,
   },
@@ -319,32 +320,32 @@ const styles = StyleSheet.create({
   },
   deliveryOption: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     borderRadius: 10,
     padding: 12,
     gap: 4,
-    backgroundColor: COLORS.background,
+    backgroundColor: color.background,
   },
   deliveryOptionSelected: {
-    borderColor: COLORS.warning,
-    backgroundColor: COLORS.warningLight,
+    borderColor: color.warning,
+    backgroundColor: color.warningLight,
   },
   deliveryOptionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text,
+    color: color.textPrimary,
   },
   deliveryOptionTitleSelected: {
-    color: COLORS.warning,
+    color: color.warning,
   },
   deliveryOptionDescription: {
     fontSize: 12,
     lineHeight: 18,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
   },
   fallbackRow: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: color.border,
     paddingTop: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -352,10 +353,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryRow: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: color.border,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -368,15 +369,15 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    backgroundColor: COLORS.danger,
+    backgroundColor: color.danger,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginTop: 8,
   },
   saveButtonDisabled: { backgroundColor: '#FCA5A5' },
-  saveButtonText: { fontSize: 16, fontWeight: 'bold', color: COLORS.white },
+  saveButtonText: { fontSize: 16, fontWeight: 'bold', color: color.surface },
 
   cancelLink: { alignItems: 'center', paddingVertical: 8 },
-  cancelLinkText: { fontSize: 15, color: COLORS.textMuted },
+  cancelLinkText: { fontSize: 15, color: color.textSecondary },
 });

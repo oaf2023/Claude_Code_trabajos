@@ -1,0 +1,28 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "react-native-wakeword": [
+        "../src/types/react-native-wakeword"
+      ],
+      "@/*": [
+        "../src/*"
+      ]
+    }
+  },
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "index.ts",
+    "../app/**/*.ts",
+    "../app/**/*.tsx",
+    "../src/**/*.ts",
+    "../src/**/*.tsx",
+    ".expo/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "../node_modules"
+  ]
+}

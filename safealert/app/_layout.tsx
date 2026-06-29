@@ -8,6 +8,8 @@
 * Uso             : Shell principal de Expo Router.
 * ============================================================================ */
 
+import * as Sentry from '../src/config/sentry';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -22,7 +24,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ensureAuthenticated } from '../src/config/firebase';
 import { useSettingsStore } from '../src/stores/useSettingsStore';
 import { useGuardStore } from '../src/stores/useGuardStore';
-import { COLORS } from '../src/config/constants';
+import { color } from '../src/theme';
 import { AUTHENTICATION_TIMEOUT_MS } from '../src/config/features';
 import { NotificationService } from '../src/services/NotificationService';
 import { WakeWordService } from '../src/services/WakeWordService';
@@ -60,15 +62,15 @@ function runWhenIdle(task: () => void): () => void {
 /* ============================================================================
 * Función         : RootLayout
 * Descripción     : Layout raíz con espera explícita de hidratación, autenticación y fallback seguro.
-* Fecha           : 2026-03-20
-* Versión         : 1.1.0
+* Fecha           : 2026-04-13
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.9
 * Conexiones      : useSettingsStore.persist, ensureAuthenticated, NotificationService, WakeWordService
 * Ingesta         : Sin argumentos
 * Devolución      : JSX.Element
 * Uso             : Shell principal de Expo Router.
 * ============================================================================ */
-export default function RootLayout() {
+function RootLayout() {
   const setUserId = useSettingsStore((s) => s.setUserId);
   const isOnboarded = useSettingsStore((s) => s.isOnboarded);
   const userPhone = useSettingsStore((s) => s.userPhone);
@@ -108,7 +110,19 @@ export default function RootLayout() {
 
   // Cargar deviceId para el modal de pago
   useEffect(() => {
-    DeviceService.getDeviceId().then(setDeviceId).catch(() => {});
+    let active = true;
+
+    DeviceService.getDeviceId()
+      .then((resolvedDeviceId) => {
+        if (active) {
+          setDeviceId(resolvedDeviceId);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Mostrar aviso de pago vencido al abrir la app si hay deuda registrada
@@ -130,12 +144,11 @@ export default function RootLayout() {
 
   // Verificar período de prueba al iniciar la app
   useEffect(() => {
-    if (!listo || !isOnboarded) return;
+    if (!listo || !isOnboarded || !deviceId) return;
 
     const verificarPrueba = async () => {
       try {
-        const id = await DeviceService.getDeviceId();
-        const estado = await TrialService.checkPrueba(id);
+        const estado = await TrialService.checkPrueba(deviceId);
         if (estado.activo && estado.expirado && !estado.pago) {
           setShowTrialExpiredModal(true);
         }
@@ -145,7 +158,7 @@ export default function RootLayout() {
     };
 
     void verificarPrueba();
-  }, [listo, isOnboarded]);
+  }, [deviceId, listo, isOnboarded]);
 
   useEffect(() => {
     if (!__DEV__) {
@@ -268,8 +281,8 @@ export default function RootLayout() {
 
   if (!hidratado || !listo) {
     return (
-      <View style={{ flex: 1, backgroundColor: COLORS.danger, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={COLORS.white} />
+      <View style={{ flex: 1, backgroundColor: color.danger, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={color.textInverse} />
       </View>
     );
   }
@@ -279,29 +292,29 @@ export default function RootLayout() {
       <View
         style={{
           flex: 1,
-          backgroundColor: COLORS.background,
+          backgroundColor: color.background,
           alignItems: 'center',
           justifyContent: 'center',
           padding: 24,
           gap: 16,
         }}
       >
-        <Text style={{ fontSize: 22, fontWeight: '700', color: COLORS.text, textAlign: 'center' }}>
+        <Text style={{ fontSize: 22, fontWeight: '700', color: color.textPrimary, textAlign: 'center' }}>
           No se pudo iniciar SafeAlert
         </Text>
-        <Text style={{ fontSize: 15, color: COLORS.textMuted, textAlign: 'center', lineHeight: 22 }}>
+        <Text style={{ fontSize: 15, color: color.textSecondary, textAlign: 'center', lineHeight: 22 }}>
           {authError}
         </Text>
         <TouchableOpacity
           style={{
-            backgroundColor: COLORS.danger,
+            backgroundColor: color.danger,
             paddingHorizontal: 20,
             paddingVertical: 14,
             borderRadius: 12,
           }}
           onPress={iniciarAutenticacion}
         >
-          <Text style={{ color: COLORS.white, fontSize: 15, fontWeight: '600' }}>
+          <Text style={{ color: color.textInverse, fontSize: 15, fontWeight: '600' }}>
             Reintentar autenticación
           </Text>
         </TouchableOpacity>
@@ -311,12 +324,12 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor={COLORS.danger} />
+      <StatusBar style="light" backgroundColor={color.danger} />
       <Stack
         initialRouteName={isOnboarded ? "(tabs)" : "bienvenida"}
         screenOptions={{
-          headerStyle: { backgroundColor: COLORS.danger },
-          headerTintColor: COLORS.white,
+          headerStyle: { backgroundColor: color.danger },
+          headerTintColor: color.textInverse,
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       >
@@ -379,3 +392,5 @@ export default function RootLayout() {
     </>
   );
 }
+
+export default Sentry.wrap(RootLayout);

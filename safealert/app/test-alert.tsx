@@ -10,7 +10,8 @@ import {
 import { router } from 'expo-router';
 import { useAlert } from '../src/hooks/useAlert';
 import { useContactsStore } from '../src/stores/useContactsStore';
-import { COLORS } from '../src/config/constants';
+import { color, spacing, borderRadius, shadow } from '../src/theme';
+import { Icon } from '../src/theme/Icon';
 
 export default function TestAlertScreen() {
   const { triggerTest, alertPhase, lastAlert } = useAlert();
@@ -36,7 +37,7 @@ export default function TestAlertScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.headerEmoji}>🧪</Text>
+        <Icon name="science" size={48} color={color.textPrimary} />
         <Text style={styles.title}>Prueba de alerta</Text>
         <Text style={styles.subtitle}>
           Simula el envío de una alerta real. Los mensajes tendrán el prefijo
@@ -46,14 +47,22 @@ export default function TestAlertScreen() {
 
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>¿Qué hará esta prueba?</Text>
-        <Text style={styles.infoItem}>📍 Capturará tu ubicación GPS</Text>
-        <Text style={styles.infoItem}>
-          💬 Registrará una alerta en la base de datos
-        </Text>
-        <Text style={styles.infoItem}>
-          📱 Los contactos recibirán un SMS con [TEST]
-        </Text>
-        <Text style={styles.infoItem}>🔇 No grabará audio</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 }}>
+          <Icon name="location-on" size={16} color={color.textSecondary} />
+          <Text style={styles.infoItem}>Capturará tu ubicación GPS</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 }}>
+          <Icon name="chat" size={16} color={color.textSecondary} />
+          <Text style={styles.infoItem}>Registrará una alerta en la base de datos</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 }}>
+          <Icon name="smartphone" size={16} color={color.textSecondary} />
+          <Text style={styles.infoItem}>Los contactos recibirán un SMS con [TEST]</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 }}>
+          <Icon name="mic-off" size={16} color={color.textSecondary} />
+          <Text style={styles.infoItem}>No grabará audio</Text>
+        </View>
       </View>
 
       <View style={styles.contactsPreview}>
@@ -69,7 +78,10 @@ export default function TestAlertScreen() {
 
       {ran && alertPhase === 'sent' && lastAlert ? (
         <View style={styles.successBox}>
-          <Text style={styles.successTitle}>✅ Prueba completada</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            <Icon name="check-circle" size={20} color={color.safe} />
+            <Text style={styles.successTitle}>Prueba completada</Text>
+          </View>
           <Text style={styles.successSub}>
             Alerta enviada a {lastAlert.contacts.length} contactos con el
             prefijo [TEST].
@@ -91,39 +103,47 @@ export default function TestAlertScreen() {
             alertPhase === 'capturing' || alertPhase === 'sending'
           }
         >
-          <Text style={styles.testButtonText}>
-            {alertPhase === 'capturing'
-              ? '📍 Obteniendo ubicación...'
-              : alertPhase === 'sending'
-              ? '📤 Enviando...'
-              : '🧪 Ejecutar prueba'}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+            <Icon
+              name={alertPhase === 'capturing' ? 'location-on' : alertPhase === 'sending' ? 'send' : 'science'}
+              size={20} color={color.textInverse}
+            />
+            <Text style={styles.testButtonText}>
+              {alertPhase === 'capturing'
+                ? 'Obteniendo ubicación...'
+                : alertPhase === 'sending'
+                ? 'Enviando...'
+                : 'Ejecutar prueba'}
+            </Text>
+          </View>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
-        <Text style={styles.backLinkText}>← Volver</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+          <Icon name="arrow-back" size={16} color={color.textSecondary} />
+          <Text style={styles.backLinkText}>Volver</Text>
+        </View>
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: color.background },
   content: { padding: 24, gap: 20, paddingBottom: 40 },
 
   header: { alignItems: 'center', gap: 8 },
-  headerEmoji: { fontSize: 48 },
-  title: { fontSize: 24, fontWeight: 'bold', color: COLORS.text },
+  title: { fontSize: 24, fontWeight: 'bold', color: color.textPrimary },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: color.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
 
   infoBox: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -133,11 +153,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 3,
   },
-  infoTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text },
-  infoItem: { fontSize: 14, color: COLORS.textMuted },
+  infoTitle: { fontSize: 15, fontWeight: '600', color: color.textPrimary },
+  infoItem: { fontSize: 14, color: color.textSecondary },
 
   contactsPreview: {
-    backgroundColor: COLORS.white,
+    backgroundColor: color.surface,
     borderRadius: 12,
     padding: 16,
     gap: 6,
@@ -147,29 +167,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 3,
   },
-  contactsTitle: { fontSize: 14, fontWeight: '600', color: COLORS.text },
-  contactItem: { fontSize: 13, color: COLORS.textMuted },
+  contactsTitle: { fontSize: 14, fontWeight: '600', color: color.textPrimary },
+  contactItem: { fontSize: 13, color: color.textSecondary },
 
   testButton: {
-    backgroundColor: COLORS.warning,
+    backgroundColor: color.warning,
     borderRadius: 12,
     padding: 18,
     alignItems: 'center',
   },
   testButtonDisabled: { backgroundColor: '#FDE68A' },
-  testButtonText: { fontSize: 16, fontWeight: 'bold', color: COLORS.white },
+  testButtonText: { fontSize: 16, fontWeight: 'bold', color: color.textInverse },
 
   successBox: {
-    backgroundColor: COLORS.safeLight,
+    backgroundColor: color.safeLight,
     borderRadius: 12,
     padding: 16,
     gap: 6,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.safe,
+    borderLeftColor: color.safe,
   },
-  successTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.safe },
-  successSub: { fontSize: 13, color: COLORS.text },
+  successTitle: { fontSize: 16, fontWeight: 'bold', color: color.safe },
+  successSub: { fontSize: 13, color: color.textPrimary },
 
   backLink: { alignItems: 'center', paddingVertical: 8 },
-  backLinkText: { fontSize: 15, color: COLORS.textMuted },
+  backLinkText: { fontSize: 15, color: color.textSecondary },
 });

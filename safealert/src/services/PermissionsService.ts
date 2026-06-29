@@ -2,8 +2,8 @@
 * Archivo         : PermissionsService.ts
 * Descripción     : Verificación y solicitud de permisos del MVP real.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-06-29
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : PermissionsService.checkAll()
 * ============================================================================ */
@@ -75,7 +75,8 @@ export const PermissionsService = {
       Notifications.getPermissionsAsync(),
     ]);
 
-    const notifStatus = notifs.status === 'granted' || notifs.granted ? 'granted' : 'denied';
+    const n = notifs as any;
+    const notifStatus = n.status === 'granted' || n.granted ? 'granted' : 'denied';
 
     return {
       microphone: mapResult(mic),
@@ -115,8 +116,9 @@ export const PermissionsService = {
   },
 
   async requestNotifications(): Promise<PermissionStatus> {
-    const { status } = await Notifications.requestPermissionsAsync();
-    return status === 'granted' ? 'granted' : 'denied';
+    const response = await Notifications.requestPermissionsAsync();
+    const r = response as any;
+    return r.status === 'granted' ? 'granted' : 'denied';
   },
 
   openAppSettings(): void {

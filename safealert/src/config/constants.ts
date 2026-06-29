@@ -1,10 +1,23 @@
+/* ============================================================================
+* Archivo         : constants.ts
+* Descripción     : Constantes de configuración de SafeAlert.
+*                   Los colores ahora se importan desde theme/tokens.
+* Autor           : oafon
+* Fecha           : 2026-06-29
+* Versión         : 2.0.0
+* Lenguaje        : TypeScript 5.9
+* Uso             : import { APP_NAME, COLORS, ALERT_COUNTDOWN_SECONDS } from './constants'
+* ============================================================================ */
+
+import { color } from '../theme/tokens';
+
 export const APP_NAME = 'SafeAlert';
 
 // Alert timing
 export const ALERT_COUNTDOWN_SECONDS = 3;
-export const AUDIO_RECORDING_SECONDS = 10;
+export const AUDIO_RECORDING_SECONDS = 60;
 export const GPS_FRESH_FIX_TIMEOUT_MS = 8000;
-export const LOCATION_UPDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+export const LOCATION_UPDATE_INTERVAL_MS = 5 * 60 * 1000;
 export const DEV_FALLBACK_LOCATION = {
   lat: -34.6037,
   lon: -58.3816,
@@ -24,19 +37,19 @@ export const COLLECTION_SETTINGS = 'settings';
 export const SMS_PREFIX = '🚨 AVISO';
 export const SMS_TEST_PREFIX = '🧪 PRUEBA';
 
-// Colors
+// Colores (backward compatibility — usar color tokens directamente)
 export const COLORS = {
-  danger: '#DC2626',
-  dangerDark: '#B91C1C',
-  dangerLight: '#FEE2E2',
-  safe: '#16A34A',
-  safeLight: '#DCFCE7',
-  warning: '#D97706',
-  warningLight: '#FEF3C7',
-  neutral: '#6B7280',
-  background: '#F9FAFB',
+  danger: color.danger,
+  dangerDark: color.dangerDark,
+  dangerLight: color.dangerLight,
+  safe: color.safe,
+  safeLight: color.safeLight,
+  warning: color.warning,
+  warningLight: color.warningLight,
+  neutral: color.neutral500,
+  background: color.background,
   white: '#FFFFFF',
-  text: '#111827',
-  textMuted: '#6B7280',
-  border: '#E5E7EB',
+  text: color.textPrimary,
+  textMuted: color.textSecondary,
+  border: color.border,
 };

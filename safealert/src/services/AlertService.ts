@@ -1,9 +1,11 @@
 /* ============================================================================
 * Archivo         : AlertService.ts
-* Descripción     : Orquestación local del envío de alertas del MVP.
+* Descripción     : Orquestación local del envío de alertas SOS con máquina
+*                   de estados persistente, cola de reintentos y tolerancia
+*                   a fallos de ubicación.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-06-29
+* Versión         : 2.0.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : AlertService.send('manual')
 * ============================================================================ */
@@ -19,6 +21,12 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import { useContactsStore } from '../stores/useContactsStore';
 import { MessageFormatter } from '../utils/MessageFormatter';
 import { IAProcessingService } from './IAProcessingService';
+import { AudioAlertApiService } from './AudioAlertApiService';
+import {
+  useAlertMachineStore,
+  buildContactDeliveries,
+} from './AlertStateMachine';
+import { AlertQueue, QueuedAlert } from './AlertQueue';
 
 const alertWatchers = new Map<string, () => void>();
 
@@ -117,6 +125,28 @@ function buildAlertContacts(contacts: Contact[]): AlertContact[] {
   }));
 }
 
+/* ============================================================================
+* Función         : recoverIncompleteAlerts
+* Descripción     : Recupera alertas incompletas desde la máquina de estados
+*                   y la cola local después de un cierre o reinicio.
+* Fecha           : 2026-06-29
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : AlertStateMachine, AlertQueue
+* Ingesta         : sendFn: (alert: QueuedAlert) => Promise<boolean>
+* Devolución      : Promise<void>
+* Uso             : recoverIncompleteAlerts(mySendFn)
+* ============================================================================ */
+export async function recoverIncompleteAlerts(
+  sendFn: (alert: QueuedAlert) => Promise<boolean>
+): Promise<void> {
+  const machine = useAlertMachineStore.getState().machine;
+  if (machine.state === 'sending' || machine.state === 'awaiting_confirmation') {
+    console.log('[AlertService] Recuperando alerta pendiente:', machine.context.alertId);
+  }
+  await AlertQueue.process(sendFn);
+}
+
 export const AlertService = {
   async send(
     triggerWord: string,
@@ -126,6 +156,7 @@ export const AlertService = {
     const settings = useSettingsStore.getState();
     const allActiveContacts = getActiveContacts();
     const userId = settings.userId || (await ensureAuthenticated());
+    const machineStore = useAlertMachineStore.getState();
 
     if (allActiveContacts.length === 0) {
       throw new Error('No hay contactos activos');
@@ -155,34 +186,60 @@ export const AlertService = {
     guardStore.setDetectedKeyword(isTest ? 'test' : triggerWord);
     guardStore.setAlertPhase('capturing');
 
-    let location;
+    // Transición a locating en la máquina de estados
+    machineStore.transition('locating', {
+      userId,
+      triggerWord,
+      isTest,
+      createdAt: Date.now(),
+    });
+
+    // Intentar obtener ubicación — nunca bloquear el envío
+    let location: any = null;
+    let locationFailed = false;
     try {
       location = await LocationService.getCurrentLocation();
       guardStore.setLastLocation(location);
+      machineStore.updateContext({ location, locationFailed: false });
     } catch (e: any) {
-      guardStore.setAlertPhase('error');
-      throw new Error(e?.message || 'No se pudo obtener la ubicación');
+      console.warn('[AlertService] Ubicación no disponible, enviando sin coordenadas:', e?.message);
+      locationFailed = true;
+      machineStore.updateContext({ location: null, locationFailed: true });
     }
 
-    const mapsLink = LocationService.buildMapsLink(location);
+    const mapsLink = location
+      ? LocationService.buildMapsLink(location)
+      : '';
     const alertContacts = buildAlertContacts(contacts);
 
     const messageText = MessageFormatter.format(settings.messageTemplate, {
-      mapsLink,
-      isStale: location.isStale ?? false,
-      staleMinutes: location.staleMinutes,
+      mapsLink: mapsLink || '[Ubicación no disponible]',
+      isStale: location?.isStale ?? false,
+      staleMinutes: location?.staleMinutes,
     });
 
     const prefix = isTest ? SMS_TEST_PREFIX : SMS_PREFIX;
     const finalMessage = `${prefix} ${messageText}`;
 
     guardStore.setAlertPhase('sending');
+    machineStore.transition('sending', {
+      messageText: finalMessage,
+      contacts: buildContactDeliveries(contacts),
+    });
 
+    // Datos imprescindibles para la alerta
     const alertData: Omit<AppAlert, 'id'> = {
       userId,
       triggeredAt: Date.now(),
       triggerWord,
-      location,
+      location: location || {
+        lat: 0,
+        lon: 0,
+        accuracy: 0,
+        timestamp: Date.now(),
+        isStale: true,
+        staleMinutes: 0,
+      },
       mapsLink,
       audioUrl: null,
       audioPath: null,
@@ -195,11 +252,27 @@ export const AlertService = {
     const ref = await alertsCol(userId).add(alertData);
     const alertId = ref.id;
 
+    machineStore.updateContext({ alertId });
+
+    // Encolar para reintentos en segundo plano
+    AlertQueue.enqueue({
+      id: alertId,
+      userId,
+      triggerWord,
+      messageText: finalMessage,
+      contacts: contacts.map((c) => ({ name: c.name, phone: c.phone })),
+      location: location ? { lat: location.lat, lon: location.lon } : null,
+      locationFailed,
+      createdAt: Date.now(),
+    });
+
     guardStore.setLastAlert({ id: alertId, ...alertData });
     guardStore.setAlertPhase('sent');
+    machineStore.transition('awaiting_confirmation', { alertId });
     startAlertWatcher(userId, alertId);
 
-    if (settings.audioEnabled && !isTest) {
+    // Audio: opcional, no bloquea
+    if (settings.audioEnabled) {
       AudioRecordingService.recordAndUpload(userId, alertId)
         .then(async (audioUpload) => {
           if (audioUpload) {
@@ -208,13 +281,22 @@ export const AlertService = {
               audioPath: audioUpload.audioPath,
             });
 
-            // Escalabilidad Fase 2: Iniciar análisis de IA una vez que el audio está disponible
-            IAProcessingService.processAlertAudio(userId, alertId, audioUpload.audioUrl)
-              .catch(error => console.warn('[AlertService] Error en disparador IA post-upload:', error));
+            AudioAlertApiService.uploadSecurityRecording(
+              audioUpload.localUri,
+              alertId,
+              userId
+            ).catch((err) =>
+              console.warn('[AlertService] Error en subida a PythonAnywhere:', err)
+            );
+
+            IAProcessingService.processAlertAudio(userId, alertId, audioUpload.audioUrl).catch(
+              (error) =>
+                console.warn('[AlertService] Error en disparador IA post-upload:', error)
+            );
           }
         })
         .catch((error) => {
-          console.warn('[AlertService] Error al subir audio:', error);
+          console.warn('[AlertService] Error al grabar/subir audio:', error);
         });
     }
 
@@ -222,5 +304,21 @@ export const AlertService = {
       alertId,
       assistedCallPhone: isTest ? null : contacts[0]?.phone ?? null,
     };
+  },
+
+  async retryFailed(): Promise<void> {
+    const machineStore = useAlertMachineStore.getState();
+    const machine = machineStore.machine;
+    if (machine.state === 'failed' && machine.context.alertId) {
+      machineStore.transition('locating', { retryCount: machine.context.retryCount + 1 });
+      await AlertQueue.process(async (alert) => {
+        try {
+          await alertsCol(alert.userId).doc(alert.id).update({ status: 'pending' });
+          return true;
+        } catch {
+          return false;
+        }
+      });
+    }
   },
 };

@@ -8,11 +8,7 @@
 * Uso             : WakeWordService.start(), stop(), cancelAlert() y restoreAfterBoot().
 * ============================================================================ */
 
-import { AppState, AppStateStatus } from 'react-native';
-import {
-  createKeyWordRNBridgeInstance,
-  KeyWordRNBridgeInstance,
-} from 'react-native-wakeword';
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import { ALERT_COUNTDOWN_SECONDS } from '../config/constants';
 import {
   AUDIO_GUARD_CHUNK_MS,
@@ -28,6 +24,36 @@ import { AlertService } from './AlertService';
 import { AudioAlertApiService } from './AudioAlertApiService';
 import { AudioRecordingService } from './AudioRecordingService';
 import { PermissionsService } from './PermissionsService';
+
+type WakeWordModule = typeof import('react-native-wakeword');
+type KeyWordRNBridgeInstance = Awaited<
+  ReturnType<WakeWordModule['createKeyWordRNBridgeInstance']>
+>;
+
+let wakeWordModulePromise: Promise<WakeWordModule> | null = null;
+
+/* ============================================================================
+* Función         : loadWakeWordModule
+* Descripción     : Carga el módulo nativo de wake word solo cuando el runtime actual lo soporta.
+* Fecha           : 2026-04-21
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : WakeWordServiceClass.initializeNativeBridge
+* Ingesta         : Sin argumentos
+* Devolución      : Promise<WakeWordModule>
+* Uso             : const module = await loadWakeWordModule()
+* ============================================================================ */
+async function loadWakeWordModule(): Promise<WakeWordModule> {
+  if (Platform.OS !== 'android') {
+    throw new Error('El módulo nativo de wake word solo está disponible en Android.');
+  }
+
+  if (!wakeWordModulePromise) {
+    wakeWordModulePromise = import('react-native-wakeword');
+  }
+
+  return wakeWordModulePromise;
+}
 
 /* ============================================================================
 * Función         : normalizeDetectedKeyword
@@ -244,7 +270,11 @@ class WakeWordServiceClass {
     }
 
     this.initializationPromise = (async () => {
-      const instance = await createKeyWordRNBridgeInstance('safealert_guard', false);
+      const wakeWordModule = await loadWakeWordModule();
+      const instance = await wakeWordModule.createKeyWordRNBridgeInstance(
+        'safealert_guard',
+        false
+      );
       const threshold = this.getThreshold();
 
       await instance.createInstance(WAKE_WORD_MODEL_NAME, threshold, 3);
