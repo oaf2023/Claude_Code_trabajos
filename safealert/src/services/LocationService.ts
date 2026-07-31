@@ -1,9 +1,11 @@
 /* ============================================================================
 * Archivo         : LocationService.ts
-* Descripción     : Obtención de ubicación puntual y actualización local opcional.
+* Descripción     : Obtención de ubicación con clasificación de origen según
+*                   Prompt Maestro (GPS, NAVEGADOR, IP, MANUAL) y registro
+*                   de precisión documentada.
 * Autor           : oafon
-* Fecha           : 2026-03-19
-* Versión         : 1.0.0
+* Fecha           : 2026-07-30
+* Versión         : 2.0.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : LocationService.getCurrentLocation()
 * ============================================================================ */
@@ -11,7 +13,7 @@
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
-import { AlertLocation } from '../types/Alert';
+import { AlertLocation, LocationSource, PermissionStatusValue } from '../types/Alert';
 import { buildMapsLink } from '../utils/googleMapsLink';
 import { useGuardStore } from '../stores/useGuardStore';
 import {
@@ -23,77 +25,24 @@ import { BACKGROUND_LOCATION_ENABLED } from '../config/features';
 
 const BACKGROUND_LOCATION_TASK = 'background-location-task';
 
-/* ============================================================================
-* Función         : isAndroidEmulator
-* Descripción     : Detecta heurísticamente si la app corre sobre un emulador Android para habilitar fallback GPS estable.
-* Fecha           : 2026-03-28
-* Versión         : 1.0.0
-* Lenguaje        : TypeScript 5.9
-* Conexiones      : LocationService.getCurrentLocation
-* Ingesta         : Sin argumentos
-* Devolución      : boolean
-* Uso             : if (isAndroidEmulator()) { ... }
-* ============================================================================ */
 function isAndroidEmulator(): boolean {
-  if (Platform.OS !== 'android') {
-    return false;
-  }
-
+  if (Platform.OS !== 'android') return false;
   const constants = Platform.constants as {
-    Brand?: string;
-    Manufacturer?: string;
-    Model?: string;
-    Fingerprint?: string;
-    Device?: string;
+    Brand?: string; Manufacturer?: string; Model?: string;
+    Fingerprint?: string; Device?: string;
   };
-
   const emulatorHints = [
-    constants.Brand,
-    constants.Manufacturer,
-    constants.Model,
-    constants.Fingerprint,
-    constants.Device,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-
-  return [
-    'generic',
-    'emulator',
-    'sdk_gphone',
-    'ranchu',
-    'vbox',
-    'goldfish',
-  ].some((hint) => emulatorHints.includes(hint));
+    constants.Brand, constants.Manufacturer, constants.Model,
+    constants.Fingerprint, constants.Device,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return ['generic', 'emulator', 'sdk_gphone', 'ranchu', 'vbox', 'goldfish']
+    .some((hint) => emulatorHints.includes(hint));
 }
 
-/* ============================================================================
-* Función         : shouldUseDevelopmentLocationFallback
-* Descripción     : Habilita fallback seguro de ubicación en builds de desarrollo y emuladores para no bloquear el flujo SOS.
-* Fecha           : 2026-03-28
-* Versión         : 1.0.0
-* Lenguaje        : TypeScript 5.9
-* Conexiones      : LocationService.getCurrentLocation
-* Ingesta         : Sin argumentos
-* Devolución      : boolean
-* Uso             : if (shouldUseDevelopmentLocationFallback()) { ... }
-* ============================================================================ */
 function shouldUseDevelopmentLocationFallback(): boolean {
   return __DEV__ || process.env.NODE_ENV !== 'production' || isAndroidEmulator();
 }
 
-/* ============================================================================
-* Función         : buildEmergencyFallbackLocation
-* Descripción     : Genera una ubicación de emergencia marcada como no confiable para no bloquear el envío del SOS.
-* Fecha           : 2026-03-28
-* Versión         : 1.0.0
-* Lenguaje        : TypeScript 5.9
-* Conexiones      : LocationService.getCurrentLocation
-* Ingesta         : lastKnownTimestamp?: number
-* Devolución      : AlertLocation
-* Uso             : const fallback = buildEmergencyFallbackLocation()
-* ============================================================================ */
 function buildEmergencyFallbackLocation(lastKnownTimestamp?: number): AlertLocation {
   const timestamp = lastKnownTimestamp ?? Date.now();
   return {
@@ -103,10 +52,20 @@ function buildEmergencyFallbackLocation(lastKnownTimestamp?: number): AlertLocat
     timestamp,
     isStale: true,
     staleMinutes: Math.max(0, Math.round((Date.now() - timestamp) / 60000)),
+    source: 'IP',
+    permissionStatus: 'NO_DISPONIBLE',
   };
 }
 
-// Register background task for location updates
+function mapPermissionStatus(permStatus: Location.PermissionStatus): PermissionStatusValue {
+  switch (permStatus) {
+    case 'granted': return 'GRANTED';
+    case 'denied': return 'DENIED';
+    case 'undetermined': return 'PROMPT';
+    default: return 'NO_DISPONIBLE';
+  }
+}
+
 TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
   if (error) return;
   const { locations } = data as { locations: Location.LocationObject[] };
@@ -118,6 +77,11 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
       accuracy: loc.coords.accuracy ?? 0,
       timestamp: loc.timestamp,
       isStale: false,
+      source: loc.coords.accuracy !== null && loc.coords.accuracy < 10 ? 'GPS' : 'NAVEGADOR',
+      permissionStatus: 'GRANTED',
+      altitude: loc.coords.altitude ?? undefined,
+      speed: loc.coords.speed ?? undefined,
+      direction: loc.coords.heading ?? undefined,
     };
     useGuardStore.getState().setLastLocation(alertLocation);
   }
@@ -126,19 +90,16 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
 export const LocationService = {
   async startBackgroundUpdates(): Promise<void> {
     if (!BACKGROUND_LOCATION_ENABLED) return;
-
     const { status } = await Location.requestBackgroundPermissionsAsync();
     if (status !== 'granted') return;
-
     const isRegistered = await Location.hasStartedLocationUpdatesAsync(
       BACKGROUND_LOCATION_TASK
     ).catch(() => false);
-
     if (!isRegistered) {
       await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
         accuracy: Location.Accuracy.Balanced,
         timeInterval: LOCATION_UPDATE_INTERVAL_MS,
-        distanceInterval: 100, // also update if moved 100m
+        distanceInterval: 100,
         showsBackgroundLocationIndicator: true,
         foregroundService: {
           notificationTitle: 'SafeAlert activo',
@@ -151,11 +112,9 @@ export const LocationService = {
 
   async stopBackgroundUpdates(): Promise<void> {
     if (!BACKGROUND_LOCATION_ENABLED) return;
-
     const isRegistered = await Location.hasStartedLocationUpdatesAsync(
       BACKGROUND_LOCATION_TASK
     ).catch(() => false);
-
     if (isRegistered) {
       await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
     }
@@ -166,19 +125,18 @@ export const LocationService = {
     const providerStatus = await Location.getProviderStatusAsync().catch(() => null);
 
     const currentPermission = await Location.getForegroundPermissionsAsync();
-    const permissionStatus =
-      currentPermission.status === 'granted'
-        ? currentPermission
-        : await Location.requestForegroundPermissionsAsync();
+    const permForStatus = currentPermission.status === 'granted'
+      ? currentPermission
+      : await Location.requestForegroundPermissionsAsync();
+    const permissionStatus = mapPermissionStatus(permForStatus.status);
 
-    if (permissionStatus.status !== 'granted') {
+    if (permForStatus.status !== 'granted') {
       if (lastLocation) {
         const staleMinutes = Math.round(
           (Date.now() - lastLocation.timestamp) / 60000
         );
-        return { ...lastLocation, isStale: true, staleMinutes };
+        return { ...lastLocation, isStale: true, staleMinutes, permissionStatus };
       }
-
       throw new Error('Debes conceder ubicación para poder enviar la alerta.');
     }
 
@@ -186,7 +144,6 @@ export const LocationService = {
       await Location.enableNetworkProviderAsync().catch(() => null);
     }
 
-    // Try to get a fresh fix with timeout
     const freshLocationPromise = Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
     }).catch(() => null);
@@ -198,12 +155,23 @@ export const LocationService = {
     const result = await Promise.race([freshLocationPromise, timeoutPromise]);
 
     if (result) {
+      /* Prompt Maestro: clasificar origen según precisión */
+      const source: LocationSource =
+        result.coords.accuracy !== null && result.coords.accuracy < 10
+          ? 'GPS'
+          : 'NAVEGADOR';
+
       const freshLocation: AlertLocation = {
         lat: result.coords.latitude,
         lon: result.coords.longitude,
         accuracy: result.coords.accuracy ?? 0,
         timestamp: result.timestamp,
         isStale: false,
+        source,
+        permissionStatus,
+        altitude: result.coords.altitude ?? undefined,
+        speed: result.coords.speed ?? undefined,
+        direction: result.coords.heading ?? undefined,
       };
 
       useGuardStore.getState().setLastLocation(freshLocation);
@@ -218,25 +186,24 @@ export const LocationService = {
         timestamp: Date.now(),
         isStale: true,
         staleMinutes: 0,
+        source: 'NAVEGADOR',
+        permissionStatus,
       };
-
       console.warn(
-        '[LocationService] Usando ubicación simulada de desarrollo por falta de fix GPS.',
+        '[LocationService] Usando ubicación simulada de desarrollo.',
         providerStatus
       );
       useGuardStore.getState().setLastLocation(simulatedLocation);
       return simulatedLocation;
     }
 
-    // Fall back to last known location
     if (lastLocation) {
       const staleMinutes = Math.round(
         (Date.now() - lastLocation.timestamp) / 60000
       );
-      return { ...lastLocation, isStale: true, staleMinutes };
+      return { ...lastLocation, isStale: true, staleMinutes, permissionStatus };
     }
 
-    // Last resort: expo last known position
     const lastKnown = await Location.getLastKnownPositionAsync().catch(() => null);
     if (lastKnown) {
       const staleMinutes = Math.round(
@@ -249,19 +216,40 @@ export const LocationService = {
         timestamp: lastKnown.timestamp,
         isStale: true,
         staleMinutes,
+        source: 'NAVEGADOR',
+        permissionStatus,
       };
-
       useGuardStore.getState().setLastLocation(fallbackLocation);
       return fallbackLocation;
     }
 
     const emergencyFallbackLocation = buildEmergencyFallbackLocation();
     console.warn(
-      '[LocationService] Sin fix GPS ni última ubicación utilizable. Se envía ubicación de emergencia para no bloquear la alerta.',
+      '[LocationService] Sin fix GPS. Usando ubicación de emergencia.',
       providerStatus
     );
     useGuardStore.getState().setLastLocation(emergencyFallbackLocation);
     return emergencyFallbackLocation;
+  },
+
+  /* Prompt Maestro: ubicación con origen MANUAL */
+  async getManualLocation(
+    lat: number,
+    lon: number,
+    address?: string
+  ): Promise<AlertLocation> {
+    const location: AlertLocation = {
+      lat,
+      lon,
+      accuracy: 0,
+      timestamp: Date.now(),
+      isStale: false,
+      source: 'MANUAL',
+      permissionStatus: 'NO_SOLICITADO',
+      address,
+    };
+    useGuardStore.getState().setLastLocation(location);
+    return location;
   },
 
   buildMapsLink(location: AlertLocation): string {

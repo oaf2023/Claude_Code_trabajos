@@ -25,6 +25,7 @@ import {
 import { color, spacing, borderRadius, shadow } from '../src/theme';
 import { Icon } from '../src/theme/Icon';
 import { BACKGROUND_LOCATION_ENABLED } from '../src/config/features';
+import { useGuardStore } from '../src/stores/useGuardStore';
 
 type PermissionItem = {
   key: keyof PermissionsStatus;
@@ -50,6 +51,7 @@ type PermissionItem = {
 export default function PermissionsScreen() {
   const [status, setStatus] = useState<PermissionsStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const lastLocation = useGuardStore((s) => s.lastLocation);
 
   const refresh = async () => {
     setLoading(true);
@@ -202,6 +204,29 @@ export default function PermissionsScreen() {
           </View>
         );
       })}
+
+      {/* Prompt Maestro: mostrar origen de ubicación actual */}
+      <View style={styles.permCard}>
+        <View style={styles.permHeader}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 }}>
+            <Icon name="my-location" size={20} color={color.textPrimary} />
+            <Text style={styles.permTitle}>Origen de ubicación</Text>
+          </View>
+        </View>
+        <Text style={styles.permDesc}>
+          {lastLocation?.source
+            ? `Origen: ${lastLocation.source}${lastLocation.accuracy ? ` · Precisión: ${Math.round(lastLocation.accuracy)}m` : ''}${lastLocation.isStale ? ' · (dato previo)' : ''}`
+            : 'Sin ubicación registrada aún'}
+        </Text>
+        <TouchableOpacity
+          style={styles.permButton}
+          onPress={() => router.push('/ubicacion/manual')}
+          accessibilityRole="button"
+          accessibilityLabel="Ingresar ubicación manualmente"
+        >
+          <Text style={styles.permButtonText}>Ingresar ubicación manual</Text>
+        </TouchableOpacity>
+      </View>
 
       {allCriticalGranted && (
         <TouchableOpacity

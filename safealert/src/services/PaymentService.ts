@@ -175,7 +175,7 @@ async function createTicket(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Internal-Key': 'Familia2026##',
+      'X-Internal-Key': process.env.EXPO_PUBLIC_PA_INTERNAL_KEY || '',
     },
     body: JSON.stringify({ device_id: deviceId, user_name: userName, plan_type: planType, amount }),
   });

@@ -28,6 +28,8 @@ const EXPO_PUBLIC_ENV = {
   EXPO_PUBLIC_AUDIO_ALERT_THRESHOLD: process.env.EXPO_PUBLIC_AUDIO_ALERT_THRESHOLD,
   EXPO_PUBLIC_AUDIO_GUARD_CHUNK_MS: process.env.EXPO_PUBLIC_AUDIO_GUARD_CHUNK_MS,
   EXPO_PUBLIC_PA_API_URL: process.env.EXPO_PUBLIC_PA_API_URL,
+  EXPO_PUBLIC_PA_INTERNAL_KEY: process.env.EXPO_PUBLIC_PA_INTERNAL_KEY,
+  EXPO_PUBLIC_PA_API_KEY: process.env.EXPO_PUBLIC_PA_API_KEY,
 } as const;
 
 /* ============================================================================
