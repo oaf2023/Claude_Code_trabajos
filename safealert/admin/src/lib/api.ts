@@ -187,13 +187,48 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 /* --- Endpoints admin --- */
 
-export function fetchUsuarios(params: { busqueda?: string; plan?: string; limite?: number } = {}): Promise<{ total: number; usuarios: UsuarioAdmin[] }> {
+export function fetchUsuarios(params: { busqueda?: string; mac?: string; plan?: string; limite?: number } = {}): Promise<{ total: number; usuarios: UsuarioAdmin[] }> {
   const qs = new URLSearchParams();
   if (params.busqueda) qs.set("busqueda", params.busqueda);
+  if (params.mac) qs.set("mac", params.mac);
   if (params.plan) qs.set("plan", params.plan);
   if (params.limite) qs.set("limite", String(params.limite));
   const q = qs.toString();
   return request(`/admin/usuarios${q ? `?${q}` : ""}`);
+}
+
+export interface PagoSimuladoTicket {
+  ticket_number: number;
+  date: string;
+  time: string;
+  plan_type: "monthly" | "annual";
+  amount: number;
+  contact_email: string;
+}
+
+export interface ResultadoPagoSimulado {
+  success: boolean;
+  ticket: PagoSimuladoTicket;
+  usuario: {
+    device_id: string;
+    name: string;
+    mac_address: string;
+    subscription_status: string;
+    plan_type: string;
+    subscription_expires_at: string;
+  };
+}
+
+export function simularPago(params: {
+  mac_address?: string;
+  device_id?: string;
+  plan_type: "monthly" | "annual";
+  dias?: number;
+}): Promise<ResultadoPagoSimulado> {
+  return request("/admin/pagos/simular", {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
 }
 
 export function fetchStats(): Promise<StatsAdmin> {

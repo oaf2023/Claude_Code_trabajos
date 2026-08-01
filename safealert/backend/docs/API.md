@@ -179,13 +179,32 @@ curl https://oaf.pythonanywhere.com/api/v1/estado
 Listado de usuarios con su última ubicación registrada (dashboard de posicionamientos). Requiere `X-Admin-Key`.
 
 ```bash
-curl "https://oaf.pythonanywhere.com/api/v1/admin/usuarios?busqueda=juan&plan=monthly&limite=200" \
+curl "https://oaf.pythonanywhere.com/api/v1/admin/usuarios?busqueda=juan&mac=AA:BB:CC:DD:EE:FF&plan=monthly&limite=200" \
   -H "X-Admin-Key: <admin_key>"
 ```
 
-Parámetros: `busqueda` (device_id/nombre/teléfono), `plan` (monthly/annual/sin_plan), `limite` (max 500)
+Parámetros: `busqueda` (device_id/nombre/teléfono/MAC), `mac` (dirección MAC, tolera formato con o sin separadores), `plan` (monthly/annual/sin_plan), `limite` (max 500)
 
-Respuesta: `200 {"total": N, "usuarios": [{"device_id", "name", "phone", "subscription_status", "plan_type", "ultima_latitud", "ultima_longitud", "ultimo_origen", "ultima_fecha_hora", "total_ubicaciones", ...}]}`
+Respuesta: `200 {"total": N, "usuarios": [{"device_id", "name", "phone", "mac_address", "subscription_status", "plan_type", "ultima_latitud", "ultima_longitud", "ultimo_origen", "ultima_fecha_hora", "total_ubicaciones", ...}]}`
+
+---
+
+### `POST /api/v1/admin/pagos/simular`
+
+Genera un pago simulado (herramienta de pruebas) para un usuario, buscado por MAC address o device_id. Activa la suscripción, registra el evento `admin_simulated` y genera un ticket correlativo. **No hay cobro real** (no toca MercadoPago). Requiere `X-Admin-Key`.
+
+```bash
+curl -X POST https://oaf.pythonanywhere.com/api/v1/admin/pagos/simular \
+  -H "X-Admin-Key: <admin_key>" \
+  -H "Content-Type: application/json" \
+  -d '{"mac_address": "AA:BB:CC:DD:EE:FF", "plan_type": "monthly", "dias": 32}'
+```
+
+Cuerpo: `mac_address` (o `device_id`), `plan_type` (monthly/annual, obligatorio), `dias` (duración; 32 mensual / 380 anual por defecto)
+
+Respuesta: `200 {"success": true, "ticket": {"ticket_number", "date", "time", "plan_type", "amount", "contact_email"}, "usuario": {"device_id", "name", "mac_address", "subscription_status", "plan_type", "subscription_expires_at"}}`
+
+Errores: `400` plan inválido o sin MAC/device_id · `404` MAC/device no encontrado · `409` MAC duplicada en varios usuarios
 
 ---
 

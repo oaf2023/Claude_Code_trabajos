@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Usuarios from "./pages/Usuarios";
 import UsuarioDetalle from "./pages/UsuarioDetalle";
+import PagoSimulado from "./pages/PagoSimulado";
 import Admin from "./pages/Admin";
 import { getAdminKey } from "./lib/api";
 
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/usuarios/:usuarioId" element={<UsuarioDetalle />} />
+            <Route path="/pagos-simulados" element={<PagoSimulado />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Route>

@@ -17,6 +17,7 @@ import { clearAdminKey, fetchEstado, type EstadoSistema } from "../lib/api";
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: "◈" },
   { to: "/usuarios", label: "Usuarios", icon: "👥" },
+  { to: "/pagos-simulados", label: "Pagos simulados", icon: "💳" },
   { to: "/admin", label: "Administración", icon: "⚙" },
 ];
 

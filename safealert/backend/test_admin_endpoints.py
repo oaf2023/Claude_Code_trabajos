@@ -47,6 +47,8 @@ class AdminEndpointsTestCase(unittest.TestCase):
             "device_id": "dev-test-001",
             "name": "Usuario Prueba",
             "phone": "+5491100000000",
+            "mac_address": "AA:BB:CC:DD:EE:FF",
+            "device_unique_id": "unique-001",
         })
         self.client.post("/api/v1/ubicaciones", json={
             "usuario_id": "dev-test-001",
@@ -97,6 +99,106 @@ class AdminEndpointsTestCase(unittest.TestCase):
         )
         data = resp.get_json()
         self.assertEqual(data["total"], 2)
+
+    def test_admin_usuarios_por_mac(self):
+        resp = self.client.get(
+            "/api/v1/admin/usuarios?mac=AA:BB:CC:DD:EE:FF", headers=self.admin_headers
+        )
+        data = resp.get_json()
+        self.assertEqual(data["total"], 1)
+        self.assertEqual(data["usuarios"][0]["device_id"], "dev-test-001")
+
+    def test_admin_usuarios_por_mac_sin_formato(self):
+        resp = self.client.get(
+            "/api/v1/admin/usuarios?mac=aabbccddeeff", headers=self.admin_headers
+        )
+        data = resp.get_json()
+        self.assertEqual(data["total"], 1)
+        self.assertEqual(data["usuarios"][0]["mac_address"], "AA:BB:CC:DD:EE:FF")
+
+    def test_admin_usuarios_por_mac_sin_resultados(self):
+        resp = self.client.get(
+            "/api/v1/admin/usuarios?mac=00:11:22:33:44:55", headers=self.admin_headers
+        )
+        data = resp.get_json()
+        self.assertEqual(data["total"], 0)
+
+    # ------------------------------------------------------------------
+    # /api/v1/admin/pagos/simular
+    # ------------------------------------------------------------------
+
+    def test_pago_simulado_requiere_clave(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"mac_address": "AA:BB:CC:DD:EE:FF", "plan_type": "monthly"},
+        )
+        self.assertEqual(resp.status_code, 401)
+
+    def test_pago_simulado_por_mac(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"mac_address": "AA:BB:CC:DD:EE:FF", "plan_type": "monthly"},
+            headers=self.admin_headers,
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["usuario"]["subscription_status"], "active")
+        self.assertEqual(data["usuario"]["plan_type"], "monthly")
+        self.assertIn("ticket", data)
+        self.assertEqual(data["ticket"]["amount"], 7500)
+        self.assertGreater(data["ticket"]["ticket_number"], 0)
+
+    def test_pago_simulado_anual_por_device_id(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"device_id": "dev-test-001", "plan_type": "annual", "dias": 365},
+            headers=self.admin_headers,
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertEqual(data["ticket"]["amount"], 75000)
+        self.assertEqual(data["usuario"]["subscription_status"], "active")
+
+    def test_pago_simulado_ticket_correlativo(self):
+        primero = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"device_id": "dev-test-001", "plan_type": "monthly"},
+            headers=self.admin_headers,
+        ).get_json()
+        segundo = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"device_id": "dev-test-001", "plan_type": "monthly"},
+            headers=self.admin_headers,
+        ).get_json()
+        self.assertEqual(
+            segundo["ticket"]["ticket_number"],
+            primero["ticket"]["ticket_number"] + 1,
+        )
+
+    def test_pago_simulado_mac_inexistente(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"mac_address": "00:11:22:33:44:55", "plan_type": "monthly"},
+            headers=self.admin_headers,
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    def test_pago_simulado_plan_invalido(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"mac_address": "AA:BB:CC:DD:EE:FF", "plan_type": "semanal"},
+            headers=self.admin_headers,
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_pago_simulado_requiere_mac_o_device(self):
+        resp = self.client.post(
+            "/api/v1/admin/pagos/simular",
+            json={"plan_type": "monthly"},
+            headers=self.admin_headers,
+        )
+        self.assertEqual(resp.status_code, 400)
 
     # ------------------------------------------------------------------
     # /api/v1/admin/stats

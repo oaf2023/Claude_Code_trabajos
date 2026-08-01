@@ -1061,6 +1061,14 @@ def detalle_ubicacion(id: int):
         return jsonify({"error": "Ubicacion no encontrada"}), 404
     return jsonify(dict(row))
 
+def normalizar_mac(mac: str) -> str:
+    """
+    Normaliza una dirección MAC eliminando separadores y llevándola a minúsculas.
+    Ej: "AA:BB:CC:DD:EE:FF" -> "aabbccddeeff"
+    """
+    return re.sub(r"[^0-9a-fA-F]", "", mac or "").lower()
+
+
 # ---------------------------------------------------------------------------
 # GET /api/v1/admin/usuarios — Listado de usuarios con última ubicación
 # (Panel de administración: dashboard de posicionamientos)
@@ -1070,6 +1078,7 @@ def detalle_ubicacion(id: int):
 @require_admin_key
 def admin_usuarios():
     busqueda = request.args.get("busqueda", "").strip()
+    mac = normalizar_mac(request.args.get("mac", ""))
     plan = request.args.get("plan", "").strip()
     limite = request.args.get("limite", 200, type=int)
     limite = min(limite, 500)
@@ -1099,8 +1108,11 @@ def admin_usuarios():
     params = []
     if busqueda:
         like = f"%{busqueda}%"
-        query += " AND (u.device_id LIKE ? OR u.name LIKE ? OR u.phone LIKE ?)"
-        params.extend([like, like, like])
+        query += " AND (u.device_id LIKE ? OR u.name LIKE ? OR u.phone LIKE ? OR u.mac_address LIKE ?)"
+        params.extend([like, like, like, like])
+    if mac:
+        query += " AND replace(lower(u.mac_address), ':', '') LIKE ?"
+        params.append(f"%{mac}%")
     if plan:
         query += " AND u.plan_type = ?"
         params.append(plan)
@@ -1115,6 +1127,99 @@ def admin_usuarios():
     return jsonify({
         "total": len(resultado),
         "usuarios": resultado
+    })
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/admin/pagos/simular — Genera un pago simulado (pruebas)
+# Busca al usuario por MAC address (o device_id), activa la suscripción
+# con el plan indicado, registra el evento de pago simulado y genera el
+# ticket correlativo. No hay cobro real (no toca MercadoPago).
+# ---------------------------------------------------------------------------
+
+@flask_app.route("/api/v1/admin/pagos/simular", methods=["POST"])
+@require_admin_key
+def admin_pago_simulado():
+    if not _rate_limit(f"pago_sim:{request.remote_addr}"):
+        return jsonify({"error": "Demasiadas solicitudes"}), 429
+    data = request.get_json(silent=True) or {}
+    mac = normalizar_mac(data.get("mac_address", ""))
+    device_id = str(data.get("device_id", "")).strip()
+    plan_type = data.get("plan_type", "monthly").strip()
+    dias = int(data.get("dias", 0) or 0)
+
+    if plan_type not in ("monthly", "annual"):
+        return jsonify({"error": "plan_type debe ser monthly o annual"}), 400
+    if not mac and not device_id:
+        return jsonify({"error": "Se requiere mac_address o device_id"}), 400
+    if dias <= 0:
+        dias = 32 if plan_type == "monthly" else 380
+
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+
+    if device_id:
+        row = db.execute("SELECT * FROM users WHERE device_id = ?", (device_id,)).fetchone()
+        if not row:
+            return jsonify({"error": "device_id no encontrado"}), 404
+    else:
+        rows = db.execute(
+            "SELECT * FROM users WHERE replace(lower(mac_address), ':', '') LIKE ?",
+            (f"%{mac}%",)
+        ).fetchall()
+        if not rows:
+            return jsonify({"error": "No se encontró un usuario con esa MAC"}), 404
+        if len(rows) > 1:
+            return jsonify({"error": "La MAC coincide con varios usuarios. Usá device_id para desambiguar."}), 409
+        row = rows[0]
+
+    expires_at = (datetime.utcnow() + timedelta(days=dias)).isoformat()
+
+    db.execute(
+        "UPDATE users SET subscription_status='active', plan_type=?, "
+        "subscription_expires_at=?, updated_at=? WHERE device_id=?",
+        (plan_type, expires_at, now, row["device_id"])
+    )
+
+    db.execute(
+        "INSERT INTO payment_events (device_id, event_type, mp_reference, payload, created_at) "
+        "VALUES (?, 'admin_simulated', ?, ?, ?)",
+        (row["device_id"], "", json.dumps({"plan_type": plan_type, "dias": dias,
+                                           "simulado": True, "por_mac": bool(mac)}), now)
+    )
+
+    ticket_row = db.execute(
+        "SELECT COALESCE(MAX(ticket_number), 0) AS ultimo FROM tickets"
+    ).fetchone()
+    ticket_number = int(ticket_row["ultimo"]) + 1
+    amount = 75000 if plan_type == "annual" else 7500
+    db.execute(
+        "INSERT INTO tickets (ticket_number, device_id, user_name, plan_type, amount, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        (ticket_number, row["device_id"], row["name"], plan_type, amount, now)
+    )
+    db.commit()
+
+    logger.info("[SafeAlert] Pago simulado (admin): device=%s mac=%s plan=%s dias=%d ticket=%d",
+                row["device_id"], row["mac_address"], plan_type, dias, ticket_number)
+
+    return jsonify({
+        "success": True,
+        "ticket": {
+            "ticket_number": ticket_number,
+            "date": datetime.utcnow().strftime("%d/%m/%Y"),
+            "time": datetime.utcnow().strftime("%H:%M"),
+            "plan_type": plan_type,
+            "amount": amount,
+            "contact_email": "safealert_contacto@manejadatos.com",
+        },
+        "usuario": {
+            "device_id": row["device_id"],
+            "name": row["name"],
+            "mac_address": row["mac_address"],
+            "subscription_status": "active",
+            "plan_type": plan_type,
+            "subscription_expires_at": expires_at,
+        },
     })
 
 # ---------------------------------------------------------------------------

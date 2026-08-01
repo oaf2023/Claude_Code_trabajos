@@ -411,6 +411,52 @@ body {
   font-weight: 700;
 }
 
+.panel-sub {
+  margin: 0 0 14px;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+/* ------------------- Selección de usuario (pago simulado) ------------------- */
+
+.lista-seleccion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-seleccion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.item-seleccion:hover {
+  border-color: var(--acento);
+}
+
+.item-seleccion-active {
+  border-color: var(--verde);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.item-seleccion-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
