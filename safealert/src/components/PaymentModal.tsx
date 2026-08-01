@@ -34,7 +34,7 @@ import { PaymentService, PlanType } from '../services/PaymentService';
 import { PaymentTicket, TicketData } from './PaymentTicket';
 import { DeviceService } from '../services/DeviceService';
 import { color } from '../theme';
-import { PAYMENTS_ENABLED } from '../config/features';
+import { PAYMENTS_DEMO_ENABLED, PAYMENTS_ENABLED } from '../config/features';
 
 // ─── Lógica de bypass dinámica (Emulador saltará pasarela) ──────────────
 interface PaymentModalProps {
@@ -56,7 +56,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   // Se inicializa en true preventivamente si estamos en __DEV__ para no
   // bloquear al desarrollador mientras carga el chequeo de DeviceInfo.
-  const [isBypassMode, setIsBypassMode] = useState(__DEV__ || !PAYMENTS_ENABLED);
+  const [isBypassMode, setIsBypassMode] = useState(
+    __DEV__ || PAYMENTS_DEMO_ENABLED || !PAYMENTS_ENABLED
+  );
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('monthly');
   const [loading, setLoading] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
@@ -68,8 +70,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     if (visible) {
       // Verificamos si es emulador o dispositivo real para decidir el flujo
       DeviceService.isEmulator().then(emu => {
-        // Si es emulador O pagos desactivados por config, forzamos bypass
-        setIsBypassMode(emu || !PAYMENTS_ENABLED);
+        // Si es emulador O pago de muestra habilitado O pagos desactivados
+        // por config, forzamos bypass
+        setIsBypassMode(emu || PAYMENTS_DEMO_ENABLED || !PAYMENTS_ENABLED);
       });
     }
   }, [visible]);
