@@ -28,6 +28,8 @@ import { color } from '../src/theme';
 import { AUTHENTICATION_TIMEOUT_MS } from '../src/config/features';
 import { NotificationService } from '../src/services/NotificationService';
 import { WakeWordService } from '../src/services/WakeWordService';
+import { recoverIncompleteAlerts } from '../src/services/AlertService';
+import { alertsCol } from '../src/config/firebase';
 import { PaymentOverdueModal } from '../src/components/PaymentOverdueModal';
 import { PaymentModal } from '../src/components/PaymentModal';
 import { TrialExpiredModal } from '../src/components/TrialExpiredModal';
@@ -278,6 +280,33 @@ function RootLayout() {
       cancelTask();
     };
   }, [authError, isArmed, isOnboarded, listo]);
+
+  // Recuperar alertas encoladas localmente que no se confirmaron (offline,
+  // cierre abrupto o reinicio). Al marcar de nuevo status 'pending', la
+  // Cloud Function sendAlertSMS (onDocumentWritten) reintenta el envío SMS.
+  useEffect(() => {
+    if (!listo || authError || !isOnboarded) {
+      return;
+    }
+
+    const cancelTask = runWhenIdle(() => {
+      recoverIncompleteAlerts(async (alert) => {
+        try {
+          await alertsCol(alert.userId).doc(alert.id).update({ status: 'pending' });
+          return true;
+        } catch (error) {
+          console.warn('[RootLayout] No se pudo reintentar la alerta encolada:', error);
+          return false;
+        }
+      }).catch((error) => {
+        console.warn('[RootLayout] No se pudieron recuperar alertas pendientes:', error);
+      });
+    });
+
+    return () => {
+      cancelTask();
+    };
+  }, [authError, isOnboarded, listo]);
 
   if (!hidratado || !listo) {
     return (

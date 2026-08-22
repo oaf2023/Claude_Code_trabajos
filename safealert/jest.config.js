@@ -26,6 +26,9 @@ const config = {
   collectCoverageFrom: [
     'src/services/AlertStateMachine.ts',
     'src/services/AlertQueue.ts',
+    'src/services/AlertService.ts',
+    'src/services/LocationService.ts',
+    'src/services/PaymentService.ts',
     'src/utils/MessageFormatter.ts',
   ],
   coverageDirectory: '<rootDir>/coverage',

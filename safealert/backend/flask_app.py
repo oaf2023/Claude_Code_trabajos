@@ -122,19 +122,53 @@ CORS(flask_app, origins=[
 
 # ---------------------------------------------------------------------------
 # Rate limiter
+# Almacenado en SQLite (tabla rate_limit_events) para que sea efectivo con
+# múltiples workers de Gunicorn/WSGI. La API es idéntica a la versión en
+# memoria: _rate_limit(key) -> bool (True si la petición puede pasar).
 # ---------------------------------------------------------------------------
 
-_rate_limit_store: dict[str, list[float]] = defaultdict(list)
 RATE_LIMIT_WINDOW = 60
 RATE_LIMIT_MAX = 30
+RATE_LIMIT_PURGE_EVERY = 256  # purgar eventos viejos cada N inserciones
+
+_rate_limit_call_counter = 0
+
 
 def _rate_limit(key: str) -> bool:
+    global _rate_limit_call_counter
     now = time()
-    window = _rate_limit_store[key]
-    _rate_limit_store[key] = [t for t in window if now - t < RATE_LIMIT_WINDOW]
-    if len(_rate_limit_store[key]) >= RATE_LIMIT_MAX:
+    db = get_db()
+    cutoff = now - RATE_LIMIT_WINDOW
+
+    # Limpiar eventos vencidos de esta clave en cada llamada (barato con índice)
+    db.execute(
+        "DELETE FROM rate_limit_events WHERE rl_key = ? AND ts < ?",
+        (key, cutoff),
+    )
+
+    row = db.execute(
+        "SELECT COUNT(*) AS c FROM rate_limit_events WHERE rl_key = ? AND ts >= ?",
+        (key, cutoff),
+    ).fetchone()
+    if row["c"] >= RATE_LIMIT_MAX:
+        db.commit()
         return False
-    _rate_limit_store[key].append(now)
+
+    db.execute(
+        "INSERT INTO rate_limit_events (rl_key, ts) VALUES (?, ?)",
+        (key, now),
+    )
+    db.commit()
+
+    # Purga global periódica para evitar crecimiento indefinido de la tabla
+    _rate_limit_call_counter += 1
+    if _rate_limit_call_counter % RATE_LIMIT_PURGE_EVERY == 0:
+        try:
+            db.execute("DELETE FROM rate_limit_events WHERE ts < ?", (cutoff,))
+            db.commit()
+        except sqlite3.OperationalError:
+            pass
+
     return True
 
 # ---------------------------------------------------------------------------
@@ -314,6 +348,15 @@ def _create_tables(db: sqlite3.Connection):
             subscription_expires_at TEXT,
             updated_at             TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS rate_limit_events (
+            id     INTEGER PRIMARY KEY AUTOINCREMENT,
+            rl_key TEXT NOT NULL,
+            ts     REAL NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_rate_limit_key_ts
+            ON rate_limit_events(rl_key, ts);
 
         CREATE TABLE IF NOT EXISTS payment_events (
             id                INTEGER PRIMARY KEY AUTOINCREMENT,

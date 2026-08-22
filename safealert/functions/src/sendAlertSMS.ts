@@ -8,7 +8,7 @@
 * Uso             : Trigger automático sobre users/{userId}/alerts/{alertId}
 * ============================================================================ */
 
-import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { onDocumentWritten, onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
@@ -196,7 +196,7 @@ async function sendNotification(
   }
 }
 
-export const sendAlertSMS = onDocumentCreated(
+export const sendAlertSMS = onDocumentWritten(
   {
     document: 'users/{userId}/alerts/{alertId}',
     secrets: [
@@ -210,13 +210,18 @@ export const sendAlertSMS = onDocumentCreated(
   },
   async (event) => {
     const alertId = event.params.alertId;
-    const snapshot = event.data;
+    const snapshot = event.data?.after;
     if (!snapshot) return;
+
+    const data = snapshot.data();
+    // Procesar solo alertas en estado 'pending' (creación o reintento desde
+    // AlertQueue). Los estados finales (sent/partial/failed) escritos por
+    // esta misma función no se vuelven a procesar.
+    if (!data || data.status !== 'pending') return;
 
     const shouldProcess = await claimEvent(`sendAlertSMS-${event.id}`, alertId);
     if (!shouldProcess) return;
 
-    const data = snapshot.data();
     const parsed = AlertSchema.safeParse(data);
     if (!parsed.success) {
       console.error('[sendAlertSMS] Datos de alerta inválidos:', parsed.error);

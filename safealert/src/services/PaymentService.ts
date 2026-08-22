@@ -185,7 +185,9 @@ async function createTicket(
   }
 
   const data = await response.json();
-  return data as TicketData;
+  // El backend responde { success, ticket: {...} }; el cliente espera TicketData
+  // directamente. Normalizar para cubrir ambos formatos.
+  return (data.ticket ?? data) as TicketData;
 }
 
 export const PaymentService = { registerDevice, checkSubscription, confirmPayment, createTicket };

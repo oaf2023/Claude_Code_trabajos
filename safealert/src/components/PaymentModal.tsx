@@ -215,11 +215,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const handleConfirmPayment = async () => {
     setLoading(true);
     try {
-      await PaymentService.confirmPayment(
+      const confirmed = await PaymentService.confirmPayment(
         deviceId,
         selectedPlan,
         subscriptionId ?? undefined
       );
+      if (!confirmed) {
+        throw new Error('El backend no confirmó el pago.');
+      }
 
       const amount = selectedPlan === 'annual' ? 75000 : 7500;
       const ticketData = await PaymentService.createTicket(
@@ -233,7 +236,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       onSuccess();
     } catch (err) {
       console.error('[PaymentModal] Error al confirmar pago:', err);
-      onSuccess();
+      // No llamar onSuccess(): el pago no quedó confirmado.
+      Alert.alert(
+        'No se pudo confirmar el pago',
+        'Ocurrió un problema al confirmar tu suscripción. Verificá tu pago y volvé a intentarlo.',
+        [{ text: 'Cerrar' }]
+      );
     } finally {
       setLoading(false);
     }

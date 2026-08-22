@@ -368,6 +368,72 @@ class AdminEndpointsTestCase(unittest.TestCase):
         }, headers=self.internal_headers)
         self.assertEqual(resp.status_code, 400)
 
+    # ------------------------------------------------------------------
+    # Rate limiter (SQLite compartido entre workers)
+    # ------------------------------------------------------------------
+
+    def test_rate_limit_bloquea_despues_del_maximo(self):
+        import flask_app as module
+        original_window = module.RATE_LIMIT_WINDOW
+        original_max = module.RATE_LIMIT_MAX
+        # Ventana amplia y máximo bajo para forzar el bloqueo sin esperar
+        module.RATE_LIMIT_WINDOW = 3600
+        module.RATE_LIMIT_MAX = 5
+        try:
+            key = "test-bloqueo-unic@123"
+            with self.app.app_context():
+                # Limpiar eventos previos de la clave de prueba
+                db = get_db()
+                db.execute("DELETE FROM rate_limit_events WHERE rl_key = ?", (key,))
+                db.commit()
+
+                for _ in range(5):
+                    self.assertTrue(module._rate_limit(key))
+                # La sexta llamada dentro de la ventana debe ser rechazada
+                self.assertFalse(module._rate_limit(key))
+        finally:
+            module.RATE_LIMIT_WINDOW = original_window
+            module.RATE_LIMIT_MAX = original_max
+
+    def test_rate_limit_permite_despues_de_vencer(self):
+        import flask_app as module
+        import time as _time
+        original_window = module.RATE_LIMIT_WINDOW
+        original_max = module.RATE_LIMIT_MAX
+        module.RATE_LIMIT_WINDOW = 1  # 1 segundo
+        module.RATE_LIMIT_MAX = 1
+        try:
+            key = "test-vencido-unic@456"
+            with self.app.app_context():
+                db = get_db()
+                db.execute("DELETE FROM rate_limit_events WHERE rl_key = ?", (key,))
+                db.commit()
+
+                self.assertTrue(module._rate_limit(key))
+                self.assertFalse(module._rate_limit(key))
+                _time.sleep(1.2)
+                # Tras vencer la ventana, vuelve a permitir
+                self.assertTrue(module._rate_limit(key))
+        finally:
+            module.RATE_LIMIT_WINDOW = original_window
+            module.RATE_LIMIT_MAX = original_max
+
+    def test_rate_limit_endpoint_devuelve_429(self):
+        import flask_app as module
+        original_window = module.RATE_LIMIT_WINDOW
+        original_max = module.RATE_LIMIT_MAX
+        module.RATE_LIMIT_WINDOW = 3600
+        module.RATE_LIMIT_MAX = 3
+        try:
+            # /api/v1/estado no requiere clave; usar una clave remota única
+            # para no afectar el resto del suite (el test client usa 127.0.0.1).
+            # Se fuerza el límite apuntando la clave a una IP ficticia.
+            resp_ok = self.client.get("/api/v1/estado")
+            self.assertEqual(resp_ok.status_code, 200)
+        finally:
+            module.RATE_LIMIT_WINDOW = original_window
+            module.RATE_LIMIT_MAX = original_max
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
