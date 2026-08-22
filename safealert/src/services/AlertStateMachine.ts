@@ -175,7 +175,31 @@ export const useAlertMachineStore = create<AlertMachineStore>()(
     {
       name: 'alert-machine-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ machine: state.machine }),
+      // Privacidad (DAMA-DMBOK): NO se persisten datos sensibles.
+      // contacts (teléfonos) y location (coordenadas) ya viven en Firestore y
+      // en AlertQueue; aquí solo se persiste lo necesario para recuperar una
+      // alerta en curso tras un reinicio del proceso.
+      partialize: (state) => ({
+        machine: {
+          state: state.machine.state,
+          context: {
+            alertId: state.machine.context.alertId,
+            userId: state.machine.context.userId,
+            triggerWord: state.machine.context.triggerWord,
+            isTest: state.machine.context.isTest,
+            locationFailed: state.machine.context.locationFailed,
+            messageText: state.machine.context.messageText,
+            createdAt: state.machine.context.createdAt,
+            updatedAt: state.machine.context.updatedAt,
+            errorMessage: state.machine.context.errorMessage,
+            retryCount: state.machine.context.retryCount,
+            contacts: [],
+            location: null,
+            audioUrl: null,
+            audioPath: null,
+          },
+        },
+      }),
     }
   )
 );

@@ -32,7 +32,6 @@ import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { useContactsStore } from '../../src/stores/useContactsStore';
 import { useAlert } from '../../src/hooks/useAlert';
 import { useContacts } from '../../src/hooks/useContacts';
-import { useGuardMode } from '../../src/hooks/useGuardMode';
 import { buildVisibleTriggerWords } from '../../src/utils/triggerWords';
 import {
   REMOTE_AUDIO_GUARD_CONFIGURED,
@@ -88,10 +87,6 @@ export default function HomeScreen() {
     cancelCountdown,
     isAlerting,
   } = useAlert();
-
-  const { isGuardActive, activateGuard, deactivateGuard } = useGuardMode(() => {
-    if (!isAlerting) triggerManual();
-  });
 
   const { loading: contactsLoading } = useContacts();
   const contacts = useContactsStore((s) => s.contacts);
@@ -169,12 +164,12 @@ export default function HomeScreen() {
     }
     try {
       if (isArmed) {
-        await deactivateGuard();
+        await WakeWordService.stop();
         setArmed(false);
       } else {
         if (!hasSubscription) { setShowPayment(true); return; }
-        const started = await activateGuard();
-        if (started) setArmed(true);
+        await WakeWordService.start();
+        setArmed(true);
       }
       Vibration.vibrate(200);
     } catch (e: any) {
