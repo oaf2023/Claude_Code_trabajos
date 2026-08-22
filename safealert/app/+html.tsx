@@ -13,10 +13,14 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
+// Base pública del sitio (GitHub Pages sirve en subdirectorio).
+// Se mantiene en sincronía con experiments.baseUrl de app.json.
+const BASE_URL = '/Claude_Code_trabajos';
+
 const SW_REGISTER_SCRIPT = `
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function (err) {
+      navigator.serviceWorker.register('${BASE_URL}/sw.js', { scope: '${BASE_URL}/' }).catch(function (err) {
         console.warn('[SafeAlertPWA] No se pudo registrar el service worker:', err);
       });
     });
@@ -35,14 +39,14 @@ export default function Root({ children }: PropsWithChildren) {
         />
         <ScrollViewStyleReset />
 
-        {/* PWA: manifest + metas de instalación móvil */}
-        <link rel="manifest" href="/manifest.json" />
+        {/* PWA: manifest + metas de instalación móvil (rutas con base pública) */}
+        <link rel="manifest" href={`${BASE_URL}/manifest.json`} />
         <meta name="theme-color" content="#DC2626" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="SafeAlert" />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href={`${BASE_URL}/icons/apple-touch-icon.png`} />
         <meta name="msapplication-TileColor" content="#DC2626" />
       </head>
       <body>

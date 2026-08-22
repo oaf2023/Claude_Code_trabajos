@@ -108,6 +108,9 @@
       "startUrl": "/",
       "display": "standalone"
     },
+    "experiments": {
+      "baseUrl": "/Claude_Code_trabajos"
+    },
     "plugins": [
       "@react-native-firebase/app",
       "expo-router",
