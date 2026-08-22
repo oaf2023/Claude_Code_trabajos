@@ -35,3 +35,7 @@ safealert/android
 
 *.aab
 *.apk
+
+# Python bytecode
+__pycache__/
+*.pyc

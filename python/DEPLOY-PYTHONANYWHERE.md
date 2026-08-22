@@ -1,130 +1,101 @@
 # Guía de Actualización — PythonAnywhere
 
-## Conexión rápida
-
 **URL**: https://www.pythonanywhere.com/user/oaf/
 **Consola**: Dashboard → Consoles → Bash (o abrir una nueva)
 
+> **IMPORTANTE (2026-08-01):** PythonAnywhere NO posee sección
+> "Environment variables" en la pestaña Web. Las claves se cargan desde un
+> archivo `.env` colocado en `/home/oaf/agrupacion_api/.env` (leído por
+> `python-dotenv` dentro de `flask_app.py`).
+
+## Paso 1 — Subir los archivos nuevos (backend v3.1 con panel admin)
+
+Subir por la pestaña **Files → /home/oaf/agrupacion_api/** (o SCP):
+
 ```bash
-ssh -o ProxyCommand="ssh oaf@ssh.pythonanywhere.com nc oaf@ssh.pythonanywhere.com 22" oaf@oaf.pythonanywhere.com
+scp C:\Claude_Code_trabajos\safealert\backend\flask_app.py      oaf@oaf.pythonanywhere.com:~/agrupacion_api/
+scp C:\Claude_Code_trabajos\safealert\backend\requirements.txt  oaf@oaf.pythonanywhere.com:~/agrupacion_api/
+scp C:\Claude_Code_trabajos\safealert\backend\.env              oaf@oaf.pythonanywhere.com:~/agrupacion_api/.env
 ```
 
-## Paso 1 — Obtener los últimos cambios
+> El archivo `.env` es local (ignorado por Git). Si no hay SCP disponible,
+> copiar su contenido con **Files → New file → .env → Paste**.
 
-```bash
-cd ~/agrupacion_api
-git pull origin main
-```
-
-Si los archivos están fuera del repo, copiarlos manualmente:
-```bash
-# Subir flask_app.py y requirements.txt desde local
-# Opción A: desde la consola de PA, pegar el contenido
-nano flask_app.py   # pegar el contenido actualizado
-
-# Opción B: subir por SCP desde local
-scp C:\Claude_Code_trabajos\python\flask_app.py oaf@oaf.pythonanywhere.com:~/agrupacion_api/
-scp C:\Claude_Code_trabajos\python\requirements.txt oaf@oaf.pythonanywhere.com:~/agrupacion_api/
-```
-
-## Paso 2 — Actualizar dependencias
+## Paso 2 — Instalar dependencias (Bash console)
 
 ```bash
 cd ~/agrupacion_api
-pip install -r requirements.txt --user
+pip install --user python-dotenv
+python -c "import dotenv; print('dotenv OK')"
 ```
 
-**Nuevas dependencias** (Fase 0):
-- `firebase-admin==6.6.0` — para verificar Firebase ID Tokens en `/api/users/register` y `/api/users/status`
+## Paso 3 — Reemplazar el WSGI (CRÍTICO)
 
-Verificar instalación:
-```bash
-python -c "import firebase_admin; print(firebase_admin.__version__)"
-```
+El WSGI actual define secretos con placeholders (`TU_SAFEALERT_INTERNAL_KEY`,
+`TU_AUDIO_ALERT_API_KEY`, ...) que **pisan** al `.env` (por eso la app móvil
+recibe "API Key inválida" y el panel no tiene su clave).
 
-## Paso 3 — Configurar secretos de entorno
+1. Ir a **Dashboard → Web → oaf.pythonanywhere.com → "WSGI configuration file"**
+   (enlace que abre el archivo `oaf_pythonanywhere_com_wsgi.py`).
+2. Reemplazar **todo el contenido** por el de
+   `safealert/backend/wsgi.py` (no define secretos; los carga desde `.env`).
+3. Guardar (Save).
 
-Ir a **Dashboard → Web → oaf.pythonanywhere.com → Environment variables**.
+## Paso 4 — Verificar el WSGI
 
-Agregar o verificar las siguientes variables:
-
-| Variable | Valor | Propósito |
-|----------|-------|-----------|
-| `AUDIO_ALERT_API_KEY` | `ad2f4eef8e6d5a73f2d635d0a980569fae3c405d682972c1` | API key para endpoints de audio/tel (rotada) |
-| `SAFEALERT_INTERNAL_KEY` | *(generar una)* | Clave interna `/api/payments/confirm` |
-| `MP_WEBHOOK_SECRET` | *(de Mercado Pago)* | Firma HMAC webhook MP |
-| `FLASK_DEBUG` | `0` | Modo producción (nunca `1`) |
-| `FIREBASE_CREDENTIALS_PATH` | *(opcional)* | Ruta a JSON de service account para Firebase Admin |
-
-Luego hacer clic en **Reload oaf.pythonanywhere.com**.
-
-## Paso 4 — Configurar Firebase Admin (nuevo)
-
-Esta versión usa `firebase-admin` para verificar ID Tokens en los endpoints protegidos.
-
-### Opción A: Application Default Credentials (recomendada)
-
-PythonAnywhere expone metadata de Google Cloud si el proyecto está vinculado. La inicialización sin argumentos usará ADC:
+El WSGI debe exponer `flask_app` (backend unificado v3.1):
 
 ```python
-firebase_admin.initialize_app()
+from flask_app import flask_app as application
 ```
 
-No requiere configuración adicional. Si falla, verificar que el proyecto esté en Google Cloud con facturación.
+## Paso 5 — Reload y verificar
 
-### Opción B: Service Account JSON (alternativa)
-
-1. Descargar service account JSON desde Firebase Console → Configuración → Cuentas de servicio → "Generar nueva clave privada"
-2. Subir el archivo a PythonAnywhere:
-   ```bash
-   scp firebase-credentials.json oaf@oaf.pythonanywhere.com:~/agrupacion_api/
-   ```
-3. Agregar variable de entorno:
-   - `FIREBASE_CREDENTIALS_PATH` → `/home/oaf/agrupacion_api/firebase-credentials.json`
-4. **NUNCA** comitees este JSON al repositorio.
-
-## Paso 5 — Verificar el deploy
+1. Dashboard → **Web → oaf.pythonanywhere.com → Reload**
+2. Health check:
 
 ```bash
-# 1. Health check
 curl https://oaf.pythonanywhere.com/api/health
+```
 
-# 2. Probar auth (debería rechazar sin token)
-curl -X POST https://oaf.pythonanywhere.com/api/users/register \
-  -H "Content-Type: application/json" \
-  -d '{"device_id":"test","name":"Test","phone":"+5411111111"}'
-# Esperado: {"error": "Token requerido"} — 401
+3. Probar el panel admin (con la clave de `safealert/backend/.env`):
 
-# 3. Ver logs
+```bash
+curl -H "X-Admin-Key: tP4HbmLpkGgsKFhlWQd3cJxjzeO1vX0NfrTIDi6nZBwRa7Vy" \
+     https://oaf.pythonanywhere.com/api/v1/admin/stats
+# Esperado: 200 con JSON de KPIs (kpis, usuarios_por_plan, ...)
+```
+
+4. Ver logs:
+
+```bash
 tail -f /var/log/oaf.pythonanywhere.com.error.log
 ```
 
-## Paso 6 — Endpoints protegidos con Firebase Auth
+## Paso 6 — Entrar al panel admin
 
-| Endpoint | Antes | Ahora |
-|----------|-------|-------|
-| `POST /api/users/register` | Sin autenticación | Requiere `Authorization: Bearer <Firebase ID Token>` |
-| `GET /api/users/status/<id>` | Sin autenticación | Requiere `Authorization: Bearer <Firebase ID Token>` |
-| `POST /api/payments/confirm` | `X-Internal-Key` | Sin cambios |
-| `POST /api/payments/webhook` | Firma HMAC | Sin cambios |
-| `POST /api/security/upload-recording` | `X-API-Key` | Sin cambios |
-| `POST /api/tel/*` | `X-API-Key` | Sin cambios |
+- URL del panel: `https://oaf.pythonanywhere.com` (panel desplegado aparte) o local
+  `npm run dev` en `safealert/admin`.
+- Clave de login: **la de `SAFEALERT_ADMIN_API_KEY` en `safealert/backend/.env`**
+  (actual: `tP4HbmLpkGgsKFhlWQd3cJxjzeO1vX0NfrTIDi6nZBwRa7Vy`).
+- Páginas: `/` (KPIs), `/usuarios` (búsqueda por MAC), `/pagos-simulados`
+  (pago simulado por MAC), `/admin`.
+
+## Variables del `.env`
+
+| Variable | Propósito |
+|----------|-----------|
+| `SAFEALERT_ADMIN_API_KEY` | Clave del panel admin (header `X-Admin-Key`) |
+| `SAFEALERT_INTERNAL_KEY` | Clave interna `/api/payments/confirm` |
+| `AUDIO_ALERT_API_KEY` | API key de endpoints de audio/tel (la app móvil usa `ad2f4eef8e6d5a73f2d635d0a980569fae3c405d682972c1`) |
+| `MP_WEBHOOK_SECRET` | Firma HMAC webhook MercadoPago |
+| `FLASK_DEBUG` | `0` en producción (nunca `1`) |
 
 ## Rollback
 
-Si algo sale mal:
-
-1. Ir a **Dashboard → Files → oaf.pythonanywhere.com → Web**
-2. Usar la función "Revert to previous version" en la sección "Code"
-3. O restaurar el backup de la DB:
+1. **Files → /home/oaf/agrupacion_api** → restaurar versión anterior de `flask_app.py`.
+2. Restaurar DB si hiciera falta:
    ```bash
    cp /home/oaf/backups/safealert.db.$(date -d yesterday +%Y-%m-%d) /home/oaf/agrupacion_api/usuarios/safealert.db
    ```
-4. Hacer **Reload**
-
-## Resumen de cambios en esta versión
-
-- Rotación de `AUDIO_ALERT_API_KEY` (nueva: `ad2f4eef8...`)
-- Firebase Auth en endpoints de registro/status de usuarios
-- `firebase-admin` agregado a dependencias
-- Actualización de `requirements.txt`
+3. Hacer **Reload**.
