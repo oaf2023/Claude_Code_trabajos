@@ -9,13 +9,15 @@
  * Uso             : Registrado desde app/+html.tsx en runtime web.
  * ============================================================================ */
 
-const CACHE_NAME = 'safealert-cache-v1';
+const CACHE_NAME = 'safealert-cache-v2';
+// Base pública del sitio (GitHub Pages sirve en subdirectorio).
+const BASE_URL = '/Claude_Code_trabajos';
 const PRECACHE_URLS = [
-  '/',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/favicon.ico',
+  `${BASE_URL}/`,
+  `${BASE_URL}/manifest.json`,
+  `${BASE_URL}/icons/icon-192.png`,
+  `${BASE_URL}/icons/icon-512.png`,
+  `${BASE_URL}/favicon.ico`,
 ];
 
 // Instalación: precachear recursos críticos.
@@ -54,9 +56,9 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   const isNavigation = request.mode === 'navigate';
-  const isAsset = url.pathname.startsWith('/_expo/') ||
-    url.pathname.startsWith('/icons/') ||
-    url.pathname.startsWith('/assets/') ||
+  const isAsset = url.pathname.startsWith(`${BASE_URL}/_expo/`) ||
+    url.pathname.startsWith(`${BASE_URL}/icons/`) ||
+    url.pathname.startsWith(`${BASE_URL}/assets/`) ||
     /\.(js|css|png|jpg|jpeg|webp|svg|ico|ttf|woff2?)$/i.test(url.pathname);
 
   if (isNavigation) {
@@ -68,7 +70,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() =>
-          caches.match(request).then((cached) => cached || caches.match('/'))
+          caches.match(request).then((cached) => cached || caches.match(`${BASE_URL}/`))
         )
     );
     return;
