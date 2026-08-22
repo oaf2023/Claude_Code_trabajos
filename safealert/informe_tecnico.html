@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeAlert — Informe Técnico</title>
+<style>
+  :root {
+    --danger: #DC2626;
+    --safe: #16A34A;
+    --warning: #D97706;
+    --bg: #F9FAFB;
+    --surface: #FFFFFF;
+    --text: #111827;
+    --text2: #6B7280;
+    --border: #E5E7EB;
+    --accent: #2563EB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  header {
+    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+    color: white;
+    padding: 48px 0 40px;
+  }
+  header h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
+  header .sub { font-size: 18px; opacity: 0.9; margin-top: 8px; }
+  header .meta { margin-top: 16px; font-size: 13px; opacity: 0.75; }
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    padding: 12px 0;
+  }
+  nav a { color: var(--accent); text-decoration: none; margin-right: 16px; font-size: 13px; font-weight: 500; }
+  nav a:hover { text-decoration: underline; }
+
+  section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  h2 { font-size: 26px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.3px; }
+  h3 { font-size: 18px; font-weight: 700; margin: 20px 0 12px; }
+  h4 { font-size: 15px; font-weight: 600; margin: 16px 0 8px; color: var(--text2); }
+
+  p, li { margin-bottom: 8px; }
+  ul, ol { padding-left: 24px; margin-bottom: 16px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .card h4 { margin: 0 0 8px; color: var(--text); }
+  .card p { font-size: 13px; color: var(--text2); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .badge-done { background: #DCFCE7; color: var(--safe); }
+  .badge-partial { background: #FEF3C7; color: var(--warning); }
+  .badge-todo { background: #FEE2E2; color: var(--danger); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  th { background: var(--bg); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); }
+  tr:hover td { background: #F3F4F6; }
+
+  code {
+    background: #F3F4F6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  pre {
+    background: #1F2937;
+    color: #E5E7EB;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+  pre .comment { color: #6B7280; }
+
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+  }
+  .stat .num { font-size: 28px; font-weight: 800; }
+  .stat .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .flow-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .flow-arrow { color: var(--text2); font-weight: 700; }
+
+  .commit-list { max-height: 400px; overflow-y: auto; }
+  .commit { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .commit:last-child { border-bottom: none; }
+  .commit .hash { font-family: monospace; color: var(--accent); }
+  .commit .msg { margin-left: 8px; }
+
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--text2);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>SafeAlert</h1>
+    <p class="sub">Informe Técnico Completo — Estado Actual del Desarrollo</p>
+    <p class="meta">Generado: 2026-08-22 &middot; Versión: 1.2.0 &middot; Último commit: 0024</p>
+  </div>
+</header>
+
+<nav>
+  <div class="container">
+    <a href="#resumen">Resumen</a>
+    <a href="#arquitectura">Arquitectura</a>
+    <a href="#stack">Stack</a>
+    <a href="#estructura">Estructura</a>
+    <a href="#fases">Fases</a>
+    <a href="#pantallas">Pantallas</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#stores">Stores</a>
+    <a href="#theme">Design System</a>
+    <a href="#backend">Backend</a>
+    <a href="#functions">Cloud Functions</a>
+    <a href="#cicd">CI/CD</a>
+    <a href="#tests">Tests</a>
+    <a href="#i18n">i18n</a>
+    <a href="#seguridad">Seguridad</a>
+    <a href="#commits">Commits</a>
+    <a href="#proximos">Próximos Pasos</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ==================== RESUMEN EJECUTIVO ==================== -->
+<section id="resumen">
+  <h2>1. Resumen Ejecutivo</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="num" style="color:var(--danger)">21</div><div class="label">Servicios</div></div>
+    <div class="stat"><div class="num" style="color:var(--accent)">11</div><div class="label">Pantallas</div></div>
+    <div class="stat"><div class="num" style="color:var(--safe)">67</div><div class="label">Tests (67/67 OK)</div></div>
+    <div class="stat"><div class="num" style="color:var(--warning)">36</div><div class="label">Commits</div></div>
+    <div class="stat"><div class="num">82%</div><div class="label">Cobertura Tests (6 archivos)</div></div>
+    <div class="stat"><div class="num" style="color:var(--accent)">7</div><div class="label">Cloud Functions</div></div>
+  </div>
+
+  <p>SafeAlert es una aplicación móvil de seguridad personal con detección de voz offline, alertas SOS, geolocalización en tiempo real, y un sistema de suscripciones vía Mercado Pago. Construida con <strong>React Native + Expo Router + TypeScript</strong> y backend <strong>Flask + PythonAnywhere + Firebase</strong>. Incluye <strong>PWA instalable</strong> para móviles.</p>
+
+  <h3>Estado del Desarrollo</h3>
+  <ul>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 0</strong> — Seguridad: Firebase Auth en backend, rotación de API keys</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 1</strong> — Core SOS: AlertStateMachine, AlertQueue, DeviceDiagnostic</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 2</strong> — Calidad: CI pipeline, Sentry crash reporting, Runbooks</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 3</strong> — Producto: Historial de alertas, WCAG accesibilidad</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 4</strong> — Privacidad: PrivacyService, exportación/eliminación de datos</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase 5</strong> — Arquitectura: i18n (retirado como código muerto), AccountService, Cloud Run</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase A</strong> — PWA móvil real, typecheck 9→0, endpoints faltantes, seguridad IDOR</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase B</strong> — Motor de voz unificado, backends consolidados, privacidad de persistencia</li>
+    <li><span class="badge badge-done">Completado</span> <strong>Fase C</strong> — Rate limiter distribuido, 31 tests nuevos, robustez de reintentos SMS</li>
+  </ul>
+</section>
+
+<!-- ==================== ARQUITECTURA ==================== -->
+<section id="arquitectura">
+  <h2>2. Arquitectura del Sistema</h2>
+
+  <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                        SAFEALERT APP                             │
+│  React Native + Expo Router + TypeScript + Zustand               │
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
+│  │  Home     │  │ History  │  │ Contacts │  │   Settings       │ │
+│  │  (Guardia)│  │(Alertas) │  │(Confianza)│  │   (Ajustes)     │ │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───────┬──────────┘ │
+│       └──────────────┴─────────────┴────────────────┘            │
+│                              │                                   │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │                    SERVICIOS (21)                            ││
+│  │  AlertService · AlertStateMachine · AlertQueue              ││
+│  │  AudioRecordingService · AudioAlertApiService               ││
+│  │  WakeWordService (único) · DeviceDiagnostic · DeviceService ││
+│  │  ContactsService · NotificationService · PermissionsService ││
+│  │  LocationService · PaymentService · LocationApiClient       ││
+│  │  AccountService · PrivacyService · PythonAnywhereSync · IA  ││
+│  └──────────────────────────────────────────────────────────────┘│
+│                              │                                   │
+│  ┌─────────────┐  ┌──────────────────┐  ┌───────────────────┐   │
+│  │ Firebase     │  │ AsyncStorage     │  │ Expo SecureStore  │   │
+│  │ Auth · FS    │  │ (Persistencia)   │  │ (Cifrado)         │   │
+│  └──────┬───────┘  └──────────────────┘  └───────────────────┘   │
+└─────────┼───────────────────────────────────────────────────────┘
+          │
+          ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                         BACKEND                                   │
+│                                                                   │
+│  ┌─────────────────────┐    ┌──────────────────────────────────┐ │
+│  │  PythonAnywhere      │    │  Firebase Cloud Functions (7)   │ │
+│  │  Flask + SQLite      │    │  sendAlertSMS · createPayment   │ │
+│  │  /api/users/*        │    │  mpWebhook · syncUser           │ │
+│  │  /api/payments/*     │    │  cleanupOldAlerts               │ │
+│  │  /api/tel/*          │    │  sendAudioFollowUp              │ │
+│  │  /api/security/*     │    │  sendLocationPulseUpdate        │ │
+│  └─────────────────────┘    └──────────────────────────────────┘ │
+│                                                                   │
+│  ┌─────────────────────┐    ┌──────────────────────────────────┐ │
+│  │  Mercado Pago        │    │  Twilio SMS                     │ │
+│  │  Suscripciones       │    │  Alertas a contactos            │ │
+│  └─────────────────────┘    └──────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────┘
+  </pre>
+
+  <h3>Flujo de Alerta SOS</h3>
+  <div class="flow">
+    <span class="flow-item">WakeWordService</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">AlertService.send()</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">AlertStateMachine (locating)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">GPS + ubicación</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">Firestore (alerta)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">AlertQueue (cola persistente)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">Firebase Function</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-item">Twilio SMS a contactos</span>
+  </div>
+
+  <h3>Almacenamiento</h3>
+  <div class="grid-3">
+    <div class="card">
+      <h4>Firestore</h4>
+      <p>Usuarios, contactos, alertas, settings. Tiempo real vía <code>onSnapshot</code>. Reglas por <code>userId</code>.</p>
+    </div>
+    <div class="card">
+      <h4>SQLite (PythonAnywhere)</h4>
+      <p>Contactos de emergencia, período de prueba, pagos, tickets. Dos bases: <code>safealert.db</code> y <code>safealert_tel.db</code>.</p>
+    </div>
+    <div class="card">
+      <h4>AsyncStorage</h4>
+      <p>Persistencia de Zustand stores: settings, guard-storage, alert-machine-storage. Cola de alertas offline.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STACK TECNOLÓGICO ==================== -->
+<section id="stack">
+  <h2>3. Stack Tecnológico</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <h4>Frontend Móvil</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>React Native 0.83.2</li>
+        <li>Expo SDK 55</li>
+        <li>Expo Router (file-based)</li>
+        <li>TypeScript 5.9</li>
+        <li>Zustand 5.0</li>
+        <li>Zod 4.3</li>
+        <li>React Native Reanimated 4.2</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Backend Principal</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>Python 3.12 + Flask 3.0</li>
+        <li>PythonAnywhere (hosting)</li>
+        <li>SQLite (persistencia)</li>
+        <li>Firebase Admin SDK 6.6</li>
+        <li>Mercado Pago SDK 2.3</li>
+        <li>Gunicorn 22.0</li>
+        <li>Cloud Run (alternativa)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Firebase</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>Authentication (anónima)</li>
+        <li>Cloud Firestore</li>
+        <li>Cloud Functions (Node 20)</li>
+        <li>Cloud Storage</li>
+        <li>Firebase Admin</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Detección por Voz</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>react-native-wakeword (DaVoice) — motor único</li>
+        <li>Modelo offline <code>wakeword_es.onnx</code></li>
+        <li>Detección remota vía API (fallback)</li>
+        <li>Vosk nativo eliminado (código muerto, sin modelo)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Pagos</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>Mercado Pago</li>
+        <li>Suscripciones mensual/anual</li>
+        <li>Webhooks con firma HMAC</li>
+        <li>Bypass dev en emuladores</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Infraestructura</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>GitHub Actions (CI)</li>
+        <li>Cloud Run (Docker)</li>
+        <li>Sentry (crash reporting)</li>
+        <li>EAS Build (APK/AAB)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>PWA Web (Fase A)</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li><code>@expo/metro-runtime</code> (export web estático)</li>
+        <li>Manifest instalable + Service Worker offline</li>
+        <li>Iconos 192/512 + apple-touch-icon</li>
+        <li>Meta tags de instalación iOS/Android</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ESTRUCTURA DEL PROYECTO ==================== -->
+<section id="estructura">
+  <h2>4. Estructura del Proyecto</h2>
+
+  <pre>
+<span class="comment">C:\Claude_Code_trabajos\</span>
+├── safealert/               <span class="comment"># App React Native / Expo</span>
+│   ├── app/                 <span class="comment"># Expo Router (file-based routing)</span>
+│   │   ├── _layout.tsx      <span class="comment"># Layout raíz + modales globales + recuperación de alertas</span>
+│   │   ├── +html.tsx        <span class="comment"># HTML PWA: manifest, metas móviles, registro SW (Fase A)</span>
+│   │   ├── (tabs)/          <span class="comment"># Navegación inferior (4 tabs)</span>
+│   │   │   ├── _layout.tsx
+│   │   │   ├── index.tsx    <span class="comment"># Home — modo guardia (WakeWordService), botón SOS</span>
+│   │   │   ├── history.tsx  <span class="comment"># Historial de alertas (Fase 3)</span>
+│   │   │   ├── contacts.tsx <span class="comment"># Contactos de confianza</span>
+│   │   │   └── settings.tsx <span class="comment"># Configuración + privacidad (Fase 4)</span>
+│   │   ├── bienvenida.tsx   <span class="comment"># Onboarding 3 pasos</span>
+│   │   ├── como-funciona.tsx
+│   │   ├── permissions.tsx
+│   │   ├── test-alert.tsx
+│   │   ├── ubicacion/manual.tsx <span class="comment"># Ubicación manual (Prompt Maestro)</span>
+│   │   └── contacts/
+│   │       └── [id].tsx     <span class="comment"># Crear/editar contacto</span>
+│   ├── src/
+│   │   ├── components/      <span class="comment"># PaymentModal, TrialExpiredModal, M3Button</span>
+│   │   ├── config/          <span class="comment"># constants, features, firebase, sentry</span>
+│   │   ├── hooks/           <span class="comment"># useAccessibility, useAlert, useContacts (useGuardMode eliminado Fase B)</span>
+│   │   ├── services/        <span class="comment"># 21 servicios + 6 suites de tests (67 tests)</span>
+│   │   ├── stores/          <span class="comment"># useGuardStore, useSettingsStore, useContactsStore</span>
+│   │   ├── theme/           <span class="comment"># tokens, Button, Card, Icon (design system)</span>
+│   │   ├── types/           <span class="comment"># Alert, Contact, Location, react-native-wakeword.d.ts</span>
+│   │   └── utils/           <span class="comment"># MessageFormatter + tests</span>
+│   ├── public/              <span class="comment"># PWA: manifest.json, sw.js, icons/ (Fase A)</span>
+│   ├── functions/           <span class="comment"># Firebase Cloud Functions (Node 20)</span>
+│   ├── android/             <span class="comment"># Proyecto Android nativo (no trackeado)</span>
+│   ├── cloud-run/           <span class="comment"># Dockerfile + cloudbuild.yaml</span>
+│   └── docs/                <span class="comment"># Runbooks, ARQUITECTURA.md</span>
+│
+├── python/                  <span class="comment"># Backend legacy → wrapper del canónico (Fase B)</span>
+│   ├── flask_app.py         <span class="comment"># Wrapper que re-exporta safealert/backend/flask_app.py</span>
+│   ├── flask_app_legacy.py  <span class="comment"># Código histórico (referencia)</span>
+│   ├── requirements.txt
+│   └── DEPLOY-PYTHONANYWHERE.md  <span class="comment"># Guía de deploy (Fase 5)</span>
+│
+└── start-metro.ps1          <span class="comment"># Script para iniciar Metro</span>
+  </pre>
+</section>
+
+<!-- ==================== FASES DEL PLAN MAESTRO ==================== -->
+<section id="fases">
+  <h2>5. Plan Maestro — Fases Completadas</h2>
+
+  <div class="grid-2">
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 0 — Seguridad <span class="badge badge-done">Completado</span></h4>
+      <p>Rotación de API keys. Eliminación de <code>TEMP_SECRET_123</code>. Firebase Auth decorator en <code>/api/users/register</code> y <code>/api/users/status</code>. HMAC en todas las comparaciones.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 1 — Core SOS <span class="badge badge-done">Completado</span></h4>
+      <p>AlertStateMachine (6 estados), AlertQueue (cola + backoff exponencial, 5 reintentos), DeviceDiagnostic (3 niveles de protección). Tests: 36/36.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 2 — Calidad <span class="badge badge-done">Completado</span></h4>
+      <p>CI pipeline (GitHub Actions: typecheck, lint, test, build Android). Sentry crash reporting con redacción de datos sensibles. Runbooks operativos (Twilio, Firebase, MP, PA).</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 3 — Producto & Diseño <span class="badge badge-done">Completado</span></h4>
+      <p>Pantalla de historial de alertas con datos en tiempo real desde Firestore. Tab de historial en navegación. Hook de accesibilidad WCAG 2.2 AA (dianas 48x48).</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 4 — Privacidad <span class="badge badge-done">Completado</span></h4>
+      <p>PrivacyService con consentimientos revocables (5 features). Exportación de datos. Eliminación de cuenta. SecureStore con fallback. Sección de privacidad en settings.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--safe)">
+      <h4>Fase 5 — Arquitectura <span class="badge badge-done">Completado</span></h4>
+      <p>i18n español/inglés con persistencia (retirado en Fase B por ser código muerto). AccountService (cuenta recuperable email+password). Dockerfile + Cloud Build para Cloud Run. Guía deploy PythonAnywhere.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--accent)">
+      <h4>Fase A — PWA + Errores + Seguridad <span class="badge badge-done">Completado</span></h4>
+      <p>PWA móvil instalable (manifest, service worker, iconos, metas). Typecheck 9→0 errores. Endpoints faltantes <code>/api/tickets/create</code> y <code>/api/internal/link-preapproval</code>. <code>require_firebase_auth</code> real en register/status. <code>require_admin_key</code> en última ubicación (IDOR cerrado). Bug <code>criticalPass = network || true</code> corregido.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--accent)">
+      <h4>Fase B — Consolidar Arquitectura <span class="badge badge-done">Completado</span></h4>
+      <p>Motor de voz unificado: Vosk nativo eliminado (código muerto sin modelo), react-native-wakeword como único motor. Backends consolidados: <code>python/flask_app.py</code> → wrapper del canónico. i18n eliminado (no usado). Privacidad: AlertStateMachine ya no persiste teléfonos/coordenadas.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--accent)">
+      <h4>Fase C — Robustez <span class="badge badge-done">Completado</span></h4>
+      <p>Rate limiter distribuido en SQLite (compartido entre workers). 31 tests nuevos (AlertService, LocationService, PaymentService) → 67 total. Reintentos SMS funcionales (CF onDocumentWritten) y <code>recoverIncompleteAlerts</code> activado en arranque. Bug de falsa confirmación de pago corregido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PANTALLAS Y NAVEGACIÓN ==================== -->
+<section id="pantallas">
+  <h2>6. Pantallas y Navegación</h2>
+
+  <pre>
+RootLayout
+├── Bienvenida (onboarding) ─ 3 pasos: nombre → teléfono → selfie
+├── (tabs)
+│   ├── index      — Home: guardia (wakeword), protección, botón SOS, cuenta regresiva
+│   ├── history    — Historial: alertas en tiempo real, estados SMS, pull-to-refresh
+│   ├── contacts   — Contactos: lista, toggle, prioridad, FAB
+│   └── settings   — Ajustes: palabras activación, plantilla, recordatorio, privacidad
+├── contacts/[id]  — Crear/editar contacto + modal pago
+├── permissions    — Estado de permisos: micrófono, ubicación, notificaciones
+├── test-alert     — Simulador de alerta de prueba
+├── ubicacion/manual — Carga manual de ubicación (Prompt Maestro)
+└── como-funciona  — Tutorial paso a paso
+
+Modales globales:
+├── PaymentModal         — Pasarela Mercado Pago (mensual $7.500 / anual $75.000)
+├── PaymentOverdueModal  — Aviso suscripción vencida (pagar o cerrar)
+└── TrialExpiredModal    — Aviso período prueba 10 días expirado
+  </pre>
+
+  <table>
+    <tr><th>Ruta</th><th>Pantalla</th><th>Propósito</th></tr>
+    <tr><td><code>/</code></td><td>Home (tabs/index)</td><td>Modo guardia, nivel protección, botón SOS, cuenta regresiva</td></tr>
+    <tr><td><code>/history</code></td><td>Historial</td><td>Alertas en tiempo real con estado de entrega por contacto</td></tr>
+    <tr><td><code>/contacts</code></td><td>Contactos</td><td>CRUD contactos de confianza con toggle activo/prioridad</td></tr>
+    <tr><td><code>/settings</code></td><td>Configuración</td><td>Palabras activación, plantilla SMS, recordatorio, privacidad</td></tr>
+    <tr><td><code>/bienvenida</code></td><td>Onboarding</td><td>3 pasos: nombre → teléfono → selfie (cámara frontal)</td></tr>
+    <tr><td><code>/permissions</code></td><td>Permisos</td><td>Estado y solicitud individual de cada permiso</td></tr>
+    <tr><td><code>/test-alert</code></td><td>Test Alerta</td><td>Simulación de alerta con prefijo [TEST]</td></tr>
+    <tr><td><code>/contacts/[id]</code></td><td>Editar Contacto</td><td>Formulario nombre/teléfono con validación E.164</td></tr>
+    <tr><td><code>/como-funciona</code></td><td>Tutorial</td><td>Guía paso a paso de uso de la app</td></tr>
+  </table>
+</section>
+
+<!-- ==================== SERVICIOS ==================== -->
+<section id="servicios">
+  <h2>7. Servicios (21)</h2>
+
+  <table>
+    <tr><th>Servicio</th><th>Archivo</th><th>Responsabilidad</th></tr>
+    <tr><td><strong>AlertService</strong></td><td><code>src/services/AlertService.ts</code></td><td>Orquestador de alertas SOS. Coordina ubicación, audio, Firebase, cola y contactos. <strong>+9 tests</strong></td></tr>
+    <tr><td><strong>AlertStateMachine</strong></td><td><code>src/services/AlertStateMachine.ts</code></td><td>Máquina de estados persistente (idle → locating → sending → awaiting_confirmation → completed/failed). <strong>Partialize redactado (Fase B): no persiste teléfonos/coordenadas</strong></td></tr>
+    <tr><td><strong>AlertQueue</strong></td><td><code>src/services/AlertQueue.ts</code></td><td>Cola persistente con idempotencia y exponential backoff (max 5 reintentos).</td></tr>
+    <tr><td><strong>AudioRecordingService</strong></td><td><code>src/services/AudioRecordingService.ts</code></td><td>Grabación opcional de audio (60s) y subida a Firebase Storage.</td></tr>
+    <tr><td><strong>AudioAlertApiService</strong></td><td><code>src/services/AudioAlertApiService.ts</code></td><td>Cliente HTTP para detección remota de alertas por audio vía PythonAnywhere.</td></tr>
+    <tr><td><strong>WakeWordService</strong></td><td><code>src/services/WakeWordService.ts</code></td><td>Motor de voz ÚNICO (Fase B): react-native-wakeword + fallback remoto + simulado. Vosk nativo eliminado.</td></tr>
+    <tr><td><strong>DeviceDiagnostic</strong></td><td><code>src/services/DeviceDiagnostic.ts</code></td><td>Diagnóstico continuo: red, permisos, batería, micrófono → nivel protección. <strong>Bug criticalPass corregido (Fase A)</strong></td></tr>
+    <tr><td><strong>DeviceService</strong></td><td><code>src/services/DeviceService.ts</code></td><td>ID dispositivo persistente (<code>sa-{uuid}</code>), MAC, detección de emulador.</td></tr>
+    <tr><td><strong>ContactsService</strong></td><td><code>src/services/ContactsService.ts</code></td><td>CRUD contactos con validación E.164, suscripción Firestore en tiempo real, sync PA.</td></tr>
+    <tr><td><strong>NotificationService</strong></td><td><code>src/services/NotificationService.ts</code></td><td>Notificaciones locales, recordatorios diarios configurables.</td></tr>
+    <tr><td><strong>PermissionsService</strong></td><td><code>src/services/PermissionsService.ts</code></td><td>Verificación y solicitud: micrófono, ubicación (fore/back), notificaciones.</td></tr>
+    <tr><td><strong>AccountService</strong></td><td><code>src/services/AccountService.ts</code></td><td>(Fase 5) Cuenta recuperable: vincular email, login, reset password, signOut.</td></tr>
+    <tr><td><strong>PrivacyService</strong></td><td><code>src/services/PrivacyService.ts</code></td><td>(Fase 4) Consentimientos revocables, exportación datos, eliminación cuenta, SecureStore.</td></tr>
+    <tr><td><strong>PythonAnywhereSync</strong></td><td><code>src/services/PythonAnywhereSync.ts</code></td><td>Sincronización de perfil con backend PythonAnywhere.</td></tr>
+    <tr><td><strong>LocationService</strong></td><td><code>src/services/LocationService.ts</code></td><td>GPS con clasificación de origen (GPS/NAVEGADOR/IP/MANUAL). <strong>+10 tests (Fase C)</strong></td></tr>
+    <tr><td><strong>PaymentService</strong></td><td><code>src/services/PaymentService.ts</code></td><td>Registro, suscripción, confirmación y ticket. <strong>+12 tests; bug createTicket corregido (Fase C)</strong></td></tr>
+    <tr><td><strong>LocationApiClient</strong></td><td><code>src/services/LocationApiClient.ts</code></td><td>Cliente HTTP /api/v1/* con Authorization Bearer real (Fase A).</td></tr>
+    <tr><td><strong>AccesoRegistroService</strong></td><td><code>src/services/AccesoRegistroService.ts</code></td><td>Registro de accesos técnicos (Prompt Maestro).</td></tr>
+    <tr><td><strong>TrialService</strong></td><td><code>src/services/TrialService.ts</code></td><td>Sync contactos + período de prueba 10 días con PythonAnywhere.</td></tr>
+    <tr><td><strong>SubscriptionService</strong></td><td><code>src/services/SubscriptionService.ts</code></td><td>Estado de suscripción activa.</td></tr>
+    <tr><td><strong>IAProcessingService</strong></td><td><code>src/services/IAProcessingService.ts</code></td><td>Análisis de audio con IA (simulado, post-alerta).</td></tr>
+  </table>
+</section>
+
+<!-- ==================== STORES ==================== -->
+<section id="stores">
+  <h2>8. Stores de Estado (Zustand)</h2>
+
+  <table>
+    <tr><th>Store</th><th>Persistencia</th><th>Estado</th><th>Acciones</th></tr>
+    <tr><td><code>useGuardStore</code></td><td>AsyncStorage (<code>guard-storage</code>) — <strong>solo isArmed</strong></td><td><code>isArmed</code>, <code>alertPhase</code>, <code>countdownSeconds</code>, <code>lastLocation</code>, <code>lastAlert</code></td><td><code>setArmed</code>, <code>setAlertPhase</code>, <code>resetAlertState</code></td></tr>
+    <tr><td><code>useSettingsStore</code></td><td>AsyncStorage (<code>safealert-settings</code>)</td><td><code>userId</code>, <code>isOnboarded</code>, <code>userName</code>, <code>triggerWords</code>, <code>messageTemplate</code>, <code>audioEnabled</code></td><td><code>setOnboarded</code>, <code>updateSettings</code></td></tr>
+    <tr><td><code>useContactsStore</code></td><td>No (Firestore en tiempo real)</td><td><code>contacts: Contact[]</code>, <code>loading</code></td><td><code>setContacts</code>, <code>addContact</code>, <code>removeContact</code></td></tr>
+    <tr><td><code>useAlertMachineStore</code></td><td>AsyncStorage (<code>alert-machine-storage</code>) — <strong>partialize redactado (Fase B)</strong></td><td><code>machine.state</code>, <code>machine.context</code></td><td><code>transition</code>, <code>updateContext</code>, <code>reset</code></td></tr>
+  </table>
+</section>
+
+<!-- ==================== DESIGN SYSTEM ==================== -->
+<section id="theme">
+  <h2>9. Design System</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <h4>Tokens</h4>
+      <p><code>color</code> (danger #DC2626, safe #16A34A), <code>spacing</code>, <code>borderRadius</code>, <code>typography</code>, <code>shadow</code></p>
+    </div>
+    <div class="card">
+      <h4>Componentes</h4>
+      <p><code>Button</code> (6 variantes, 3 tamaños), <code>Card</code> (5 variantes), <code>Icon</code> (MaterialIcons tipado)</p>
+    </div>
+    <div class="card">
+      <h4>Principio</h4>
+      <p>Neutro cuando protege, ámbar cuando está limitada, rojo solo durante emergencia real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BACKEND ==================== -->
+<section id="backend">
+  <h2>10. Backend Flask (PythonAnywhere)</h2>
+
+  <p>Backend unificado Flask que sirve tanto al ERP de Obras (AdminDigital) como a SafeAlert. Alojado en <code>oaf.pythonanywhere.com</code>. La implementación canónica vive en <code>safealert/backend/flask_app.py</code> (28 rutas); <code>python/flask_app.py</code> es un wrapper de compatibilidad (Fase B).</p>
+
+  <h3>Endpoints</h3>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Autenticación</th><th>Propósito</th></tr>
+    <tr><td>GET</td><td><code>/api/health</code></td><td>—</td><td>Health check</td></tr>
+    <tr><td>POST</td><td><code>/api/users/register</code></td><td>Firebase Bearer Token</td><td>Registra/actualiza usuario</td></tr>
+    <tr><td>GET</td><td><code>/api/users/status/:device_id</code></td><td>Firebase Bearer Token</td><td>Estado de suscripción</td></tr>
+    <tr><td>POST</td><td><code>/api/payments/confirm</code></td><td><code>X-Internal-Key</code></td><td>Confirma pago manual</td></tr>
+    <tr><td>POST</td><td><code>/api/payments/webhook</code></td><td>Firma HMAC</td><td>Webhook Mercado Pago</td></tr>
+    <tr><td>POST</td><td><code>/api/internal/link-preapproval</code></td><td><code>X-Internal-Key</code></td><td>Vincula preapproval MP con device_id <strong>(Fase A)</strong></td></tr>
+    <tr><td>POST</td><td><code>/api/tickets/create</code></td><td><code>X-Internal-Key</code></td><td>Genera ticket correlativo <strong>(Fase A)</strong></td></tr>
+    <tr><td>POST</td><td><code>/api/security/upload-recording</code></td><td><code>X-API-Key</code></td><td>Sube audio de seguridad (60s)</td></tr>
+    <tr><td>POST</td><td><code>/api/tel/contacto</code></td><td><code>X-API-Key</code></td><td>Agrega/actualiza contacto emergencia</td></tr>
+    <tr><td>PUT</td><td><code>/api/tel/contacto/borrar</code></td><td><code>X-API-Key</code></td><td>Borrado lógico de contacto</td></tr>
+    <tr><td>GET</td><td><code>/api/tel/prueba/:device_id</code></td><td><code>X-API-Key</code></td><td>Estado período de prueba (10 días)</td></tr>
+    <tr><td>POST</td><td><code>/api/v1/accesos</code></td><td>Rate limit</td><td>Registro de acceso técnico (Prompt Maestro)</td></tr>
+    <tr><td>POST</td><td><code>/api/v1/ubicaciones</code></td><td>Rate limit</td><td>Ubicación GPS/NAVEGADOR</td></tr>
+    <tr><td>POST</td><td><code>/api/v1/ubicaciones/manual</code></td><td>Rate limit</td><td>Ubicación MANUAL</td></tr>
+    <tr><td>POST</td><td><code>/api/v1/consentimientos</code> / <code>/revocar</code></td><td>Rate limit</td><td>Consentimientos revocables</td></tr>
+    <tr><td>GET</td><td><code>/api/v1/ubicaciones/ultima/:id</code></td><td><code>X-Admin-Key</code></td><td>Última ubicación <strong>(protegido Fase A)</strong></td></tr>
+    <tr><td>GET</td><td><code>/api/v1/admin/usuarios</code>, <code>/admin/stats</code>, <code>/admin/pagos/simular</code>, <code>/admin/purga</code></td><td><code>X-Admin-Key</code></td><td>Dashboard de posicionamientos</td></tr>
+    <tr><td>GET</td><td><code>/api/v1/estado</code></td><td>—</td><td>Health check extendido</td></tr>
+  </table>
+
+  <h3>Bases de Datos SQLite</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4><code>safealert.db</code></h4>
+      <p>Tablas: <code>users</code> (suscripciones), <code>payment_events</code> (historial), <code>tickets</code> (comprobantes correlativos), <code>rate_limit_events</code> (rate limiter distribuido, Fase C), <code>ubicaciones_usuario</code>, <code>consentimientos_usuario</code>, <code>accesos_tecnicos</code></p>
+    </div>
+    <div class="card">
+      <h4><code>safealert_tel.db</code></h4>
+      <p>Tablas: <code>usuarios_emerg</code> (contactos con borrado lógico), <code>periodo_prueba</code> (10 días de prueba gratuita)</p>
+    </div>
+  </div>
+
+  <h3>Seguridad Backend</h3>
+  <ul>
+    <li><code>require_firebase_auth</code> — Verifica Firebase ID Token real en <code>/api/users/register</code> y <code>/api/users/status</code> <strong>(implementado de verdad en Fase A)</strong></li>
+    <li><code>require_internal_key</code> — Clave interna HMAC para confirmación de pagos y tickets</li>
+    <li><code>verify_mp_signature</code> — Firma HMAC-SHA256 en webhooks de Mercado Pago</li>
+    <li><code>_rate_limit</code> — Rate limiter en SQLite compartido entre workers (30 req/60s por clave) <strong>(Fase C)</strong></li>
+    <li>Validación de <code>device_id</code> con regex para evitar path traversal</li>
+  </ul>
+</section>
+
+<!-- ==================== CLOUD FUNCTIONS ==================== -->
+<section id="functions">
+  <h2>11. Firebase Cloud Functions (7)</h2>
+
+  <table>
+    <tr><th>Función</th><th>Archivo</th><th>Trigger</th><th>Propósito</th></tr>
+    <tr><td><code>sendAlertSMS</code></td><td><code>functions/src/sendAlertSMS.ts</code></td><td>Firestore onDocumentWritten</td><td>Envía SMS vía Twilio; reintenta si status vuelve a pending <strong>(Fase C)</strong></td></tr>
+    <tr><td><code>sendAudioFollowUp</code></td><td><code>functions/src/sendAlertSMS.ts</code></td><td>Firestore onDocumentUpdated</td><td>Envía audio grabado como follow-up</td></tr>
+    <tr><td><code>sendLocationPulseUpdate</code></td><td><code>functions/src/sendAlertSMS.ts</code></td><td>Firestore onDocumentUpdated</td><td>Actualiza ubicación periódica a contactos</td></tr>
+    <tr><td><code>cleanupOldAlerts</code></td><td><code>functions/src/cleanupOldAlerts.ts</code></td><td>Firestore onWrite / scheduler</td><td>Limpieza de alertas antiguas</td></tr>
+    <tr><td><code>createPaymentOrder</code></td><td><code>functions/src/createPaymentOrder.ts</code></td><td>HTTPS callable</td><td>Crea orden de pago Mercado Pago</td></tr>
+    <tr><td><code>mpWebhook</code></td><td><code>functions/src/mpWebhook.ts</code></td><td>HTTPS onRequest</td><td>Webhook de Mercado Pago para suscripciones</td></tr>
+    <tr><td><code>syncUserToPythonAnywhere</code></td><td><code>functions/src/users.ts</code></td><td>Firestore onCreate</td><td>Sincroniza perfil de usuario con PythonAnywhere</td></tr>
+  </table>
+</section>
+
+<!-- ==================== CI/CD ==================== -->
+<section id="cicd">
+  <h2>12. CI/CD</h2>
+
+  <h3>GitHub Actions (ci.yml)</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4>Job 1: lint-typecheck-test (15 min)</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>Node 20 + cache npm</li>
+        <li><code>npm ci</code> (app + functions)</li>
+        <li><code>tsc --noEmit</code> (app + functions)</li>
+        <li>ESLint (max 50 warnings, no bloqueante)</li>
+        <li><code>npx jest --passWithNoTests</code></li>
+        <li><code>npm audit</code> (permite moderate)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Job 2: build-android (30 min)</h4>
+      <ul style="font-size:13px;padding-left:16px;">
+        <li>Requiere job 1 exitoso</li>
+        <li>JDK 17 (Temurin)</li>
+        <li><code>google-services.json</code> desde secreto</li>
+        <li><code>./gradlew assembleDebug</code></li>
+        <li>APK subido como artifact</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Cloud Run (Alternativa Backend)</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4>Dockerfile</h4>
+      <p>Python 3.12-slim, Gunicorn 2 workers, puerto 8080</p>
+    </div>
+    <div class="card">
+      <h4>Cloud Build</h4>
+      <p>Build → Push Artifact Registry → Deploy Cloud Run (min 0, max 10 instancias, 512Mi RAM)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TESTS ==================== -->
+<section id="tests">
+  <h2>13. Tests</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="num" style="color:var(--safe)">67</div><div class="label">Tests pasan</div></div>
+    <div class="stat"><div class="num" style="color:var(--danger)">0</div><div class="label">Fallan</div></div>
+    <div class="stat"><div class="num">81.92%</div><div class="label">Statements (6 archivos)</div></div>
+    <div class="stat"><div class="num">69.23%</div><div class="label">Branch</div></div>
+    <div class="stat"><div class="num">78.87%</div><div class="label">Functions</div></div>
+    <div class="stat"><div class="num">83.38%</div><div class="label">Lines</div></div>
+  </div>
+
+  <table>
+    <tr><th>Suite</th><th>Tests</th><th>Cobertura</th></tr>
+    <tr><td><code>AlertStateMachine.test.ts</code></td><td>17</td><td>100% statements, 90% branch</td></tr>
+    <tr><td><code>AlertQueue.test.ts</code></td><td>10</td><td>94.91% statements, 77.77% branch</td></tr>
+    <tr><td><code>MessageFormatter.test.ts</code></td><td>9</td><td>100% statements, 100% branch</td></tr>
+    <tr><td><code>PaymentService.test.ts</code> <strong>(Fase C)</strong></td><td>12</td><td>Registro, suscripción, confirmación, ticket</td></tr>
+    <tr><td><code>LocationService.test.ts</code> <strong>(Fase C)</strong></td><td>10</td><td>GPS, permisos, stale, fallbacks, manual</td></tr>
+    <tr><td><code>AlertService.test.ts</code> <strong>(Fase C)</strong></td><td>9</td><td>Envío SOS, pago vencido, cola, recuperación</td></tr>
+  </table>
+
+  <p><strong>Stack de testing:</strong> Jest 29 + ts-jest + Node environment. Mocks de <code>AsyncStorage</code> vía <code>jest.setup.js</code>, mock mínimo de <code>react-native</code> (Platform/AppState) y <code>__DEV__</code> (Fase C).</p>
+  <p><strong>Backend Python:</strong> 31 tests unittest (<code>test_admin_endpoints.py</code>) — endpoints admin, pagos, tickets, link-preapproval, rate limiter SQLite.</p>
+</section>
+
+<!-- ==================== INTERNACIONALIZACIÓN ==================== -->
+<section id="i18n">
+  <h2>14. Internacionalización <span style="color:var(--warning);font-size:14px;">(retirada — Fase B)</span></h2>
+
+  <p>El módulo <code>src/i18n/</code> (es/en/types/index) se eliminó en la <strong>Fase B</strong> por ser <strong>código muerto</strong>: ninguna pantalla lo importaba y toda la interfaz está en español. Se conserva en el historial de git por si se necesita reintroducir. El estado actual de la app es <strong>español único</strong> (mercado objetivo AR).</p>
+</section>
+
+<!-- ==================== SEGURIDAD ==================== -->
+<section id="seguridad">
+  <h2>15. Seguridad y Privacidad</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <h4>Firebase Auth</h4>
+      <p>Autenticación anónima con migración a cuenta recuperable (email+password) vía AccountService. Tokens verificados en backend con Firebase Admin.</p>
+    </div>
+    <div class="card">
+      <h4>API Keys</h4>
+      <p>Rotación completa de <code>AUDIO_ALERT_API_KEY</code>. Clave interna <code>SAFEALERT_INTERNAL_KEY</code> para pagos. Comparación HMAC en todas las verificaciones.</p>
+    </div>
+    <div class="card">
+      <h4>Sentry</h4>
+      <p>Redacción automática de: headers Authorization/X-API-Key/X-Internal-Key, tokens en breadcrumbs, datos de request.</p>
+    </div>
+    <div class="card">
+      <h4>Privacidad (Fase 4)</h4>
+      <p>5 tipos de consentimiento (location, audio, contacts, notifications, analytics) con grant/revoke. Exportación JSON de datos. Eliminación total de cuenta.</p>
+    </div>
+    <div class="card">
+      <h4>Almacenamiento</h4>
+      <p>SecureStore para datos sensibles (con fallback AsyncStorage). Sin secretos en frontend. Firestore rules por userId.</p>
+    </div>
+    <div class="card">
+      <h4>Validación</h4>
+      <p>Regex en device_id (path traversal). Rate limiting SQLite compartido entre workers (30 req/60s, Fase C). Firma HMAC en webhooks MP. Borrado lógico en contactos.</p>
+    </div>
+  </div>
+
+  <h3>Mejoras de Seguridad (Fases A-C)</h3>
+  <ul>
+    <li><code>require_firebase_auth</code> implementado de verdad (antes declarado pero no aplicado) — verifica ID token con Firebase Admin en register/status.</li>
+    <li><code>require_admin_key</code> en <code>/api/v1/ubicaciones/ultima/:id</code> — cerrado IDOR que exponía la última ubicación de cualquier usuario.</li>
+    <li>Endpoints faltantes creados: <code>/api/tickets/create</code> y <code>/api/internal/link-preapproval</code> (la app los llamaba y recibía 404).</li>
+    <li>Privacidad de persistencia (DAMA-DMBOK): <code>useAlertMachineStore</code> ya no persiste teléfonos ni coordenadas en AsyncStorage plano.</li>
+    <li>Falsa confirmación de pago corregida: <code>PaymentModal.handleConfirmPayment</code> ya no llama <code>onSuccess()</code> en el catch.</li>
+  </ul>
+
+  <h3>Permisos Android (22)</h3>
+  <table>
+    <tr><th>Permiso</th><th>Propósito</th></tr>
+    <tr><td><code>ACCESS_FINE_LOCATION</code></td><td>GPS para alertas</td></tr>
+    <tr><td><code>RECORD_AUDIO</code></td><td>Grabación y detección por voz</td></tr>
+    <tr><td><code>CAMERA</code></td><td>Selfie en onboarding</td></tr>
+    <tr><td><code>POST_NOTIFICATIONS</code></td><td>Notificaciones push</td></tr>
+    <tr><td><code>FOREGROUND_SERVICE_MICROPHONE</code></td><td>Guardia por voz en segundo plano (Android 14+)</td></tr>
+    <tr><td><code>RECEIVE_BOOT_COMPLETED</code></td><td>Restaurar guardia tras reinicio</td></tr>
+    <tr><td><code>READ_CONTACTS</code></td><td>Seleccionar contactos del dispositivo</td></tr>
+  </table>
+</section>
+
+<!-- ==================== COMMITS ==================== -->
+<section id="commits">
+  <h2>16. Historial de Commits</h2>
+
+  <div class="commit-list">
+    <div class="commit"><span class="hash">2c785f1</span><span class="msg">0024 — Fase C: rate limiter SQLite distribuido, 31 tests nuevos (AlertService/LocationService/PaymentService → 67 total), reintentos SMS funcionales (CF onDocumentWritten), recoverIncompleteAlerts activado, fix falsa confirmación de pago</span></div>
+    <div class="commit"><span class="hash">30107a6</span><span class="msg">0023 — Fase B: motor de voz unificado (Vosk nativo eliminado, wakeword único), backends consolidados (python/ → wrapper), i18n retirado (código muerto), privacidad de persistencia</span></div>
+    <div class="commit"><span class="hash">40225cf</span><span class="msg">0022 — Fase A: PWA móvil instalable (manifest, SW, iconos, +html.tsx), typecheck 9→0, endpoints tickets/link-preapproval, require_firebase_auth real, IDOR última ubicación cerrado</span></div>
+    <div class="commit"><span class="hash">d8ac278</span><span class="msg">0021 — Pago simulado desde el panel admin: busqueda de usuarios por MAC, endpoint POST /api/v1/admin/pagos/simular, ticket correlativo</span></div>
+    <div class="commit"><span class="hash">bc49724</span><span class="msg">0020 — Guia tecnica de pagos: documento pago.docx</span></div>
+    <div class="commit"><span class="hash">2c18b6a</span><span class="msg">0019 — Pago de muestra (demo) en emulador: flag EXPO_PUBLIC_ENABLE_PAYMENTS_DEMO</span></div>
+    <div class="commit"><span class="hash">560d568</span><span class="msg">0018 — Dashboard admin de posicionamientos: endpoints /api/v1/admin/usuarios y /admin/stats, app Vite+React+TS en admin/</span></div>
+    <div class="commit"><span class="hash">db55c58</span><span class="msg">0017 — Guia deploy PythonAnywhere: DEPLOY-PYTHONANYWHERE.md</span></div>
+    <div class="commit"><span class="hash">1560b81</span><span class="msg">0016 — .gitignore: excluir coverage/</span></div>
+    <div class="commit"><span class="hash">b8e103b</span><span class="msg">0015 — Plan Maestro completo: Fase 0-5, i18n, Sentry, CI, historial, privacidad, account</span></div>
+    <div class="commit"><span class="hash">3a92bd6</span><span class="msg">0014 — fix: hooks React al interior de PaymentModal — ReferenceError Property visible</span></div>
+    <div class="commit"><span class="hash">da74f6e</span><span class="msg">0013 — Fix: excluir armeabi-v7a ABI para evitar crash Ninja/CMake en Windows</span></div>
+    <div class="commit"><span class="hash">c9ed4a4</span><span class="msg">0012 — Fase 1-2-3: SQLite contactos emergencia, periodo prueba 10 días, pantalla Como Funciona</span></div>
+    <div class="commit"><span class="hash">4f4a20e</span><span class="msg">0013 — Modo Guardia Real: Vosk offline, Foreground Service, detección por voz</span></div>
+    <div class="commit"><span class="hash">6445926</span><span class="msg">0012 — Lógica híbrida: pasarela real en dispositivos, bypass en emuladores</span></div>
+    <div class="commit"><span class="hash">981bc31</span><span class="msg">0012 — Producción: PAYMENTS_ENABLED=true, APK release, Firebase Functions deploy</span></div>
+    <div class="commit"><span class="hash">a10b897</span><span class="msg">0012 — Activar modo producción real: PAYMENTS_ENABLED=true, token MP APP_USR- real</span></div>
+    <div class="commit"><span class="hash">237d7a5</span><span class="msg">0011 — PaymentOverdue: alerta a contacto principal si suscripción vencida</span></div>
+    <div class="commit"><span class="hash">f50eb6d</span><span class="msg">0010 — metro.config.js: carga .env para builds Gradle</span></div>
+    <div class="commit"><span class="hash">140b9fc</span><span class="msg">0009 — PaymentModal: fix DEV_BYPASS_PAYMENT usa PAYMENTS_ENABLED</span></div>
+    <div class="commit"><span class="hash">b0170b4</span><span class="msg">0008 — PaymentModal: reescritura limpia tras corrupción</span></div>
+    <div class="commit"><span class="hash">1cd3309</span><span class="msg">0007 — PaymentModal: bypass pasarela en modo __DEV__</span></div>
+    <div class="commit"><span class="hash">1769ca8</span><span class="msg">Add files via upload</span></div>
+    <div class="commit"><span class="hash">a16dc4f</span><span class="msg">Funcionando 28/03/2026</span></div>
+    <div class="commit"><span class="hash">fa1ba32</span><span class="msg">Restaurar SafeAlert a la última versión funcional 2026-03-28</span></div>
+    <div class="commit"><span class="hash">0d1952f</span><span class="msg">0015 — Fix alert system: location pulse, incognito mode resend</span></div>
+    <div class="commit"><span class="hash">e98692f</span><span class="msg">Initial commit: SafeAlert project</span></div>
+  </div>
+  <p style="margin-top:8px;"><strong>36 commits total</strong> · Commits 0022-0024 corresponden a las Fases A-B-C (PWA, arquitectura y robustez)</p>
+</section>
+
+<!-- ==================== PRÓXIMOS PASOS ==================== -->
+<section id="proximos">
+  <h2>17. Próximos Pasos Recomendados</h2>
+
+  <h3>Pendientes Técnicos</h3>
+  <ul>
+    <li><span class="badge badge-partial">Pendiente</span> <strong>Desplegar backend PythonAnywhere</strong> — Subir el backend canónico v3.1 (con los nuevos endpoints y rate limiter SQLite), actualizar <code>requirements.txt</code> (firebase-admin) y hacer Reload. Guía: <code>python/DEPLOY-PYTHONANYWHERE.md</code>.</li>
+    <li><span class="badge badge-partial">Pendiente</span> <strong>Desplegar Firebase Functions</strong> — <code>sendAlertSMS</code> ahora es onDocumentWritten (reintentos); requiere deploy de la versión 0024.</li>
+    <li><span class="badge badge-partial">Pendiente</span> <strong>Reconstruir APK nativo</strong> — El módulo Vosk fue eliminado del proyecto Android (workspace local); el próximo build debe regenerarse sin él (APK más liviano).</li>
+    <li><span class="badge badge-partial">Pendiente</span> <strong>Subir commits a GitHub</strong> — El repo está 12 commits por delante de origin/main (incluye 0022-0024 de las Fases A-B-C).</li>
+    <li><span class="badge badge-done">Resuelto</span> <strong>Export web / PWA</strong> — <code>@expo/metro-runtime</code> instalado; la app ya exporta estático instalable.</li>
+    <li><span class="badge badge-done">Resuelto</span> <strong>Typecheck roto</strong> — 9 errores TS corregidos en Fase A (0 actuales).</li>
+  </ul>
+
+  <h3>Próximas Features Sugeridas</h3>
+  <div class="grid-3">
+    <div class="card">
+      <h4>Alertas Push</h4>
+      <p>Notificaciones push con Firebase Cloud Messaging en lugar de depender solo de SMS.</p>
+    </div>
+    <div class="card">
+      <h4>Dashboard Web</h4>
+      <p>Panel de control para contactos de emergencia con mapa en tiempo real (el dashboard admin de posicionamientos ya existe).</p>
+    </div>
+    <div class="card">
+      <h4>Modo Incógnito Mejorado</h4>
+      <p>Pantalla negra con funcionalidad completa y sin indicios visuales de la app.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="container">
+    SafeAlert v1.2.0 — Informe Técnico — 2026-08-22<br>
+    <span style="font-size:12px;">Incluye Fases A (PWA + errores + seguridad), B (arquitectura) y C (robustez). Generado basado en el estado actual del repositorio (commit 0024).</span>
+  </div>
+</footer>
+
+</body>
+</html>
