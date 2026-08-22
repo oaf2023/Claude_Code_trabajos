@@ -35,6 +35,20 @@ from time import time
 
 from flask import request, jsonify, g
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+try:
+    import firebase_admin
+    from firebase_admin import auth as firebase_auth, credentials as firebase_credentials
+except ImportError:
+    firebase_admin = None
+    firebase_auth = None
+    firebase_credentials = None
+
+# Carga de variables de entorno desde .env (PythonAnywhere no posee sección
+# "Environment variables"; se usa el archivo .env junto a este script).
+_ENV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(_ENV_PATH, override=False)
 
 # --- CONFIGURACIÓN DE RUTAS PARA PYTHONANYWHERE ---
 path = '/home/oaf/agrupacion_api'
@@ -79,6 +93,21 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s"
 )
 logger = logging.getLogger("safealert")
+
+# Inicialización de Firebase Admin (verificación de ID tokens en endpoints críticos)
+if firebase_admin is not None:
+    try:
+        _fb_cred_path = os.environ.get("FIREBASE_CREDENTIALS_PATH", "")
+        if _fb_cred_path and os.path.exists(_fb_cred_path):
+            _fb_cred = firebase_credentials.Certificate(_fb_cred_path)
+            firebase_admin.initialize_app(_fb_cred)
+        else:
+            firebase_admin.initialize_app()
+        logger.info("[SafeAlert] Firebase Admin inicializado correctamente.")
+    except Exception as exc:
+        logger.warning("[SafeAlert] Firebase Admin no disponible: %s", exc)
+else:
+    logger.warning("[SafeAlert] firebase-admin no instalado — verificación de ID tokens desactivada.")
 
 # Inicialización de la App del ERP
 flask_app = create_app()
@@ -511,6 +540,24 @@ def require_admin_key(f):
         return f(*args, **kwargs)
     return wrapper
 
+def require_firebase_auth(f):
+    """Exige un Firebase ID Token válido (Bearer) y expone g.firebase_uid."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if firebase_auth is None:
+            return jsonify({"error": "Autenticacion no disponible en el servidor"}), 500
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Token requerido"}), 401
+        try:
+            token = auth_header.split(" ", 1)[1]
+            decoded = firebase_auth.verify_id_token(token)
+            g.firebase_uid = decoded.get("uid", "")
+        except Exception:
+            return jsonify({"error": "Token invalido o expirado"}), 401
+        return f(*args, **kwargs)
+    return wrapper
+
 def verify_mp_signature(x_signature: str, x_request_id: str, data_id: str) -> bool:
     if not MP_WEBHOOK_SECRET:
         logger.error("[SafeAlert] MP_WEBHOOK_SECRET no configurado")
@@ -559,6 +606,7 @@ def health():
     return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat()})
 
 @flask_app.route("/api/users/register", methods=["POST"])
+@require_firebase_auth
 def register_user():
     if not _rate_limit(f"register:{request.remote_addr}"):
         return jsonify({"error": "Demasiadas solicitudes"}), 429
@@ -582,6 +630,7 @@ def register_user():
     return jsonify({"success": True, "status": status})
 
 @flask_app.route("/api/users/status/<device_id>", methods=["GET"])
+@require_firebase_auth
 def user_status(device_id: str):
     if not _rate_limit(f"status:{request.remote_addr}"):
         return jsonify({"error": "Demasiadas solicitudes"}), 429
@@ -643,6 +692,96 @@ def _handle_preapproval_event(db, data, now):
     row = db.execute("SELECT device_id FROM users WHERE mp_preapproval_id = ?", (mp_id,)).fetchone()
     if row and status == "authorized":
         db.execute("UPDATE users SET subscription_status='active', subscription_expires_at=?, updated_at=? WHERE device_id=?", ((datetime.utcnow() + timedelta(days=32)).isoformat(), now, row["device_id"]))
+
+# ---------------------------------------------------------------------------
+# POST /api/internal/link-preapproval — Vincula preapproval MP con device_id
+# (llamado por Cloud Function createPaymentOrder)
+# ---------------------------------------------------------------------------
+
+@flask_app.route("/api/internal/link-preapproval", methods=["POST"])
+@require_internal_key
+def link_preapproval():
+    data = request.get_json(silent=True) or {}
+    device_id = data.get("device_id", "").strip()
+    mp_id = data.get("mp_preapproval_id", "").strip()
+    plan_type = data.get("plan_type", "").strip()
+    if not device_id or not mp_id:
+        return jsonify({"error": "device_id y mp_preapproval_id son requeridos"}), 400
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
+        return jsonify({"error": "device_id invalido"}), 400
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    row = db.execute("SELECT device_id FROM users WHERE device_id = ?", (device_id,)).fetchone()
+    if not row:
+        db.execute(
+            "INSERT INTO users (device_id, name, phone, registered_at, subscription_status, plan_type, mp_preapproval_id, updated_at) "
+            "VALUES (?, 'Usuario SafeAlert', '', ?, 'not_registered', ?, ?, ?)",
+            (device_id, now, plan_type or None, mp_id, now)
+        )
+    else:
+        db.execute(
+            "UPDATE users SET mp_preapproval_id=?, plan_type=COALESCE(NULLIF(?, ''), plan_type), updated_at=? WHERE device_id=?",
+            (mp_id, plan_type, now, device_id)
+        )
+    db.execute(
+        "INSERT INTO payment_events (device_id, event_type, mp_reference, payload, created_at) "
+        "VALUES (?, 'preapproval_link', ?, ?, ?)",
+        (device_id, mp_id, json.dumps(data), now)
+    )
+    db.commit()
+    logger.info("[SafeAlert] Preapproval vinculado: device=%s mp=%s plan=%s", device_id, mp_id, plan_type)
+    return jsonify({"success": True}), 200
+
+# ---------------------------------------------------------------------------
+# POST /api/tickets/create — Genera ticket correlativo de pago
+# (llamado por PaymentService.createTicket desde la app móvil)
+# ---------------------------------------------------------------------------
+
+@flask_app.route("/api/tickets/create", methods=["POST"])
+@require_internal_key
+def crear_ticket():
+    if not _rate_limit(f"ticket:{request.remote_addr}"):
+        return jsonify({"error": "Demasiadas solicitudes"}), 429
+    data = request.get_json(silent=True) or {}
+    device_id = data.get("device_id", "").strip()
+    user_name = data.get("user_name", "").strip()
+    plan_type = data.get("plan_type", "").strip()
+    amount = data.get("amount")
+    if not device_id or plan_type not in ("monthly", "annual"):
+        return jsonify({"error": "device_id y plan_type (monthly|annual) son requeridos"}), 400
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
+        return jsonify({"error": "device_id invalido"}), 400
+    try:
+        amount_int = int(amount)
+    except (TypeError, ValueError):
+        return jsonify({"error": "amount debe ser un número entero"}), 400
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    ticket_row = db.execute("SELECT COALESCE(MAX(ticket_number), 0) AS ultimo FROM tickets").fetchone()
+    ticket_number = int(ticket_row["ultimo"]) + 1
+    db.execute(
+        "INSERT INTO tickets (ticket_number, device_id, user_name, plan_type, amount, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        (ticket_number, device_id, user_name, plan_type, amount_int, now)
+    )
+    db.execute(
+        "INSERT INTO payment_events (device_id, event_type, mp_reference, payload, created_at) "
+        "VALUES (?, 'ticket_created', '', ?, ?)",
+        (device_id, json.dumps({"ticket_number": ticket_number, "plan_type": plan_type, "amount": amount_int}), now)
+    )
+    db.commit()
+    logger.info("[SafeAlert] Ticket creado: %d device=%s plan=%s", ticket_number, device_id, plan_type)
+    return jsonify({
+        "success": True,
+        "ticket": {
+            "ticket_number": ticket_number,
+            "date": datetime.utcnow().strftime("%d/%m/%Y"),
+            "time": datetime.utcnow().strftime("%H:%M"),
+            "plan_type": plan_type,
+            "amount": amount_int,
+            "contact_email": "safealert_contacto@manejadatos.com",
+        }
+    }), 201
 
 @flask_app.route("/api/security/upload-recording", methods=["POST"])
 def upload_security_recording():
@@ -1001,6 +1140,7 @@ def historial_ubicaciones(usuario_id: str):
 # ---------------------------------------------------------------------------
 
 @flask_app.route("/api/v1/ubicaciones/ultima/<usuario_id>", methods=["GET"])
+@require_admin_key
 def ultima_ubicacion(usuario_id: str):
     db = get_db()
     row = db.execute("""

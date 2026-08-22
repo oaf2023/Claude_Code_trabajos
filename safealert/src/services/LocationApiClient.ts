@@ -22,8 +22,8 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
     'Content-Type': 'application/json',
   };
   try {
-    const { getAuth } = await import('../config/firebase');
-    const token = await getAuth()?.currentUser?.getIdToken();
+    const { getIdToken } = await import('../config/firebase');
+    const token = await getIdToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

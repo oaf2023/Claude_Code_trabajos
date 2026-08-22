@@ -151,18 +151,18 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   title: {
-    fontSize: typography.headline,
+    ...typography.h2,
     fontWeight: '700',
     color: color.textPrimary,
     marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: typography.body,
+    ...typography.body,
     color: color.textSecondary,
     marginBottom: spacing.lg,
   },
   label: {
-    fontSize: typography.caption,
+    ...typography.caption,
     fontWeight: '600',
     color: color.textPrimary,
     marginBottom: spacing.xs,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     borderColor: color.border,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    fontSize: typography.body,
+    ...typography.body,
     color: color.textPrimary,
   },
   textArea: {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: typography.body,
+    ...typography.body,
     fontWeight: '700',
   },
   cancelButton: {
@@ -203,6 +203,6 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: color.textSecondary,
-    fontSize: typography.body,
+    ...typography.body,
   },
 });

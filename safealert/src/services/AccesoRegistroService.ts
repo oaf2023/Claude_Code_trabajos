@@ -15,7 +15,10 @@ import { AccesoPayload } from '../types/Location';
 
 function detectarDispositivo(): string {
   const platform = Platform.OS;
-  const isTablet = Platform.isPad;
+  const isTablet =
+    (Platform as { isPad?: boolean }).isPad === true ||
+    (Platform.OS === 'android' &&
+      (Platform.constants as { isTablet?: boolean })?.isTablet === true);
   if (isTablet) return 'tablet';
   return platform === 'android' ? 'telefono' : platform === 'ios' ? 'telefono' : 'desktop';
 }
@@ -43,8 +46,8 @@ export const AccesoRegistroService = {
       idioma: Localization.getLocales()?.[0]?.languageTag || 'es',
       zona_horaria: Localization.getCalendars()?.[0]?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       offset_utc_minutos: new Date().getTimezoneOffset(),
-      pantalla_ancho,
-      pantalla_alto,
+      pantalla_ancho: pantallaAncho,
+      pantalla_alto: pantallaAlto,
       ventana_ancho: ventanaAncho,
       ventana_alto: ventanaAlto,
       profundidad_color: 24,

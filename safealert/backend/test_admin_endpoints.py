@@ -31,6 +31,18 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from flask_app import flask_app, get_db  # noqa: E402
 
 
+def _fake_verify_id_token(token):
+    """Mock de verify_id_token de Firebase: acepta cualquier token Bearer."""
+    return {"uid": "firebase-uid-test-123", "token": token}
+
+
+# Mock de verificación de Firebase para los tests (sin credenciales reales)
+import flask_app as _flask_app_module  # noqa: E402
+
+if _flask_app_module.firebase_auth is not None:
+    _flask_app_module.firebase_auth.verify_id_token = _fake_verify_id_token
+
+
 class AdminEndpointsTestCase(unittest.TestCase):
     """Pruebas de los endpoints admin del dashboard de posicionamientos."""
 
@@ -40,6 +52,8 @@ class AdminEndpointsTestCase(unittest.TestCase):
         cls.app.config["TESTING"] = True
         cls.client = cls.app.test_client()
         cls.admin_headers = {"X-Admin-Key": "clave_admin_test_123"}
+        cls.auth_headers = {"Authorization": "Bearer token-de-prueba-123"}
+        cls.internal_headers = {"X-Internal-Key": "clave_interna_test_456"}
 
     def setUp(self):
         """Registra un usuario de prueba y una ubicación."""
@@ -49,7 +63,7 @@ class AdminEndpointsTestCase(unittest.TestCase):
             "phone": "+5491100000000",
             "mac_address": "AA:BB:CC:DD:EE:FF",
             "device_unique_id": "unique-001",
-        })
+        }, headers=self.auth_headers)
         self.client.post("/api/v1/ubicaciones", json={
             "usuario_id": "dev-test-001",
             "latitud": -34.603722,
@@ -93,7 +107,7 @@ class AdminEndpointsTestCase(unittest.TestCase):
                 "device_id": f"dev-test-{i:03d}",
                 "name": f"Usuario {i}",
                 "phone": f"+54911{i:07d}",
-            })
+            }, headers=self.auth_headers)
         resp = self.client.get(
             "/api/v1/admin/usuarios?limite=2", headers=self.admin_headers
         )
@@ -267,6 +281,92 @@ class AdminEndpointsTestCase(unittest.TestCase):
         data = resp.get_json()
         self.assertEqual(data["status"], "ok")
         self.assertIn("base_datos", data)
+
+    # ------------------------------------------------------------------
+    # /api/tickets/create (llamado por PaymentService.createTicket)
+    # ------------------------------------------------------------------
+
+    def test_ticket_create_requiere_clave_interna(self):
+        resp = self.client.post("/api/tickets/create", json={
+            "device_id": "dev-test-001",
+            "user_name": "Usuario Prueba",
+            "plan_type": "monthly",
+            "amount": 7500,
+        })
+        self.assertEqual(resp.status_code, 401)
+
+    def test_ticket_create_ok(self):
+        resp = self.client.post("/api/tickets/create", json={
+            "device_id": "dev-test-001",
+            "user_name": "Usuario Prueba",
+            "plan_type": "monthly",
+            "amount": 7500,
+        }, headers=self.internal_headers)
+        self.assertEqual(resp.status_code, 201)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["ticket"]["plan_type"], "monthly")
+        self.assertEqual(data["ticket"]["amount"], 7500)
+        self.assertGreater(data["ticket"]["ticket_number"], 0)
+
+    def test_ticket_create_correlativo(self):
+        primero = self.client.post("/api/tickets/create", json={
+            "device_id": "dev-test-001", "plan_type": "monthly", "amount": 7500,
+        }, headers=self.internal_headers).get_json()
+        segundo = self.client.post("/api/tickets/create", json={
+            "device_id": "dev-test-001", "plan_type": "monthly", "amount": 7500,
+        }, headers=self.internal_headers).get_json()
+        self.assertEqual(
+            segundo["ticket"]["ticket_number"],
+            primero["ticket"]["ticket_number"] + 1,
+        )
+
+    def test_ticket_create_plan_invalido(self):
+        resp = self.client.post("/api/tickets/create", json={
+            "device_id": "dev-test-001", "plan_type": "semanal", "amount": 7500,
+        }, headers=self.internal_headers)
+        self.assertEqual(resp.status_code, 400)
+
+    # ------------------------------------------------------------------
+    # /api/internal/link-preapproval (llamado por createPaymentOrder)
+    # ------------------------------------------------------------------
+
+    def test_link_preapproval_requiere_clave_interna(self):
+        resp = self.client.post("/api/internal/link-preapproval", json={
+            "device_id": "dev-test-001",
+            "mp_preapproval_id": "mp-12345",
+            "plan_type": "monthly",
+        })
+        self.assertEqual(resp.status_code, 401)
+
+    def test_link_preapproval_ok(self):
+        resp = self.client.post("/api/internal/link-preapproval", json={
+            "device_id": "dev-test-001",
+            "mp_preapproval_id": "mp-12345",
+            "plan_type": "monthly",
+        }, headers=self.internal_headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.get_json()["success"])
+
+    def test_link_preapproval_crea_usuario_si_falta(self):
+        resp = self.client.post("/api/internal/link-preapproval", json={
+            "device_id": "dev-nuevo-999",
+            "mp_preapproval_id": "mp-99999",
+            "plan_type": "annual",
+        }, headers=self.internal_headers)
+        self.assertEqual(resp.status_code, 200)
+        # El usuario debe existir ahora en la tabla users
+        data = self.client.get(
+            "/api/v1/admin/usuarios?busqueda=dev-nuevo-999",
+            headers=self.admin_headers,
+        ).get_json()
+        self.assertEqual(data["total"], 1)
+
+    def test_link_preapproval_requiere_datos(self):
+        resp = self.client.post("/api/internal/link-preapproval", json={
+            "device_id": "dev-test-001",
+        }, headers=self.internal_headers)
+        self.assertEqual(resp.status_code, 400)
 
 
 if __name__ == "__main__":

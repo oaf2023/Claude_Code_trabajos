@@ -1,0 +1,36 @@
+{
+  "name": "SafeAlert — Alerta SOS por voz",
+  "short_name": "SafeAlert",
+  "description": "SafeAlert — Alerta SOS por voz y ubicación para tus contactos de confianza.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F9FAFB",
+  "theme_color": "#DC2626",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["safety", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Enviar alerta",
+      "short_name": "Alerta",
+      "description": "Enviar alerta SOS a tus contactos",
+      "url": "/",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

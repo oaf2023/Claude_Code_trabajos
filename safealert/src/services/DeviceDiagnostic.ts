@@ -110,7 +110,7 @@ export const DeviceDiagnostic = {
     if (!microphone) messages.push('Permiso de micrófono no concedido. El audio no se grabará.');
     if (!battery) messages.push('Batería baja. Algunas funciones en segundo plano pueden estar restringidas.');
 
-    const criticalPass = network || true;
+    const criticalPass = network;
     const allCritical = location && notifications;
     const optionalMissing = !microphone || !battery;
 

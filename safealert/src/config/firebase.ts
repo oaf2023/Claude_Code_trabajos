@@ -482,6 +482,38 @@ export async function ensureAuthenticated(): Promise<string> {
   return credential.user.uid;
 }
 
+/* ============================================================================
+* Función         : getIdToken
+* Descripción     : Devuelve el ID token vigente del usuario autenticado o null
+*                   si no hay sesión. Funciona en runtime Android nativo y en
+*                   la capa modular (Apple/web).
+* Fecha           : 2026-08-07
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.9
+* Conexiones      : auth(), getWebAuth
+* Ingesta         : forceRefresh?: boolean
+* Devolución      : Promise<string | null>
+* Uso             : const token = await getIdToken()
+* ============================================================================ */
+export async function getIdToken(forceRefresh = false): Promise<string | null> {
+  if (isAndroidNativeRuntime()) {
+    const currentUser = auth().currentUser;
+    if (!currentUser) {
+      return null;
+    }
+
+    return currentUser.getIdToken(forceRefresh);
+  }
+
+  const authInstance = await getWebAuth();
+  const currentUser = authInstance.currentUser as User | null;
+  if (!currentUser) {
+    return null;
+  }
+
+  return currentUser.getIdToken(forceRefresh);
+}
+
 export const userDoc = (uid: string) => firestore().collection('users').doc(uid);
 
 export const contactsCol = (uid: string) => userDoc(uid).collection('contacts');
