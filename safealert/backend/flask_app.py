@@ -115,6 +115,7 @@ flask_app = create_app()
 # CORS ampliado para móvil + web
 CORS(flask_app, origins=[
     "https://oaf.pythonanywhere.com",
+    "https://oaf2023.github.io",
     "exp://*",
     "http://localhost:*",
     "http://10.0.2.2:*",
