@@ -23,6 +23,15 @@ if (__DEV__) {
 console.log('[SafeAlertBootstrap] index.ts loaded');
 (globalThis as any).__SAFEALERT_BOOTSTRAP_MARK__ = Date.now();
 
-import 'expo-router/entry';
+try {
+  const routerEntry = require('expo-router/entry');
+  console.log('[SafeAlertBootstrap] expo-router entry imported, keys:', Object.keys(routerEntry || {}));
+  console.log('[SafeAlertBootstrap] routerEntry type:', typeof routerEntry);
+  console.log('[SafeAlertBootstrap] routerEntry.default:', typeof routerEntry?.default);
+  console.log('[SafeAlertBootstrap] routerEntry.registerRootComponent:', typeof routerEntry?.registerRootComponent);
+} catch (err: any) {
+  console.error('[SafeAlertBootstrap] expo-router import FAILED:', err?.message || err);
+  console.error('[SafeAlertBootstrap] stack:', err?.stack?.substring(0, 500));
+}
 
-console.log('[SafeAlertBootstrap] expo-router entry imported');
+console.log('[SafeAlertBootstrap] done');

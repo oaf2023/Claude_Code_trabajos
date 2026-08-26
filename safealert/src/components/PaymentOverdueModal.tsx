@@ -24,6 +24,7 @@ import {
   StyleSheet,
   BackHandler,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { color } from '../theme';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -82,10 +83,11 @@ export const PaymentOverdueModal: React.FC<PaymentOverdueModalProps> = ({
   const handleClose = () => {
     setPaymentOverdue(true);
     onDismissed();
-    // Esperar un frame para que zustand persista antes de salir
-    setTimeout(() => {
-      BackHandler.exitApp();
-    }, 150);
+    if (Platform.OS === 'android') {
+      setTimeout(() => {
+        BackHandler.exitApp();
+      }, 150);
+    }
   };
 
   /* ============================================================================

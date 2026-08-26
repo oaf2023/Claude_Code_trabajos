@@ -54,6 +54,15 @@ function mapResult(result: string): PermissionStatus {
 
 export const PermissionsService = {
   async checkAll(): Promise<PermissionsStatus> {
+    if (Platform.OS === 'web') {
+      return {
+        microphone: 'unavailable',
+        locationForeground: 'unavailable',
+        locationBackground: 'unavailable',
+        notifications: 'unavailable',
+      };
+    }
+
     const [mic, locFg, locBg, notifs] = await Promise.all([
       check(
         Platform.OS === 'ios'

@@ -15,7 +15,7 @@ import { type PropsWithChildren } from 'react';
 
 // Base pública del sitio (GitHub Pages sirve en subdirectorio).
 // Se mantiene en sincronía con experiments.baseUrl de app.json.
-const BASE_URL = '/Claude_Code_trabajos';
+const BASE_URL = '/';
 
 const SW_REGISTER_SCRIPT = `
   if ('serviceWorker' in navigator) {
@@ -50,6 +50,8 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="msapplication-TileColor" content="#DC2626" />
       </head>
       <body>
+        {/* Polyfill: React Native Web necesita __fbBatchedBridgeConfig con remoteModuleConfig como array */}
+        <script dangerouslySetInnerHTML={{ __html: "window.__fbBatchedBridgeConfig={remoteModuleConfig:[]};" }} />
         {children}
         {/* Registro del Service Worker para modo offline */}
         <script dangerouslySetInnerHTML={{ __html: SW_REGISTER_SCRIPT }} />

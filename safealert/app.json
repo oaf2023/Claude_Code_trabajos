@@ -95,7 +95,7 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/favicon.png",
       "name": "SafeAlert",
       "shortName": "SafeAlert",
@@ -109,7 +109,7 @@
       "display": "standalone"
     },
     "experiments": {
-      "baseUrl": "/Claude_Code_trabajos"
+      "baseUrl": "/"
     },
     "plugins": [
       "@react-native-firebase/app",

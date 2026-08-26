@@ -21,6 +21,7 @@ import {
   Vibration,
   Linking,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
 import { WakeWordService } from '../../src/services/WakeWordService';
@@ -42,6 +43,7 @@ import { Icon } from '../../src/theme/Icon';
 import { Button } from '../../src/theme/Button';
 import { Card } from '../../src/theme/Card';
 import { DeviceDiagnostic, ProtectionLevel } from '../../src/services/DeviceDiagnostic';
+import { WebModeBanner } from '../../src/components/WebModeBanner';
 
 function resolveGuardIcon(isArmed: boolean, alertPhase: string, status: string | null): { icon: React.ComponentProps<typeof Icon>['name']; label: string } {
   if (!isArmed) return { icon: 'lock-open', label: 'ACTIVAR\nGUARDIA' };
@@ -223,6 +225,9 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={localStyles.container} contentContainerStyle={localStyles.content}>
+      {/* Web mode banner — solo visible en navegador */}
+      {Platform.OS === 'web' && <WebModeBanner />}
+
       {/* Protection badge */}
       <ProtectionBadge level={protectionLevel} />
 

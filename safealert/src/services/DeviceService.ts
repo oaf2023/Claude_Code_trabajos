@@ -13,6 +13,7 @@
 * ============================================================================ */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 const STORAGE_KEY = '@safealert/device_id';
@@ -111,6 +112,7 @@ async function getDeviceId(): Promise<string> {
 * Uso             : const mac = await DeviceService.getMacAddress()
 * ============================================================================ */
 async function getMacAddress(): Promise<string> {
+  if (Platform.OS === 'web') return '';
   try {
     const mac = await DeviceInfo.getMacAddress();
     return mac ?? '';
@@ -134,6 +136,7 @@ async function getMacAddress(): Promise<string> {
 * Uso             : const uid = await DeviceService.getDeviceUniqueId()
 * ============================================================================ */
 async function getDeviceUniqueId(): Promise<string> {
+  if (Platform.OS === 'web') return '';
   try {
     return await DeviceInfo.getUniqueId();
   } catch (error) {
@@ -155,6 +158,7 @@ async function getDeviceUniqueId(): Promise<string> {
 * Uso             : const emu = await DeviceService.isEmulator()
 * ============================================================================ */
 async function isEmulator(): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
   try {
     return await DeviceInfo.isEmulator();
   } catch (error) {
