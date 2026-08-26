@@ -9,14 +9,15 @@
  * Uso             : Registrado desde app/+html.tsx en runtime web.
  * ============================================================================ */
 
-const CACHE_NAME = 'safealert-cache-v2';
+const CACHE_NAME = 'safealert-cache-v3';
 // Base pública del sitio (GitHub Pages sirve en subdirectorio).
-const BASE_URL = '/Claude_Code_trabajos';
+const BASE_URL = '/Claude_Code_trabajos/safealert';
 const PRECACHE_URLS = [
   `${BASE_URL}/`,
   `${BASE_URL}/manifest.json`,
   `${BASE_URL}/icons/icon-192.png`,
   `${BASE_URL}/icons/icon-512.png`,
+  `${BASE_URL}/icons/apple-touch-icon.png`,
   `${BASE_URL}/favicon.ico`,
 ];
 
@@ -56,9 +57,10 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   const isNavigation = request.mode === 'navigate';
-  const isAsset = url.pathname.startsWith(`${BASE_URL}/_expo/`) ||
+  const isAsset = url.pathname.startsWith(`${BASE_URL}/_expo/static/`) ||
     url.pathname.startsWith(`${BASE_URL}/icons/`) ||
     url.pathname.startsWith(`${BASE_URL}/assets/`) ||
+    url.pathname.startsWith('/_expo/static/') ||
     /\.(js|css|png|jpg|jpeg|webp|svg|ico|ttf|woff2?)$/i.test(url.pathname);
 
   if (isNavigation) {
