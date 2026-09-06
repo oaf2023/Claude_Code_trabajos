@@ -5,15 +5,19 @@
 *                   x-signature de Mercado Pago antes de procesar cualquier
 *                   evento (fail-closed). El algoritmo replica
 *                   backend/flask_app.py::verify_mp_signature.
+*                   [FASE 2] Parsea external_reference con formato uid:{uid}:deviceId:{deviceId}
+*                   para vincular correctamente el pago con el usuario.
 * Autor           : oafon / Equipo SafeAlert
-* Fecha           : 2026-03-23 (original) · 2026-09-06 (Fase 1)
-* Versión         : 1.1.0
+* Fecha           : 2026-03-23 (original) · 2026-09-06 (Fase 1 + Fase 2)
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.3
 * Uso             : Webhook configurado en panel de Mercado Pago.
 * Cambios         :
 *   [2026-09-06] Fase 1 (0001): verificación obligatoria de X-Signature y
 *   X-Request-Id (HMAC-SHA256 + ventana anti-replay) antes de procesar eventos;
 *   401 si la firma no es válida; 503 si MP_WEBHOOK_SECRET no está configurado.
+*   [2026-09-06] Fase 2 (0002): external_reference ahora contiene uid:deviceId;
+*   se parsea para obtener el uid del usuario y vincularlo a su suscripción.
 * ============================================================================ */
 
 import { onRequest } from 'firebase-functions/v2/https';
@@ -55,6 +59,40 @@ function extraerDataId(req: {
     return String(deBody).trim();
   }
   return '';
+}
+
+/* ============================================================================
+* Función         : parsearExternalReference
+* Descripción     : Extrae uid y deviceId del external_reference con formato
+*                   uid:{uid}:deviceId:{deviceId} (Fase 2) o formatos legacy
+*                   (monthly:{deviceId}, annual:{deviceId}).
+* Fecha           : 2026-09-06
+* Versión         : 1.0.0
+* Lenguaje        : TypeScript 5.3
+* Conexiones      : mpWebhook
+* Ingesta         : externalRef: string
+* Devolución      : { uid: string; deviceId: string }
+* Uso             : const { uid, deviceId } = parsearExternalReference(externalRef);
+* ============================================================================ */
+function parsearExternalReference(externalRef: string): { uid: string; deviceId: string } {
+  if (!externalRef) {
+    return { uid: '', deviceId: '' };
+  }
+
+  // Formato nuevo (Fase 2): uid:{uid}:deviceId:{deviceId}
+  const uidMatch = externalRef.match(/^uid:([^:]+):deviceId:(.+)$/);
+  if (uidMatch) {
+    return { uid: uidMatch[1], deviceId: uidMatch[2] };
+  }
+
+  // Formato legacy: monthly:{deviceId} o annual:{deviceId}
+  const legacyMatch = externalRef.match(/^(?:monthly|annual):(.+)$/);
+  if (legacyMatch) {
+    return { uid: '', deviceId: legacyMatch[1] };
+  }
+
+  // Si no matchea ningún formato, devolver el valor completo como deviceId
+  return { uid: '', deviceId: externalRef };
 }
 
 export const mpWebhook = onRequest(
@@ -109,14 +147,21 @@ export const mpWebhook = onRequest(
         const paymentData = await payment.get({ id: dataId });
 
         if (paymentData.status === 'approved') {
-          const userId = paymentData.external_reference;
+          // [FASE 2] Parsear external_reference para obtener uid y deviceId
+          const { uid, deviceId } = parsearExternalReference(
+            paymentData.external_reference ?? ''
+          );
 
-          if (userId) {
+          // Usar uid como identificador principal; si es legacy, usar deviceId
+          const userIdentificador = uid || deviceId;
+
+          if (userIdentificador) {
             const db = admin.firestore();
             // Actualizar o crear suscripción
             const now = Date.now();
             const subData = {
-              userId,
+              userId: userIdentificador,
+              deviceId: deviceId || undefined,
               status: 'Activa',
               amount: paymentData.transaction_amount || 5000,
               billingType: 'Mensual',
@@ -126,10 +171,14 @@ export const mpWebhook = onRequest(
               initialPaymentDate: now,
             };
 
-            // Buscar si existe
-            const snapshot = await db.collection('subscriptions')
-              .where('userId', '==', userId)
-              .limit(1).get();
+            // Buscar si existe (por uid o por mercadopagoOrderId para idempotencia)
+            const snapshot = uid
+              ? await db.collection('subscriptions')
+                  .where('userId', '==', uid)
+                  .limit(1).get()
+              : await db.collection('subscriptions')
+                  .where('deviceId', '==', deviceId)
+                  .limit(1).get();
 
             if (snapshot.empty) {
               await db.collection('subscriptions').add({
@@ -139,7 +188,7 @@ export const mpWebhook = onRequest(
             } else {
               await snapshot.docs[0].ref.update(subData);
             }
-            console.log(`[mpWebhook] Suscripción activada para usuario ${userId}`);
+            console.log(`[mpWebhook] Suscripción activada: uid=${uid} deviceId=${deviceId}`);
           }
         }
         res.status(200).send('OK');

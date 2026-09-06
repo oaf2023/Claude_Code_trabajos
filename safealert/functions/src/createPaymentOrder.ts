@@ -5,9 +5,11 @@
 *                   Plan anual: Preference (pago único $75.000 ARS).
 *                   Luego vincula el ID del preapproval con el device_id del usuario
 *                   llamando al backend de PythonAnywhere.
+*                   [FASE 2] external_reference ahora usa formato uid:deviceId para
+*                   vincular el pago con el usuario autenticado en el webhook.
 * Autor           : oafon
-* Fecha           : 2026-04-01
-* Versión         : 2.0.0
+* Fecha           : 2026-04-01 · 2026-09-06 (Fase 2)
+* Versión         : 2.1.0
 * Lenguaje        : TypeScript 5.3
 * Uso             : Interfaz HTTP Callable desde React Native.
 * ============================================================================ */
@@ -115,6 +117,10 @@ export const createPaymentOrder = onCall(
     const isSandbox = MP_ACCESS_TOKEN.startsWith('TEST-');
     const internalKey = paInternalKey.value();
 
+    // [FASE 2] Formato unificado: uid:{uid}:deviceId:{deviceId}
+    // Permite al webhook vincular el pago con el usuario autenticado
+    const externalRef = `uid:${request.auth.uid}:deviceId:${deviceId}`;
+
     try {
       if (planType === 'monthly') {
         // Suscripción recurrente mensual
@@ -122,7 +128,7 @@ export const createPaymentOrder = onCall(
         const result = await preApproval.create({
           body: {
             reason: 'Suscripción mensual SafeAlert',
-            external_reference: `monthly:${deviceId}`,
+            external_reference: externalRef,
             payer_email: payerEmail,
             auto_recurring: {
               frequency: 1,
@@ -167,7 +173,7 @@ export const createPaymentOrder = onCall(
               phone: { number: phoneNumber },
               email: payerEmail,
             },
-            external_reference: `annual:${deviceId}`,
+            external_reference: externalRef,
             back_urls: {
               success: 'https://oaf.pythonanywhere.com/api/health',
               failure: 'https://oaf.pythonanywhere.com/api/health',
