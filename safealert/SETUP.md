@@ -1,5 +1,7 @@
 # SafeAlert - Setup del MVP publicable
 
+**Versión**: 2.0.0 | **Fecha**: 2026-09-06
+
 ## Alcance real actual
 
 - SOS manual inmediato.
@@ -37,30 +39,71 @@ Sin esos archivos, la autenticación anónima de Firebase no inicializa y la app
 2. Habilitar Authentication con proveedor Anónimo.
 3. Habilitar Firestore y Storage en modo producción.
 4. Habilitar Functions en plan Blaze si se usará proveedor SMS externo.
-5. Desplegar reglas:
+5. **Configurar Secret Manager** con los siguientes secretos:
+   - `MP_WEBHOOK_SECRET` — Secreto de firma de webhooks de MercadoPago
+   - `PA_INTERNAL_KEY` — Clave interna para PythonAnywhere
+6. Desplegar reglas:
 
 ```bash
 firebase deploy --only firestore:rules,storage
 ```
 
+7. Desplegar Cloud Functions:
+
+```bash
+cd functions
+npm install
+npm run build
+cd ..
+firebase deploy --only functions
+```
+
 ## Variables de entorno
 
-Cliente móvil, archivo .env:
+### Cliente móvil (archivo .env)
 
 ```env
+# Feature flags
 EXPO_PUBLIC_ENABLE_WAKE_WORD=false
+EXPO_PUBLIC_ENABLE_AUDIO_GUARD=false
+EXPO_PUBLIC_ENABLE_PAYMENTS=false      # ⚠️ CONGELADO - no habilitar hasta Fase 2+4
+EXPO_PUBLIC_ENABLE_PAYMENTS_DEMO=false # ⚠️ CONGELADO
 EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION=false
+
+# APIs
+EXPO_PUBLIC_PA_API_URL=https://oaf.pythonanywhere.com
+EXPO_PUBLIC_AUDIO_ALERT_API_URL=https://oaf.pythonanywhere.com/api/audio/detectar-alerta
+EXPO_PUBLIC_AUDIO_ALERT_API_KEY=tu_api_key_aqui
+EXPO_PUBLIC_AUDIO_ALERT_LANGUAGE=es
+EXPO_PUBLIC_AUDIO_ALERT_THRESHOLD=82
+EXPO_PUBLIC_AUDIO_GUARD_CHUNK_MS=2000
 ```
 
-Cloud Functions, archivo functions/.env:
+### Cloud Functions (functions/.env)
 
 ```env
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_PHONE_NUMBER=+15551234567
+# ⚠️ SECRETO — este archivo está en .gitignore
+MP_ACCESS_TOKEN=APP_USR-... # Token de producción MercadoPago
+PAYMENTS_ENABLED=false      # ⚠️ CONGELADO
+PA_API_URL=https://oaf.pythonanywhere.com
 ```
 
-Si no configuras Twilio, las Functions dejan trazabilidad en pendingNotifications como fallback interno. No pongas esas credenciales en el cliente móvil.
+### Secretos en Firebase Secret Manager
+
+```bash
+# Configurar secretos (solo primera vez)
+npx firebase functions:secrets:set MP_WEBHOOK_SECRET
+npx firebase functions:secrets:set PA_INTERNAL_KEY
+```
+
+## Variables de entorno críticas (NO commitear)
+
+| Variable | Ubicación | Descripción |
+|----------|-----------|-------------|
+| `MP_ACCESS_TOKEN` | functions/.env | Token MercadoPago (producción) |
+| `MP_WEBHOOK_SECRET` | Secret Manager | Secreto de firma HMAC-SHA256 |
+| `PA_INTERNAL_KEY` | Secret Manager | Clave interna PythonAnywhere |
+| `AUDIO_ALERT_API_KEY` | .env (cliente) | API key para alertas de audio |
 
 ## Instalación y validación
 
@@ -156,3 +199,12 @@ Esto escribe una landing HTML en `dist/android-distribution/` para subirla al ho
 4. La Cloud Function envía SMS o fallback interno con trazabilidad por contacto.
 5. Si el usuario habilitó audio y concedió micrófono, se sube users/{uid}/alerts/{alertId}/voice.m4a.
 6. Una actualización posterior puede disparar un follow-up con el enlace del audio.
+
+## Flujo de pago (actualmente congelado)
+
+1. La app llama a `createPaymentOrder` (Cloud Function).
+2. La Cloud Function crea la orden en MercadoPago con `external_reference: uid:{uid}:deviceId:{deviceId}`.
+3. MercadoPago notifica al webhook `mpWebhook`.
+4. El webhook verifica la firma HMAC-SHA256 (Fase 1).
+5. El webhook parsea el external_reference para obtener uid (Fase 2).
+6. El webhook actualiza la suscripción en Firestore.

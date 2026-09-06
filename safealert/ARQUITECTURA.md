@@ -1,16 +1,16 @@
 # SafeAlert — Arquitectura y Manejo de Datos
 
-**Versión**: 1.0.0 | **Fecha**: 2026-04-10 | **Autor**: oafon
+**Versión**: 2.0.0 | **Fecha**: 2026-09-06 | **Autor**: oafon
 
 ---
 
 ## 1. Visión General
 
-SafeAlert es una aplicación Android de alertas SOS construida con **React Native + Expo Router + TypeScript**. Detecta palabras de activación por voz o disparo manual, captura ubicación GPS y audio, y envía notificaciones SMS a contactos de emergencia. El backend es una API REST Flask alojada en PythonAnywhere, con Firestore como base de datos en la nube.
+SafeAlert es una aplicación Android/iOS de alertas SOS construida con **React Native + Expo Router + TypeScript**. Detecta palabras de activación por voz o disparo manual, captura ubicación GPS y audio, y envía notificaciones SMS a contactos de emergencia. El backend es una API REST Flask alojada en PythonAnywhere, con Firestore como base de datos en la nube y Cloud Functions para pagos y notificaciones.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     DISPOSITIVO ANDROID                          │
+│                     DISPOSITIVO ANDROID/iOS                       │
 │                                                                  │
 │  ┌─────────────┐    ┌──────────────┐    ┌───────────────────┐   │
 │  │  Expo Router│    │  Zustand     │    │  Servicios        │   │
@@ -20,12 +20,59 @@ SafeAlert es una aplicación Android de alertas SOS construida con **React Nativ
 └──────────────────────────────┼────────────────────┼─────────────┘
                                │                    │
                ┌───────────────▼──┐    ┌────────────▼──────────────┐
-               │   Firestore      │    │  PythonAnywhere (Flask)    │
-               │   (alertas,      │    │  safealert_tel.db          │
-               │    contactos,    │    │  - usuarios_emerg          │
-               │    usuarios)     │    │  - periodo_prueba          │
-               └──────────────────┘    └───────────────────────────┘
+               │   Firestore      │    │  Firebase Cloud Functions  │
+               │   (alertas,      │    │  - createPaymentOrder      │
+               │    contactos,    │    │  - mpWebhook (firma MP)    │
+               │    usuarios)     │    │  - paProxy (secreto PA)    │
+               └──────────────────┘    └────────────┬──────────────┘
+                                                    │
+                                       ┌────────────▼──────────────┐
+                                       │  PythonAnywhere (Flask)    │
+                                       │  safealert_tel.db          │
+                                       │  - usuarios_emerg (uid)    │
+                                       │  - periodo_prueba (uid)    │
+                                       └───────────────────────────┘
 ```
+
+---
+
+## 2. Cambios Recientes (Plan de Remediación 2026-09-06)
+
+### Fase 0 — Congelación de Pagos
+- `PAYMENTS_ENABLED=false` y `PAYMENTS_DEMO_ENABLED=false` en producción
+- Pagos deshabilitados hasta completar Fase 2+4
+
+### Fase 1 — Verificación de Firma Webhook MP
+- **Archivos**: `functions/src/mpWebhook.ts`, `functions/src/mpSignature.ts`
+- HMAC-SHA256 sobre plantilla `id:{dataId};request-id:{xRequestId};ts:{ts}`
+- Ventana anti-replay de 5 minutos
+- Tests unitarios en `functions/src/__tests__/mpSignature.test.ts`
+
+### Fase 2 — Unificación de IDs de Pago
+- **Archivos**: `functions/src/createPaymentOrder.ts`, `functions/src/mpWebhook.ts`
+- `external_reference` ahora usa formato `uid:{uid}:deviceId:{deviceId}`
+- Webhook parsea el formato y vincula pago con usuario correctamente
+
+### Fase 3 — Protección de Secretos
+- **Archivos**: `functions/src/paProxy.ts`, `src/services/PaymentService.ts`
+- `PA_INTERNAL_KEY` ahora se inyecta server-side (Secret Manager)
+- Cloud Functions proxy: `paProxyCreateTicket`, `paProxyConfirmPayment`
+
+### Fase 4 — Eliminación de Bypass
+- **Archivo**: `src/components/PaymentModal.tsx`
+- Bypass solo permitido en `__DEV__ && PAYMENTS_DEMO_ENABLED`
+- Gating server-side en `handleDevBypass`
+
+### Fase 5 — Soft-delete en Purga
+- **Archivo**: `backend/flask_app.py`
+- Backup previo a CSV antes de purgar
+- Soft-delete con `borrado_logico` y `borrado_en`
+- Tabla `purga_backups` para auditoría
+
+### Fase 6 — Migración device_id → uid
+- **Archivos**: `backend/flask_app.py`, `src/services/TrialService.ts`, `src/services/ContactsService.ts`
+- Endpoints `/api/tel/*` ahora usan `uid` (Firebase Auth) como identificador principal
+- Compatibilidad con `device_id` legacy para migración gradual
 
 ---
 
@@ -316,14 +363,19 @@ LocationService          AudioRecordingService
 
 | Aspecto | Implementación |
 |---------|---------------|
-| Autenticación | Firebase Auth anónima — UID no expuesto en UI |
-| Autorización Firestore | Reglas de Firestore: cada usuario solo lee/escribe su propio `/users/{userId}/` |
-| API Key backend | Header `X-API-Key` en todas las llamadas a PythonAnywhere |
+| Autenticación | Firebase Auth anónima — UID como identificador principal en todos los servicios |
+| Firma Webhook MP | HMAC-SHA256 con MP_WEBHOOK_SECRET (Secret Manager), ventana anti-replay 5min |
+| Secretos en servidor | PA_INTERNAL_KEY, MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET en Firebase Secret Manager |
+| Proxy de secretos | Cloud Functions `paProxyCreateTicket`, `paProxyConfirmPayment` protegen claves internas |
+| Pago | Congelado hasta completar remediación. Bypass solo en __DEV__ explícito |
+| Soft-delete | Purga con backup CSV previo, borrado_logico, auditoría en purga_backups |
+| Identificación | uid (Firebase Auth) como primary key en contactos y suscripciones |
+| API Key backend | Header `X-API-Key` en llamadas a PythonAnywhere (solo para endpoints públicos) |
 | Audio | Se sube a Firebase Storage con path privado por userId/alertId |
 | Datos locales | AsyncStorage no es cifrado — no almacena datos sensibles (sin tokens, sin contraseñas) |
 | Permisos Android | Solicitados en runtime: RECORD_AUDIO, ACCESS_FINE_LOCATION, READ_CONTACTS |
 | Borrado de contactos | Borrado lógico en SQLite (`borrado=1`), los datos no se eliminan físicamente |
-| Período de prueba | Identificado por `device_id` (UUID del dispositivo, no del usuario) |
+| Período de prueba | Identificado por `uid` (Firebase Auth) con fallback a device_id para migración |
 
 ---
 
