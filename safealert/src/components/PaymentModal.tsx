@@ -5,12 +5,11 @@
 *                   generar la URL de pago y luego abre MercadoPago en el
 *                   navegador externo. Tras confirmación genera y muestra el
 *                   ticket de pago (PaymentTicket).
-*                   En modo __DEV__ la pasarela se omite: el dispositivo se
-*                   registra en PA, se crea el ticket correlativo real y se
-*                   muestra el comprobante sin cargo real.
+*                   [FASE 4] El bypass de desarrollo solo se permite en __DEV__
+*                   cuando PAYMENTS_DEMO_ENABLED=true (nunca en producción).
 * Autor           : oafon
-* Fecha           : 2026-04-07
-* Versión         : 3.2.0
+* Fecha           : 2026-04-07 · 2026-09-06 (Fase 4)
+* Versión         : 3.3.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : <PaymentModal visible={...} deviceId={...} userName={...}
 *                     userPhone={...} onClose={...} onSuccess={...} />
@@ -54,10 +53,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  // Se inicializa en true preventivamente si estamos en __DEV__ para no
-  // bloquear al desarrollador mientras carga el chequeo de DeviceInfo.
+  // [FASE 4] Bypass solo permitido en __DEV__ cuando PAYMENTS_DEMO_ENABLED=true.
+  // En producción (__DEV__=false), NUNCA se activa bypass.
   const [isBypassMode, setIsBypassMode] = useState(
-    __DEV__ || PAYMENTS_DEMO_ENABLED || !PAYMENTS_ENABLED
+    __DEV__ && PAYMENTS_DEMO_ENABLED
   );
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('monthly');
   const [loading, setLoading] = useState(false);
@@ -68,23 +67,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   React.useEffect(() => {
     if (visible) {
-      // Verificamos si es emulador o dispositivo real para decidir el flujo
-      DeviceService.isEmulator().then(emu => {
-        // Si es emulador O pago de muestra habilitado O pagos desactivados
-        // por config, forzamos bypass
-        setIsBypassMode(emu || PAYMENTS_DEMO_ENABLED || !PAYMENTS_ENABLED);
-      });
+      // [FASE 4] Bypass solo en __DEV__ + PAYMENTS_DEMO_ENABLED explícito.
+      // En producción, siempre flujo real de pago.
+      setIsBypassMode(__DEV__ && PAYMENTS_DEMO_ENABLED);
     }
   }, [visible]);
 
   /* ============================================================================
   * Función         : handleDevBypass
-  * Descripción     : Simula un pago aprobado en modo __DEV__ sin llamar a
-  *                   Firebase Functions ni MercadoPago. Registra el dispositivo
-  *                   en PA y genera el ticket correlativo real para verificar
-  *                   el flujo completo de extremo a extremo.
-  * Fecha           : 2026-04-07
-  * Versión         : 1.1.0
+  * Descripción     : [FASE 4] Simula un pago aprobado SOLO en __DEV__ cuando
+  *                   PAYMENTS_DEMO_ENABLED=true. Lanza error si se intenta
+  *                   en producción. Registra el dispositivo en PA y genera
+  *                   el ticket correlativo real para verificar el flujo.
+  * Fecha           : 2026-04-07 · 2026-09-06 (Fase 4)
+  * Versión         : 1.2.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : PaymentService.registerDevice, PaymentService.createTicket
   * Ingesta         : void
@@ -92,6 +88,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   * Uso             : onPress={handleDevBypass}
   * ============================================================================ */
   const handleDevBypass = async () => {
+    // [FASE 4] Gating server-side: bypass solo en desarrollo explícito
+    if (!__DEV__ || !PAYMENTS_DEMO_ENABLED) {
+      console.error('[PaymentModal] handleDevBypass llamado en producción — bloqueado');
+      Alert.alert('Error', 'Esta función no está disponible en producción.');
+      return;
+    }
+
     setLoading(true);
     try {
       // Registrar dispositivo en PA (valida conectividad con el backend)
