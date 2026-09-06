@@ -432,13 +432,15 @@ def _create_tables(db: sqlite3.Connection):
             proveedor_geocodificacion TEXT,
             observaciones         TEXT,
             metadatos             TEXT,
+            borrado_logico        INTEGER DEFAULT 0,
+            borrado_en            TEXT,
             creado_en             TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
         --- Tabla de consentimientos (Prompt Maestro sección 10) ---
         CREATE TABLE IF NOT EXISTS consentimientos_usuario (
             id                INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario_id        TEXT NOT NULL,
+            usuario_id        TEXT,
             sesion_id         TEXT,
             tipo_permiso      TEXT NOT NULL CHECK (tipo_permiso IN ('UBICACION','CAMARA','MICROFONO','CONTACTOS','NOTIFICACIONES')),
             estado            TEXT NOT NULL CHECK (estado IN ('OTORGADO','RECHAZADO','REVOCADO','NO_SOLICITADO')),
@@ -446,7 +448,9 @@ def _create_tables(db: sqlite3.Connection):
             version_politica  TEXT,
             fecha_hora        TEXT NOT NULL DEFAULT (datetime('now')),
             ip                TEXT,
-            user_agent        TEXT
+            user_agent        TEXT,
+            borrado_logico    INTEGER DEFAULT 0,
+            borrado_en        TEXT
         );
 
         --- Tabla de accesos técnicos (Prompt Maestro sección 11) ---
@@ -485,7 +489,19 @@ def _create_tables(db: sqlite3.Connection):
             posible_proxy     INTEGER DEFAULT 0,
             posible_hosting   INTEGER DEFAULT 0,
             metodo_autenticacion TEXT,
+            borrado_logico    INTEGER DEFAULT 0,
+            borrado_en        TEXT,
             creado_en         TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        --- [FASE 5] Tabla de backups antes de purga ---
+        CREATE TABLE IF NOT EXISTS purga_backups (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            tabla             TEXT NOT NULL,
+            registros         INTEGER NOT NULL,
+            fecha_purga       TEXT NOT NULL,
+            archivo_backup    TEXT,
+            created_at        TEXT NOT NULL DEFAULT (datetime('now'))
         );
     """)
 
@@ -1560,19 +1576,118 @@ def historial_accesos(usuario_id: str):
 # ---------------------------------------------------------------------------
 
 def ejecutar_purga_retencion():
-    """Elimina registros antiguos según política de retención configurada."""
+    """[FASE 5] Soft-delete con backup previo según política de retención."""
+    import csv
+    import io
+    from flask import g
+
     db = get_db()
     ahora = datetime.utcnow().isoformat()
     corte_accesos = (datetime.utcnow() - timedelta(days=RETENCION_ACCESOS_DIAS)).isoformat()
     corte_ubicaciones = (datetime.utcnow() - timedelta(days=RETENCION_UBICACIONES_DIAS)).isoformat()
     corte_consentimientos = (datetime.utcnow() - timedelta(days=RETENCION_CONSENTIMIENTOS_DIAS)).isoformat()
-    eliminados_accesos = db.execute("DELETE FROM accesos_tecnicos WHERE fecha_hora < ?", (corte_accesos,)).rowcount
-    eliminados_ubicaciones = db.execute("DELETE FROM ubicaciones_usuario WHERE creado_en < ?", (corte_ubicaciones,)).rowcount
-    eliminados_consentimientos = db.execute("DELETE FROM consentimientos_usuario WHERE fecha_hora < ?", (corte_consentimientos,)).rowcount
+
+    # [FASE 5] Contar registros a purgar antes de marcar
+    count_accesos = db.execute(
+        "SELECT COUNT(*) as c FROM accesos_tecnicos WHERE fecha_hora < ? AND borrado_logico = 0",
+        (corte_accesos,)
+    ).fetchone()["c"]
+    count_ubicaciones = db.execute(
+        "SELECT COUNT(*) as c FROM ubicaciones_usuario WHERE creado_en < ? AND borrado_logico = 0",
+        (corte_ubicaciones,)
+    ).fetchone()["c"]
+    count_consentimientos = db.execute(
+        "SELECT COUNT(*) as c FROM consentimientos_usuario WHERE fecha_hora < ? AND borrado_logico = 0",
+        (corte_consentimientos,)
+    ).fetchone()["c"]
+
+    total_registros = count_accesos + count_ubicaciones + count_consentimientos
+
+    if total_registros == 0:
+        logger.info("[Retencion] No hay registros para purgar")
+        return {"accesos": 0, "ubicaciones": 0, "consentimientos": 0, "backup": None}
+
+    # [FASE 5] Backup previo (solo si hay registros)
+    backup_archivo = None
+    try:
+        backup_dir = os.path.join(os.path.dirname(DB_PATH), "backups")
+        os.makedirs(backup_dir, exist_ok=True)
+        backup_archivo = os.path.join(backup_dir, f"purga_{ahora.replace(':', '-').replace(' ', '_')}.csv")
+
+        with open(backup_archivo, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['tabla', 'id', 'fecha_original', 'datos'])
+
+            # Backup accesos
+            if count_accesos > 0:
+                rows = db.execute(
+                    "SELECT id, fecha_hora FROM accesos_tecnicos WHERE fecha_hora < ? AND borrado_logico = 0",
+                    (corte_accesos,)
+                ).fetchall()
+                for row in rows:
+                    writer.writerow(['accesos_tecnicos', row['id'], row['fecha_hora'], ''])
+
+            # Backup ubicaciones
+            if count_ubicaciones > 0:
+                rows = db.execute(
+                    "SELECT id, creado_en FROM ubicaciones_usuario WHERE creado_en < ? AND borrado_logico = 0",
+                    (corte_ubicaciones,)
+                ).fetchall()
+                for row in rows:
+                    writer.writerow(['ubicaciones_usuario', row['id'], row['creado_en'], ''])
+
+            # Backup consentimientos
+            if count_consentimientos > 0:
+                rows = db.execute(
+                    "SELECT id, fecha_hora FROM consentimientos_usuario WHERE fecha_hora < ? AND borrado_logico = 0",
+                    (corte_consentimientos,)
+                ).fetchall()
+                for row in rows:
+                    writer.writerow(['consentimientos_usuario', row['id'], row['fecha_hora'], ''])
+
+        logger.info("[Retencion] Backup creado: %s (%d registros)", backup_archivo, total_registros)
+    except Exception as e:
+        logger.warning("[Retencion] Error creando backup: %s — continuando con soft-delete", e)
+        backup_archivo = None
+
+    # [FASE 5] Soft-delete: marcar registros como borrados en lugar de eliminar
+    eliminados_accesos = db.execute(
+        "UPDATE accesos_tecnicos SET borrado_logico = 1, borrado_en = ? WHERE fecha_hora < ? AND borrado_logico = 0",
+        (ahora, corte_accesos)
+    ).rowcount
+    eliminados_ubicaciones = db.execute(
+        "UPDATE ubicaciones_usuario SET borrado_logico = 1, borrado_en = ? WHERE creado_en < ? AND borrado_logico = 0",
+        (ahora, corte_ubicaciones)
+    ).rowcount
+    eliminados_consentimientos = db.execute(
+        "UPDATE consentimientos_usuario SET borrado_logico = 1, borrado_en = ? WHERE fecha_hora < ? AND borrado_logico = 0",
+        (ahora, corte_consentimientos)
+    ).rowcount
+
+    # [FASE 5] Registrar backup en tabla de auditoría
+    if backup_archivo:
+        db.execute(
+            "INSERT INTO purga_backups (tabla, registros, fecha_purga, archivo_backup) VALUES (?, ?, ?, ?)",
+            ('accesos_tecnicos', eliminados_accesos, ahora, backup_archivo)
+        )
+        db.execute(
+            "INSERT INTO purga_backups (tabla, registros, fecha_purga, archivo_backup) VALUES (?, ?, ?, ?)",
+            ('ubicaciones_usuario', eliminados_ubicaciones, ahora, backup_archivo)
+        )
+        db.execute(
+            "INSERT INTO purga_backups (tabla, registros, fecha_purga, archivo_backup) VALUES (?, ?, ?, ?)",
+            ('consentimientos_usuario', eliminados_consentimientos, ahora, backup_archivo)
+        )
+
     db.commit()
-    logger.info("[Retencion] Purga completada: accesos=%d ubicaciones=%d consents=%d",
-                eliminados_accesos, eliminados_ubicaciones, eliminados_consentimientos)
-    return {"accesos": eliminados_accesos, "ubicaciones": eliminados_ubicaciones, "consentimientos": eliminados_consentimientos}
+    logger.info("[Retencion] Soft-delete completada: accesos=%d ubicaciones=%d consents=%d backup=%s",
+                eliminados_accesos, eliminados_ubicaciones, eliminados_consentimientos, backup_archivo)
+    return {
+        "accesos": eliminados_accesos,
+        "ubicaciones": eliminados_ubicaciones,
+        "consentimientos": eliminados_consentimientos,
+        "backup": backup_archivo
+    }
 
 @flask_app.route("/api/v1/admin/purga", methods=["POST"])
 @require_admin_key
