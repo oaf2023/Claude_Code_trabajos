@@ -3,9 +3,10 @@
 * Descripción     : Cliente HTTP para sincronización de contactos de emergencia
 *                   con safealert_tel.db en PythonAnywhere y verificación del
 *                   período de prueba de 10 días.
+*                   [FASE 6] Usa uid (Firebase Auth) como identificador principal.
 * Autor           : oafon
-* Fecha           : 2026-04-10
-* Versión         : 1.0.0
+* Fecha           : 2026-04-10 · 2026-09-06 (Fase 6)
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : TrialService.syncContacto(...) / TrialService.checkPrueba(...)
 * ============================================================================ */
@@ -40,28 +41,29 @@ export interface EstadoPrueba {
 export const TrialService = {
   /* ============================================================================
   * Función         : syncContacto
-  * Descripción     : Sincroniza un contacto de emergencia con safealert_tel.db.
-  *                   Se llama al agregar un contacto en la app. Si es el primer
-  *                   contacto del equipo, el backend inicia el período de prueba.
-  * Fecha           : 2026-04-10
-  * Versión         : 1.0.0
+  * Descripción     : [FASE 6] Sincroniza un contacto con safealert_tel.db usando
+  *                   uid (Firebase Auth) como identificador principal. El device_id
+  *                   se envía como campo adicional para trazabilidad.
+  * Fecha           : 2026-04-10 · 2026-09-06 (Fase 6)
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : flask_app.py /api/tel/contacto
-  * Ingesta         : device_id, nombre, telefono, principal
+  * Ingesta         : uid, nombre, telefono, principal, deviceId?
   * Devolución      : Promise<void>
-  * Uso             : await TrialService.syncContacto(deviceId, 'Ana', '+5491155...', true)
+  * Uso             : await TrialService.syncContacto(uid, 'Ana', '+5491155...', true)
   * ============================================================================ */
   async syncContacto(
-    device_id: string,
+    uid: string,
     nombre: string,
     telefono: string,
-    principal: boolean
+    principal: boolean,
+    deviceId?: string
   ): Promise<void> {
     try {
       const response = await fetch(`${PA_API_URL}/api/tel/contacto`, {
         method: 'POST',
         headers: buildHeaders(),
-        body: JSON.stringify({ device_id, nombre, telefono, principal }),
+        body: JSON.stringify({ uid, device_id: deviceId || '', nombre, telefono, principal }),
       });
       if (!response.ok) {
         const body = await response.text().catch(() => '');
@@ -74,22 +76,22 @@ export const TrialService = {
 
   /* ============================================================================
   * Función         : borrarContacto
-  * Descripción     : Marca un contacto como borrado (borrado=1) en safealert_tel.db.
-  *                   El registro queda persistido pero inactivo (borrado lógico).
-  * Fecha           : 2026-04-10
-  * Versión         : 1.0.0
+  * Descripción     : [FASE 6] Marca un contacto como borrado usando uid como
+  *                   identificador principal.
+  * Fecha           : 2026-04-10 · 2026-09-06 (Fase 6)
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
   * Conexiones      : flask_app.py /api/tel/contacto/borrar
-  * Ingesta         : device_id, telefono
+  * Ingesta         : uid, telefono, deviceId?
   * Devolución      : Promise<void>
-  * Uso             : await TrialService.borrarContacto(deviceId, '+5491155...')
+  * Uso             : await TrialService.borrarContacto(uid, '+5491155...')
   * ============================================================================ */
-  async borrarContacto(device_id: string, telefono: string): Promise<void> {
+  async borrarContacto(uid: string, telefono: string, deviceId?: string): Promise<void> {
     try {
       const response = await fetch(`${PA_API_URL}/api/tel/contacto/borrar`, {
         method: 'PUT',
         headers: buildHeaders(),
-        body: JSON.stringify({ device_id, telefono }),
+        body: JSON.stringify({ uid, device_id: deviceId || '', telefono }),
       });
       if (!response.ok) {
         const body = await response.text().catch(() => '');
@@ -102,22 +104,20 @@ export const TrialService = {
 
   /* ============================================================================
   * Función         : checkPrueba
-  * Descripción     : Consulta el estado del período de prueba del equipo.
-  *                   Retorna si el período está activo, expirado y si el usuario pagó.
-  *                   Si hay error de red o el device no tiene período registrado,
-  *                   retorna activo=false, expirado=false para no bloquear al usuario.
-  * Fecha           : 2026-04-10
-  * Versión         : 1.0.0
+  * Descripción     : [FASE 6] Consulta el estado del período de prueba usando
+  *                   uid o device_id como identificador.
+  * Fecha           : 2026-04-10 · 2026-09-06 (Fase 6)
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
-  * Conexiones      : flask_app.py /api/tel/prueba/<device_id>
-  * Ingesta         : device_id: string
+  * Conexiones      : flask_app.py /api/tel/prueba/<identifier>
+  * Ingesta         : identifier: string (uid o device_id)
   * Devolución      : Promise<EstadoPrueba>
-  * Uso             : const estado = await TrialService.checkPrueba(deviceId)
+  * Uso             : const estado = await TrialService.checkPrueba(uid)
   * ============================================================================ */
-  async checkPrueba(device_id: string): Promise<EstadoPrueba> {
+  async checkPrueba(identifier: string): Promise<EstadoPrueba> {
     try {
       const response = await fetch(
-        `${PA_API_URL}/api/tel/prueba/${encodeURIComponent(device_id)}`,
+        `${PA_API_URL}/api/tel/prueba/${encodeURIComponent(identifier)}`,
         { headers: buildHeaders() }
       );
       if (!response.ok) {

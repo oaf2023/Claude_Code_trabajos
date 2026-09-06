@@ -130,11 +130,12 @@ export const ContactsService = {
 
   /* ============================================================================
   * Función         : add
-  * Descripción     : Agrega un contacto validando unicidad y formato operativo.
-  * Fecha           : 2026-03-19
-  * Versión         : 1.0.0
+  * Descripción     : [FASE 6] Agrega un contacto validando unicidad y formato.
+  *                   Usa uid (Firebase Auth) como identificador principal.
+  * Fecha           : 2026-03-19 · 2026-09-06 (Fase 6)
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
-  * Conexiones      : Firestore contacts, assertUniquePhone
+  * Conexiones      : Firestore contacts, assertUniquePhone, TrialService
   * Ingesta         : userId: string, data: ContactFormData
   * Devolución      : Promise<Contact>
   * Uso             : await ContactsService.add(userId, data)
@@ -152,13 +153,14 @@ export const ContactsService = {
     };
     const ref = await contactsCol(userId).add(contact);
 
-    // Sincronizar con safealert_tel.db en PythonAnywhere (fire & forget)
+    // [FASE 6] Sincronizar con safealert_tel.db usando uid
     void DeviceService.getDeviceId().then((deviceId) => {
       void TrialService.syncContacto(
-        deviceId,
+        userId,  // uid en lugar de device_id
         contact.name,
         contact.phone,
-        contact.priority === 0
+        contact.priority === 0,
+        deviceId  // device_id como campo adicional
       );
     }).catch(() => {});
 
@@ -193,11 +195,11 @@ export const ContactsService = {
 
   /* ============================================================================
   * Función         : remove
-  * Descripción     : Elimina un contacto de confianza.
-  * Fecha           : 2026-03-19
-  * Versión         : 1.0.0
+  * Descripción     : [FASE 6] Elimina un contacto de confianza usando uid.
+  * Fecha           : 2026-03-19 · 2026-09-06 (Fase 6)
+  * Versión         : 1.1.0
   * Lenguaje        : TypeScript 5.9
-  * Conexiones      : Firestore contacts
+  * Conexiones      : Firestore contacts, TrialService
   * Ingesta         : userId: string, contactId: string
   * Devolución      : Promise<void>
   * Uso             : await ContactsService.remove(userId, contactId)
@@ -209,10 +211,10 @@ export const ContactsService = {
 
     await contactsCol(userId).doc(contactId).delete();
 
-    // Marcar como borrado en safealert_tel.db (fire & forget)
+    // [FASE 6] Marcar como borrado usando uid
     if (contactData?.phone) {
       void DeviceService.getDeviceId().then((deviceId) => {
-        void TrialService.borrarContacto(deviceId, contactData.phone);
+        void TrialService.borrarContacto(userId, contactData.phone, deviceId);
       }).catch(() => {});
     }
   },

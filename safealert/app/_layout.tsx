@@ -74,6 +74,7 @@ function runWhenIdle(task: () => void): () => void {
 * ============================================================================ */
 function RootLayout() {
   const setUserId = useSettingsStore((s) => s.setUserId);
+  const userId = useSettingsStore((s) => s.userId);
   const isOnboarded = useSettingsStore((s) => s.isOnboarded);
   const userPhone = useSettingsStore((s) => s.userPhone);
   const isArmed = useGuardStore((s) => s.isArmed);
@@ -144,13 +145,13 @@ function RootLayout() {
     }
   }, [showOverdueAlert, setShowOverdueAlert]);
 
-  // Verificar período de prueba al iniciar la app
+  // [FASE 6] Verificar período de prueba usando uid
   useEffect(() => {
-    if (!listo || !isOnboarded || !deviceId) return;
+    if (!listo || !isOnboarded || !userId) return;
 
     const verificarPrueba = async () => {
       try {
-        const estado = await TrialService.checkPrueba(deviceId);
+        const estado = await TrialService.checkPrueba(userId);  // uid en lugar de device_id
         if (estado.activo && estado.expirado && !estado.pago) {
           setShowTrialExpiredModal(true);
         }
@@ -160,7 +161,7 @@ function RootLayout() {
     };
 
     void verificarPrueba();
-  }, [deviceId, listo, isOnboarded]);
+  }, [userId, listo, isOnboarded]);
 
   useEffect(() => {
     if (!__DEV__) {

@@ -540,6 +540,7 @@ def _create_tel_tables(db: sqlite3.Connection):
     db.executescript("""
         CREATE TABLE IF NOT EXISTS usuarios_emerg (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            uid         TEXT DEFAULT '',
             device_id   TEXT    NOT NULL,
             nombre      TEXT    NOT NULL,
             telefono    TEXT    NOT NULL,
@@ -553,26 +554,50 @@ def _create_tel_tables(db: sqlite3.Connection):
             ON usuarios_emerg(device_id, telefono);
 
         CREATE TABLE IF NOT EXISTS periodo_prueba (
-            device_id             TEXT PRIMARY KEY,
+            uid               TEXT PRIMARY KEY,
+            device_id         TEXT,
             fecha_primer_contacto TEXT NOT NULL,
             fecha_expiracion      TEXT NOT NULL,
             pago                  INTEGER NOT NULL DEFAULT 0
         );
     """)
+    # [FASE 6] Migrar tablas existentes para agregar columna uid
+    _migrate_add_uid_columns(db)
     db.commit()
 
-def _crear_periodo_prueba_si_no_existe(db: sqlite3.Connection, device_id: str):
+def _crear_periodo_prueba_si_no_existe(db: sqlite3.Connection, identifier: str):
+    """[FASE 6] Crea periodo de prueba por uid o device_id."""
     existing = db.execute(
-        "SELECT device_id FROM periodo_prueba WHERE device_id = ?", (device_id,)
+        "SELECT uid FROM periodo_prueba WHERE uid = ? OR device_id = ?",
+        (identifier, identifier)
     ).fetchone()
     if not existing:
         now = datetime.utcnow()
         fecha_exp = (now + timedelta(days=10)).isoformat()
         db.execute(
-            "INSERT INTO periodo_prueba (device_id, fecha_primer_contacto, fecha_expiracion, pago) VALUES (?,?,?,0)",
-            (device_id, now.isoformat(), fecha_exp)
+            "INSERT OR IGNORE INTO periodo_prueba (uid, device_id, fecha_primer_contacto, fecha_expiracion, pago) VALUES (?,?,?,0)",
+            (identifier, identifier, now.isoformat(), fecha_exp)
         )
         db.commit()
+
+def _migrate_add_uid_columns(db: sqlite3.Connection):
+    """[FASE 6] Migración: agregar columna uid a tablas existentes."""
+    # Agregar uid a usuarios_emerg si no existe
+    try:
+        db.execute("ALTER TABLE usuarios_emerg ADD COLUMN uid TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    # Agregar device_id a periodo_prueba si no existe (legacy)
+    try:
+        db.execute("ALTER TABLE periodo_prueba ADD COLUMN device_id TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    # Crear índice para buscar por uid
+    try:
+        db.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_emerg_uid ON usuarios_emerg(uid)")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_periodo_prueba_uid ON periodo_prueba(uid)")
+    except sqlite3.OperationalError:
+        pass
 
 # ---------------------------------------------------------------------------
 # Decoradores de seguridad
@@ -877,59 +902,87 @@ def upload_security_recording():
         return jsonify({"error": "Error interno"}), 500
 
 @flask_app.route("/api/tel/contacto", methods=["POST"])
+@require_firebase_auth
 def tel_agregar_contacto():
+    """[FASE 6] Endpoint ahora requiere Firebase Auth. Usa uid como identificador."""
     provided_key = request.headers.get("X-API-Key", "")
     if not AUDIO_ALERT_API_KEY or not hmac.compare_digest(provided_key, AUDIO_ALERT_API_KEY):
         return jsonify({"error": "No autorizado"}), 401
     data = request.get_json(silent=True) or {}
+    # [FASE 6] uid del token Firebase (identificador principal)
+    uid = getattr(g, 'firebase_uid', '')
+    # device_id ahora es opcional (para trazabilidad)
     device_id = data.get("device_id", "").strip()
     nombre = data.get("nombre", "").strip()
     telefono = data.get("telefono", "").strip()
     principal = 1 if data.get("principal") else 0
-    if not device_id or not nombre or not telefono:
-        return jsonify({"error": "device_id, nombre y telefono requeridos"}), 400
-    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
-        return jsonify({"error": "device_id invalido"}), 400
+    if not uid or not nombre or not telefono:
+        return jsonify({"error": "uid, nombre y telefono requeridos"}), 400
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', uid):
+        return jsonify({"error": "uid invalido"}), 400
     db = get_tel_db()
     now = datetime.utcnow().isoformat()
-    existing = db.execute("SELECT id FROM usuarios_emerg WHERE device_id = ? AND telefono = ?", (device_id, telefono)).fetchone()
+    # [FASE 6] Buscar por uid (nuevo) o device_id (legacy)
+    existing = db.execute(
+        "SELECT id FROM usuarios_emerg WHERE (uid = ? OR device_id = ?) AND telefono = ?",
+        (uid, device_id, telefono)
+    ).fetchone()
     if existing:
-        db.execute("UPDATE usuarios_emerg SET nombre=?, borrado=0, principal=?, updated_at=? WHERE device_id=? AND telefono=?", (nombre, principal, now, device_id, telefono))
+        db.execute(
+            "UPDATE usuarios_emerg SET uid=?, nombre=?, borrado=0, principal=?, updated_at=? WHERE id=?",
+            (uid, nombre, principal, now, existing['id'])
+        )
     else:
-        db.execute("INSERT INTO usuarios_emerg (device_id, nombre, telefono, borrado, principal, created_at, updated_at) VALUES (?,?,?,0,?,?,?)", (device_id, nombre, telefono, principal, now, now))
-    _crear_periodo_prueba_si_no_existe(db, device_id)
+        db.execute(
+            "INSERT INTO usuarios_emerg (uid, device_id, nombre, telefono, borrado, principal, created_at, updated_at) VALUES (?,?,?,?,0,?,?,?)",
+            (uid, device_id, nombre, telefono, principal, now, now)
+        )
+    _crear_periodo_prueba_si_no_existe(db, uid)
     db.commit()
-    logger.info("[SafeAlert-TEL] Contacto sync: device=%s tel=%s", device_id, telefono[-4:])
+    logger.info("[SafeAlert-TEL] Contacto sync: uid=%s tel=%s", uid, telefono[-4:])
     return jsonify({"success": True}), 200
 
 @flask_app.route("/api/tel/contacto/borrar", methods=["PUT"])
+@require_firebase_auth
 def tel_borrar_contacto():
+    """[FASE 6] Endpoint ahora requiere Firebase Auth. Usa uid como identificador."""
     provided_key = request.headers.get("X-API-Key", "")
     if not AUDIO_ALERT_API_KEY or not hmac.compare_digest(provided_key, AUDIO_ALERT_API_KEY):
         return jsonify({"error": "No autorizado"}), 401
     data = request.get_json(silent=True) or {}
+    uid = getattr(g, 'firebase_uid', '')
     device_id = data.get("device_id", "").strip()
     telefono = data.get("telefono", "").strip()
-    if not device_id or not telefono:
-        return jsonify({"error": "device_id y telefono requeridos"}), 400
+    if not uid or not telefono:
+        return jsonify({"error": "uid y telefono requeridos"}), 400
     db = get_tel_db()
     now = datetime.utcnow().isoformat()
-    db.execute("UPDATE usuarios_emerg SET borrado=1, updated_at=? WHERE device_id=? AND telefono=?", (now, device_id, telefono))
+    # [FASE 6] Buscar por uid (nuevo) o device_id (legacy)
+    db.execute(
+        "UPDATE usuarios_emerg SET borrado=1, updated_at=? WHERE (uid = ? OR device_id = ?) AND telefono=?",
+        (now, uid, device_id, telefono)
+    )
     db.commit()
-    logger.info("[SafeAlert-TEL] Contacto borrado: device=%s tel=%s", device_id, telefono[-4:])
+    logger.info("[SafeAlert-TEL] Contacto borrado: uid=%s tel=%s", uid, telefono[-4:])
     return jsonify({"success": True}), 200
 
-@flask_app.route("/api/tel/prueba/<device_id>", methods=["GET"])
-def tel_estado_prueba(device_id: str):
+@flask_app.route("/api/tel/prueba/<identifier>", methods=["GET"])
+@require_firebase_auth
+def tel_estado_prueba(identifier: str):
+    """[FASE 6] Endpoint ahora acepta uid o device_id. Requiere Firebase Auth."""
     provided_key = request.headers.get("X-API-Key", "")
     if not AUDIO_ALERT_API_KEY or not hmac.compare_digest(provided_key, AUDIO_ALERT_API_KEY):
         return jsonify({"error": "No autorizado"}), 401
-    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', device_id):
-        return jsonify({"error": "device_id invalido"}), 400
+    if not re.match(r'^[a-zA-Z0-9\-_]{1,80}$', identifier):
+        return jsonify({"error": "identificador invalido"}), 400
     db = get_tel_db()
-    row = db.execute("SELECT * FROM periodo_prueba WHERE device_id = ?", (device_id,)).fetchone()
+    # [FASE 6] Buscar por uid (nuevo) o device_id (legacy)
+    row = db.execute(
+        "SELECT * FROM periodo_prueba WHERE uid = ? OR device_id = ?",
+        (identifier, identifier)
+    ).fetchone()
     if not row:
-        return jsonify({"device_id": device_id, "activo": False, "expirado": False, "pago": False, "fecha_primer_contacto": None, "fecha_expiracion": None})
+        return jsonify({"identifier": identifier, "activo": False, "expirado": False, "pago": False, "fecha_primer_contacto": None, "fecha_expiracion": None})
     pago = bool(row["pago"])
     fecha_exp = row["fecha_expiracion"]
     expirado = False
@@ -938,7 +991,7 @@ def tel_estado_prueba(device_id: str):
             expirado = datetime.utcnow() > datetime.fromisoformat(fecha_exp)
         except Exception:
             pass
-    return jsonify({"device_id": device_id, "activo": True, "expirado": expirado, "pago": pago, "fecha_primer_contacto": row["fecha_primer_contacto"], "fecha_expiracion": fecha_exp})
+    return jsonify({"identifier": identifier, "activo": True, "expirado": expirado, "pago": pago, "fecha_primer_contacto": row["fecha_primer_contacto"], "fecha_expiracion": fecha_exp})
 
 # ---------------------------------------------------------------------------
 # NUEVOS ENDPOINTS — API v1 (Prompt Maestro sección 11)
