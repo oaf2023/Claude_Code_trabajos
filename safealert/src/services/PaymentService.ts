@@ -4,9 +4,12 @@
 *                   para registro de dispositivos y consulta/confirmación de
 *                   suscripciones SafeAlert. Incluye envío de MAC address
 *                   y device_unique_id para trazabilidad del dispositivo.
+*                   [FASE 3] createTicket y confirmPayment ahora usan Cloud
+*                   Functions proxy (paProxyCreateTicket, paProxyConfirmPayment)
+*                   para proteger PA_INTERNAL_KEY.
 * Autor           : oafon
-* Fecha           : 2026-04-07
-* Versión         : 1.1.0
+* Fecha           : 2026-04-07 · 2026-09-06 (Fase 3)
+* Versión         : 1.2.0
 * Lenguaje        : TypeScript 5.9
 * Uso             : import { PaymentService } from '../services/PaymentService';
 *                   await PaymentService.checkSubscription(deviceId);
@@ -16,6 +19,7 @@ import { PA_API_URL } from '../config/features';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { DeviceService } from './DeviceService';
 import type { TicketData } from '../components/PaymentTicket';
+import { functions } from '../config/firebase';
 
 export type SubscriptionStatus =
   | 'active'
@@ -119,12 +123,13 @@ async function checkSubscription(deviceId: string): Promise<UserStatusResponse> 
 
 /* ============================================================================
 * Función         : confirmPayment
-* Descripción     : Notifica al backend que el usuario completó el pago manualmente
-*                   (flujo "Ya completé el pago"). Pone estado pending_verification.
-* Fecha           : 2026-04-01
-* Versión         : 1.0.0
+* Descripción     : [FASE 3] Notifica al backend que el usuario completó el pago
+*                   mediante Cloud Function proxy (paProxyConfirmPayment).
+*                   La clave interna se inyecta server-side.
+* Fecha           : 2026-04-01 · 2026-09-06 (Fase 3)
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
-* Conexiones      : PA_API_URL /api/payments/confirm, useSettingsStore
+* Conexiones      : paProxyConfirmPayment (Cloud Function)
 * Ingesta         : deviceId: string, planType: PlanType, mpReference?: string
 * Devolución      : Promise<boolean>
 * Uso             : await PaymentService.confirmPayment(id, 'monthly')
@@ -135,17 +140,15 @@ async function confirmPayment(
   mpReference?: string
 ): Promise<boolean> {
   try {
-    const response = await fetch(`${PA_API_URL}/api/payments/confirm`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        device_id: deviceId,
-        plan_type: planType,
-        mp_reference: mpReference ?? '',
-      }),
+    const confirmPaymentFn = functions().httpsCallable('paProxyConfirmPayment');
+    const response = await confirmPaymentFn({
+      deviceId,
+      planType,
+      mpReference: mpReference ?? '',
     });
-    const json = await response.json();
-    return json.success === true;
+
+    const data = response.data as { success: boolean };
+    return data.success === true;
   } catch (error) {
     console.error('[PaymentService] confirmPayment error:', error);
     return false;
@@ -154,13 +157,13 @@ async function confirmPayment(
 
 /* ============================================================================
 * Función         : createTicket
-* Descripción     : Solicita al backend de PythonAnywhere la creación de un
-*                   ticket de pago correlativo. Retorna los datos del comprobante
-*                   para mostrarlo en PaymentTicket.
-* Fecha           : 2026-04-07
-* Versión         : 1.0.0
+* Descripción     : [FASE 3] Solicita la creación de un ticket de pago mediante
+*                   Cloud Function proxy (paProxyCreateTicket). La clave interna
+*                   se inyecta server-side, nunca se expone en la APK.
+* Fecha           : 2026-04-07 · 2026-09-06 (Fase 3)
+* Versión         : 1.1.0
 * Lenguaje        : TypeScript 5.9
-* Conexiones      : PA_API_URL /api/tickets/create
+* Conexiones      : paProxyCreateTicket (Cloud Function)
 * Ingesta         : deviceId: string, userName: string, planType: PlanType, amount: number
 * Devolución      : Promise<TicketData>
 * Uso             : await PaymentService.createTicket(id, name, 'monthly', 7500)
@@ -171,23 +174,20 @@ async function createTicket(
   planType: PlanType,
   amount: number
 ): Promise<TicketData> {
-  const response = await fetch(`${PA_API_URL}/api/tickets/create`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Internal-Key': process.env.EXPO_PUBLIC_PA_INTERNAL_KEY || '',
-    },
-    body: JSON.stringify({ device_id: deviceId, user_name: userName, plan_type: planType, amount }),
+  const createTicketFn = functions().httpsCallable('paProxyCreateTicket');
+  const response = await createTicketFn({
+    deviceId,
+    userName,
+    planType,
+    amount,
   });
 
-  if (!response.ok) {
-    throw new Error(`[PaymentService] createTicket HTTP ${response.status}`);
+  const data = response.data as { success: boolean; ticket?: TicketData };
+  if (!data.success || !data.ticket) {
+    throw new Error('[PaymentService] createTicket: respuesta inválida del proxy');
   }
 
-  const data = await response.json();
-  // El backend responde { success, ticket: {...} }; el cliente espera TicketData
-  // directamente. Normalizar para cubrir ambos formatos.
-  return (data.ticket ?? data) as TicketData;
+  return data.ticket;
 }
 
 export const PaymentService = { registerDevice, checkSubscription, confirmPayment, createTicket };

@@ -8,3 +8,4 @@ export { cleanupOldAlerts } from './cleanupOldAlerts';
 export { createPaymentOrder } from './createPaymentOrder';
 export { mpWebhook } from './mpWebhook';
 export { syncUserToPythonAnywhere } from './users';
+export { paProxyCreateTicket, paProxyConfirmPayment } from './paProxy';
