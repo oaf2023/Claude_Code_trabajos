@@ -1,0 +1,2052 @@
+{
+ "estadisticas": {
+  "ruta_proyecto": "C:\\Claude_Code_trabajos\\safealert",
+  "total_archivos_inventariados": 249,
+  "total_bytes": 4005604,
+  "archivos_codigo": 143,
+  "por_extension": {
+   ".ts": 61,
+   ".tsx": 45,
+   ".md": 22,
+   ".json": 21,
+   ".mjs": 17,
+   ".js": 16,
+   ".png": 14,
+   ".xml": 9,
+   ".ps1": 9,
+   "": 8,
+   ".ppn": 4,
+   ".py": 4,
+   ".example": 3,
+   ".rules": 2,
+   ".html": 2,
+   ".svg": 2,
+   ".sql": 2,
+   ".log": 1,
+   ".yml": 1,
+   ".docx": 1,
+   ".css": 1,
+   ".bak": 1,
+   ".onnx": 1,
+   ".txt": 1,
+   ".yaml": 1
+  },
+  "por_categoria": {
+   "Codigo fuente (JS/TS)": 139,
+   "Configuracion": 32,
+   "Documentacion": 26,
+   "Recursos/Medios/Artefacto": 17,
+   "Otro": 16,
+   "Script automatizacion": 8,
+   "Configuracion (sensible)": 4,
+   "Codigo fuente (Python)": 4,
+   "Base de datos / Migracion": 2,
+   "Estilos (CSS)": 1
+  },
+  "directorios_excluidos_conteo": {
+   ".expo": 1,
+   ".git_bak": 39,
+   "android": 3919,
+   "bugreport-Pixel_8-2026-03-24-17-03-40-5574720f-3c13-4f65-aa67-6b993b136909": 3,
+   "coverage": 19,
+   "dist": 32,
+   "dist-android-check": 33,
+   "node_modules": 108777,
+   "temp_voice_resources": 667
+  }
+ },
+ "archivos": [
+  {
+   "ruta": ".env",
+   "directorio": "",
+   "archivo": ".env",
+   "extension": "",
+   "tamano_bytes": 1335,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": ".env.example",
+   "directorio": "",
+   "archivo": ".env.example",
+   "extension": ".example",
+   "tamano_bytes": 1024,
+   "categoria": "Configuracion (sensible)"
+  },
+  {
+   "ruta": ".firebaserc",
+   "directorio": "",
+   "archivo": ".firebaserc",
+   "extension": "",
+   "tamano_bytes": 57,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": ".gitignore",
+   "directorio": "",
+   "archivo": ".gitignore",
+   "extension": "",
+   "tamano_bytes": 795,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "06_Politica_De_Privacidad_Base.md",
+   "directorio": "",
+   "archivo": "06_Politica_De_Privacidad_Base.md",
+   "extension": ".md",
+   "tamano_bytes": 3138,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Apiparausar.md",
+   "directorio": "",
+   "archivo": "Apiparausar.md",
+   "extension": ".md",
+   "tamano_bytes": 9150,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "app.json",
+   "directorio": "",
+   "archivo": "app.json",
+   "extension": ".json",
+   "tamano_bytes": 5073,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "App.tsx",
+   "directorio": "",
+   "archivo": "App.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 455,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "ARQUITECTURA.md",
+   "directorio": "",
+   "archivo": "ARQUITECTURA.md",
+   "extension": ".md",
+   "tamano_bytes": 16329,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "babel.config.js",
+   "directorio": "",
+   "archivo": "babel.config.js",
+   "extension": ".js",
+   "tamano_bytes": 695,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "Contexto.md",
+   "directorio": "",
+   "archivo": "Contexto.md",
+   "extension": ".md",
+   "tamano_bytes": 2568,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "DEPLOY.md",
+   "directorio": "",
+   "archivo": "DEPLOY.md",
+   "extension": ".md",
+   "tamano_bytes": 2345,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "diag.mjs",
+   "directorio": "",
+   "archivo": "diag.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 969,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag10.mjs",
+   "directorio": "",
+   "archivo": "diag10.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 551,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag11.mjs",
+   "directorio": "",
+   "archivo": "diag11.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 654,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag12.mjs",
+   "directorio": "",
+   "archivo": "diag12.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 758,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag13.mjs",
+   "directorio": "",
+   "archivo": "diag13.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 708,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag14.mjs",
+   "directorio": "",
+   "archivo": "diag14.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 698,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag15.mjs",
+   "directorio": "",
+   "archivo": "diag15.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 536,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag16.mjs",
+   "directorio": "",
+   "archivo": "diag16.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 502,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag17.mjs",
+   "directorio": "",
+   "archivo": "diag17.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 485,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag2.mjs",
+   "directorio": "",
+   "archivo": "diag2.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 1511,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag3.mjs",
+   "directorio": "",
+   "archivo": "diag3.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 1209,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag4.mjs",
+   "directorio": "",
+   "archivo": "diag4.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 1282,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag5.mjs",
+   "directorio": "",
+   "archivo": "diag5.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 909,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag6.mjs",
+   "directorio": "",
+   "archivo": "diag6.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 555,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag7.mjs",
+   "directorio": "",
+   "archivo": "diag7.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 494,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag8.mjs",
+   "directorio": "",
+   "archivo": "diag8.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 943,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "diag9.mjs",
+   "directorio": "",
+   "archivo": "diag9.mjs",
+   "extension": ".mjs",
+   "tamano_bytes": 596,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "eas.json",
+   "directorio": "",
+   "archivo": "eas.json",
+   "extension": ".json",
+   "tamano_bytes": 629,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "firebase.json",
+   "directorio": "",
+   "archivo": "firebase.json",
+   "extension": ".json",
+   "tamano_bytes": 661,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "firestore.indexes.json",
+   "directorio": "",
+   "archivo": "firestore.indexes.json",
+   "extension": ".json",
+   "tamano_bytes": 44,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "firestore.rules",
+   "directorio": "",
+   "archivo": "firestore.rules",
+   "extension": ".rules",
+   "tamano_bytes": 397,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "fix-pwa-build.js",
+   "directorio": "",
+   "archivo": "fix-pwa-build.js",
+   "extension": ".js",
+   "tamano_bytes": 3168,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "google-services.json",
+   "directorio": "",
+   "archivo": "google-services.json",
+   "extension": ".json",
+   "tamano_bytes": 677,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "index.ts",
+   "directorio": "",
+   "archivo": "index.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1665,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "informe_tecnico.html",
+   "directorio": "",
+   "archivo": "informe_tecnico.html",
+   "extension": ".html",
+   "tamano_bytes": 54708,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "jest.config.js",
+   "directorio": "",
+   "archivo": "jest.config.js",
+   "extension": ".js",
+   "tamano_bytes": 1199,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "jest.setup.js",
+   "directorio": "",
+   "archivo": "jest.setup.js",
+   "extension": ".js",
+   "tamano_bytes": 2298,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "metro.config.js",
+   "directorio": "",
+   "archivo": "metro.config.js",
+   "extension": ".js",
+   "tamano_bytes": 4749,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "package-lock.json",
+   "directorio": "",
+   "archivo": "package-lock.json",
+   "extension": ".json",
+   "tamano_bytes": 498728,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "package.json",
+   "directorio": "",
+   "archivo": "package.json",
+   "extension": ".json",
+   "tamano_bytes": 2679,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "Prompts_de_errores.md",
+   "directorio": "",
+   "archivo": "Prompts_de_errores.md",
+   "extension": ".md",
+   "tamano_bytes": 4716,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Prompt_pasarela.md",
+   "directorio": "",
+   "archivo": "Prompt_pasarela.md",
+   "extension": ".md",
+   "tamano_bytes": 3840,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "safealert_contacts_ui.xml",
+   "directorio": "",
+   "archivo": "safealert_contacts_ui.xml",
+   "extension": ".xml",
+   "tamano_bytes": 10018,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui.xml",
+   "directorio": "",
+   "archivo": "safealert_ui.xml",
+   "extension": ".xml",
+   "tamano_bytes": 9396,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui2.xml",
+   "directorio": "",
+   "archivo": "safealert_ui2.xml",
+   "extension": ".xml",
+   "tamano_bytes": 8874,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui3.xml",
+   "directorio": "",
+   "archivo": "safealert_ui3.xml",
+   "extension": ".xml",
+   "tamano_bytes": 8874,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui_check.xml",
+   "directorio": "",
+   "archivo": "safealert_ui_check.xml",
+   "extension": ".xml",
+   "tamano_bytes": 23426,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui_now.xml",
+   "directorio": "",
+   "archivo": "safealert_ui_now.xml",
+   "extension": ".xml",
+   "tamano_bytes": 4463,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui_ok.xml",
+   "directorio": "",
+   "archivo": "safealert_ui_ok.xml",
+   "extension": ".xml",
+   "tamano_bytes": 5079,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui_postfix.xml",
+   "directorio": "",
+   "archivo": "safealert_ui_postfix.xml",
+   "extension": ".xml",
+   "tamano_bytes": 4469,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "safealert_ui_retry.xml",
+   "directorio": "",
+   "archivo": "safealert_ui_retry.xml",
+   "extension": ".xml",
+   "tamano_bytes": 4469,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "screenshot.png",
+   "directorio": "",
+   "archivo": "screenshot.png",
+   "extension": ".png",
+   "tamano_bytes": 4254,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "screenshot2.png",
+   "directorio": "",
+   "archivo": "screenshot2.png",
+   "extension": ".png",
+   "tamano_bytes": 4300,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "screenshot3.png",
+   "directorio": "",
+   "archivo": "screenshot3.png",
+   "extension": ".png",
+   "tamano_bytes": 4254,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "server.log",
+   "directorio": "",
+   "archivo": "server.log",
+   "extension": ".log",
+   "tamano_bytes": 1144,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "SETUP.md",
+   "directorio": "",
+   "archivo": "SETUP.md",
+   "extension": ".md",
+   "tamano_bytes": 4252,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "storage.rules",
+   "directorio": "",
+   "archivo": "storage.rules",
+   "extension": ".rules",
+   "tamano_bytes": 385,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "tsconfig.json",
+   "directorio": "",
+   "archivo": "tsconfig.json",
+   "extension": ".json",
+   "tamano_bytes": 410,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "TUTORIAL-DISTRIBUCION-AYUDAME.md",
+   "directorio": "",
+   "archivo": "TUTORIAL-DISTRIBUCION-AYUDAME.md",
+   "extension": ".md",
+   "tamano_bytes": 10153,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": ".github/workflows/ci.yml",
+   "directorio": ".github/workflows",
+   "archivo": "ci.yml",
+   "extension": ".yml",
+   "tamano_bytes": 2033,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/.env",
+   "directorio": "admin",
+   "archivo": ".env",
+   "extension": "",
+   "tamano_bytes": 693,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "admin/.gitignore",
+   "directorio": "admin",
+   "archivo": ".gitignore",
+   "extension": "",
+   "tamano_bytes": 332,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "admin/.oxlintrc.json",
+   "directorio": "admin",
+   "archivo": ".oxlintrc.json",
+   "extension": ".json",
+   "tamano_bytes": 245,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/index.html",
+   "directorio": "admin",
+   "archivo": "index.html",
+   "extension": ".html",
+   "tamano_bytes": 396,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "admin/package-lock.json",
+   "directorio": "admin",
+   "archivo": "package-lock.json",
+   "extension": ".json",
+   "tamano_bytes": 61557,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/package.json",
+   "directorio": "admin",
+   "archivo": "package.json",
+   "extension": ".json",
+   "tamano_bytes": 587,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/pago.docx",
+   "directorio": "admin",
+   "archivo": "pago.docx",
+   "extension": ".docx",
+   "tamano_bytes": 40241,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "admin/README.md",
+   "directorio": "admin",
+   "archivo": "README.md",
+   "extension": ".md",
+   "tamano_bytes": 1278,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "admin/tsconfig.app.json",
+   "directorio": "admin",
+   "archivo": "tsconfig.app.json",
+   "extension": ".json",
+   "tamano_bytes": 655,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/tsconfig.json",
+   "directorio": "admin",
+   "archivo": "tsconfig.json",
+   "extension": ".json",
+   "tamano_bytes": 119,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/tsconfig.node.json",
+   "directorio": "admin",
+   "archivo": "tsconfig.node.json",
+   "extension": ".json",
+   "tamano_bytes": 558,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "admin/vite.config.ts",
+   "directorio": "admin",
+   "archivo": "vite.config.ts",
+   "extension": ".ts",
+   "tamano_bytes": 161,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/public/favicon.svg",
+   "directorio": "admin/public",
+   "archivo": "favicon.svg",
+   "extension": ".svg",
+   "tamano_bytes": 9522,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "admin/public/icons.svg",
+   "directorio": "admin/public",
+   "archivo": "icons.svg",
+   "extension": ".svg",
+   "tamano_bytes": 5031,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "admin/src/App.tsx",
+   "directorio": "admin/src",
+   "archivo": "App.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 1846,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/index.css",
+   "directorio": "admin/src",
+   "archivo": "index.css",
+   "extension": ".css",
+   "tamano_bytes": 13195,
+   "categoria": "Estilos (CSS)"
+  },
+  {
+   "ruta": "admin/src/main.tsx",
+   "directorio": "admin/src",
+   "archivo": "main.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 777,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/components/Alerta.tsx",
+   "directorio": "admin/src/components",
+   "archivo": "Alerta.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 927,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/components/Badges.tsx",
+   "directorio": "admin/src/components",
+   "archivo": "Badges.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 2028,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/components/KpiCard.tsx",
+   "directorio": "admin/src/components",
+   "archivo": "KpiCard.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 1139,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/components/Layout.tsx",
+   "directorio": "admin/src/components",
+   "archivo": "Layout.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 3532,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/Admin.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "Admin.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 7267,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/Dashboard.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "Dashboard.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 9219,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/Login.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "Login.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 3171,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/PagoSimulado.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "PagoSimulado.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 10181,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/UsuarioDetalle.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "UsuarioDetalle.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 8939,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "admin/src/pages/Usuarios.tsx",
+   "directorio": "admin/src/pages",
+   "archivo": "Usuarios.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 5357,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/+html.tsx",
+   "directorio": "app",
+   "archivo": "+html.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 2702,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/bienvenida.tsx",
+   "directorio": "app",
+   "archivo": "bienvenida.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 15150,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/como-funciona.tsx",
+   "directorio": "app",
+   "archivo": "como-funciona.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 10827,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/permissions.tsx",
+   "directorio": "app",
+   "archivo": "permissions.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 10430,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/test-alert.tsx",
+   "directorio": "app",
+   "archivo": "test-alert.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 7077,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/_layout.tsx",
+   "directorio": "app",
+   "archivo": "_layout.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 14895,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/_layout.tsx.bak",
+   "directorio": "app",
+   "archivo": "_layout.tsx.bak",
+   "extension": ".bak",
+   "tamano_bytes": 7687,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "app/(tabs)/contacts.tsx",
+   "directorio": "app/(tabs)",
+   "archivo": "contacts.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 9773,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/(tabs)/history.tsx",
+   "directorio": "app/(tabs)",
+   "archivo": "history.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 7630,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/(tabs)/index.tsx",
+   "directorio": "app/(tabs)",
+   "archivo": "index.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 20995,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/(tabs)/settings.tsx",
+   "directorio": "app/(tabs)",
+   "archivo": "settings.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 19483,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/(tabs)/_layout.tsx",
+   "directorio": "app/(tabs)",
+   "archivo": "_layout.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 2900,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/contacts/[id].tsx",
+   "directorio": "app/contacts",
+   "archivo": "[id].tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 13125,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "app/ubicacion/manual.tsx",
+   "directorio": "app/ubicacion",
+   "archivo": "manual.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 6102,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "assets/adaptive-icon.png",
+   "directorio": "assets",
+   "archivo": "adaptive-icon.png",
+   "extension": ".png",
+   "tamano_bytes": 393493,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/android-icon-background.png",
+   "directorio": "assets",
+   "archivo": "android-icon-background.png",
+   "extension": ".png",
+   "tamano_bytes": 17549,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/android-icon-foreground.png",
+   "directorio": "assets",
+   "archivo": "android-icon-foreground.png",
+   "extension": ".png",
+   "tamano_bytes": 78796,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/android-icon-monochrome.png",
+   "directorio": "assets",
+   "archivo": "android-icon-monochrome.png",
+   "extension": ".png",
+   "tamano_bytes": 4140,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/favicon.png",
+   "directorio": "assets",
+   "archivo": "favicon.png",
+   "extension": ".png",
+   "tamano_bytes": 1129,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/icon.png",
+   "directorio": "assets",
+   "archivo": "icon.png",
+   "extension": ".png",
+   "tamano_bytes": 393493,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/notification-icon.png",
+   "directorio": "assets",
+   "archivo": "notification-icon.png",
+   "extension": ".png",
+   "tamano_bytes": 393493,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/splash-icon.png",
+   "directorio": "assets",
+   "archivo": "splash-icon.png",
+   "extension": ".png",
+   "tamano_bytes": 17547,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "assets/keywords/ayuda_android.ppn",
+   "directorio": "assets/keywords",
+   "archivo": "ayuda_android.ppn",
+   "extension": ".ppn",
+   "tamano_bytes": 1,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "assets/keywords/ayuda_ios.ppn",
+   "directorio": "assets/keywords",
+   "archivo": "ayuda_ios.ppn",
+   "extension": ".ppn",
+   "tamano_bytes": 1,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "assets/keywords/socorro_android.ppn",
+   "directorio": "assets/keywords",
+   "archivo": "socorro_android.ppn",
+   "extension": ".ppn",
+   "tamano_bytes": 1,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "assets/keywords/socorro_ios.ppn",
+   "directorio": "assets/keywords",
+   "archivo": "socorro_ios.ppn",
+   "extension": ".ppn",
+   "tamano_bytes": 1,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "assets/models/wakeword_es.onnx",
+   "directorio": "assets/models",
+   "archivo": "wakeword_es.onnx",
+   "extension": ".onnx",
+   "tamano_bytes": 710136,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "backend/.env",
+   "directorio": "backend",
+   "archivo": ".env",
+   "extension": "",
+   "tamano_bytes": 1250,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "backend/.env.example",
+   "directorio": "backend",
+   "archivo": ".env.example",
+   "extension": ".example",
+   "tamano_bytes": 1131,
+   "categoria": "Configuracion (sensible)"
+  },
+  {
+   "ruta": "backend/flask_app.py",
+   "directorio": "backend",
+   "archivo": "flask_app.py",
+   "extension": ".py",
+   "tamano_bytes": 71890,
+   "categoria": "Codigo fuente (Python)"
+  },
+  {
+   "ruta": "backend/requirements.txt",
+   "directorio": "backend",
+   "archivo": "requirements.txt",
+   "extension": ".txt",
+   "tamano_bytes": 86,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "backend/test_admin_endpoints.py",
+   "directorio": "backend",
+   "archivo": "test_admin_endpoints.py",
+   "extension": ".py",
+   "tamano_bytes": 18427,
+   "categoria": "Codigo fuente (Python)"
+  },
+  {
+   "ruta": "backend/wsgi.py",
+   "directorio": "backend",
+   "archivo": "wsgi.py",
+   "extension": ".py",
+   "tamano_bytes": 2625,
+   "categoria": "Codigo fuente (Python)"
+  },
+  {
+   "ruta": "backend/docs/API.md",
+   "directorio": "backend/docs",
+   "archivo": "API.md",
+   "extension": ".md",
+   "tamano_bytes": 7851,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "backend/sql/001_ubicaciones_consentimientos_accesos.sql",
+   "directorio": "backend/sql",
+   "archivo": "001_ubicaciones_consentimientos_accesos.sql",
+   "extension": ".sql",
+   "tamano_bytes": 6446,
+   "categoria": "Base de datos / Migracion"
+  },
+  {
+   "ruta": "backend/sql/002_retencion_purga.sql",
+   "directorio": "backend/sql",
+   "archivo": "002_retencion_purga.sql",
+   "extension": ".sql",
+   "tamano_bytes": 2238,
+   "categoria": "Base de datos / Migracion"
+  },
+  {
+   "ruta": "cloud-run/cloudbuild.yaml",
+   "directorio": "cloud-run",
+   "archivo": "cloudbuild.yaml",
+   "extension": ".yaml",
+   "tamano_bytes": 1253,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "cloud-run/Dockerfile",
+   "directorio": "cloud-run",
+   "archivo": "Dockerfile",
+   "extension": "",
+   "tamano_bytes": 275,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "docs/runbooks.md",
+   "directorio": "docs",
+   "archivo": "runbooks.md",
+   "extension": ".md",
+   "tamano_bytes": 1790,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "docs/runbooks/README.md",
+   "directorio": "docs/runbooks",
+   "archivo": "README.md",
+   "extension": ".md",
+   "tamano_bytes": 5060,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "functions/.env",
+   "directorio": "functions",
+   "archivo": ".env",
+   "extension": "",
+   "tamano_bytes": 482,
+   "categoria": "Otro"
+  },
+  {
+   "ruta": "functions/.env.example",
+   "directorio": "functions",
+   "archivo": ".env.example",
+   "extension": ".example",
+   "tamano_bytes": 713,
+   "categoria": "Configuracion (sensible)"
+  },
+  {
+   "ruta": "functions/package-lock.json",
+   "directorio": "functions",
+   "archivo": "package-lock.json",
+   "extension": ".json",
+   "tamano_bytes": 111748,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "functions/package.json",
+   "directorio": "functions",
+   "archivo": "package.json",
+   "extension": ".json",
+   "tamano_bytes": 685,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "functions/tsconfig.json",
+   "directorio": "functions",
+   "archivo": "tsconfig.json",
+   "extension": ".json",
+   "tamano_bytes": 351,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "functions/src/cleanupOldAlerts.ts",
+   "directorio": "functions/src",
+   "archivo": "cleanupOldAlerts.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2003,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "functions/src/createPaymentOrder.ts",
+   "directorio": "functions/src",
+   "archivo": "createPaymentOrder.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7474,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "functions/src/index.ts",
+   "directorio": "functions/src",
+   "archivo": "index.ts",
+   "extension": ".ts",
+   "tamano_bytes": 403,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "functions/src/mpWebhook.ts",
+   "directorio": "functions/src",
+   "archivo": "mpWebhook.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3238,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "functions/src/sendAlertSMS.ts",
+   "directorio": "functions/src",
+   "archivo": "sendAlertSMS.ts",
+   "extension": ".ts",
+   "tamano_bytes": 12403,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "functions/src/users.ts",
+   "directorio": "functions/src",
+   "archivo": "users.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3128,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app.json",
+   "directorio": "iphone",
+   "archivo": "app.json",
+   "extension": ".json",
+   "tamano_bytes": 2094,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "iphone/babel.config.js",
+   "directorio": "iphone",
+   "archivo": "babel.config.js",
+   "extension": ".js",
+   "tamano_bytes": 652,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/index.ts",
+   "directorio": "iphone",
+   "archivo": "index.ts",
+   "extension": ".ts",
+   "tamano_bytes": 494,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/metro.config.js",
+   "directorio": "iphone",
+   "archivo": "metro.config.js",
+   "extension": ".js",
+   "tamano_bytes": 1484,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/package.json",
+   "directorio": "iphone",
+   "archivo": "package.json",
+   "extension": ".json",
+   "tamano_bytes": 620,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "iphone/README.md",
+   "directorio": "iphone",
+   "archivo": "README.md",
+   "extension": ".md",
+   "tamano_bytes": 538,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "iphone/tsconfig.json",
+   "directorio": "iphone",
+   "archivo": "tsconfig.json",
+   "extension": ".json",
+   "tamano_bytes": 515,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "iphone/app/bienvenida.tsx",
+   "directorio": "iphone/app",
+   "archivo": "bienvenida.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 511,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/como-funciona.tsx",
+   "directorio": "iphone/app",
+   "archivo": "como-funciona.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 527,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/permissions.tsx",
+   "directorio": "iphone/app",
+   "archivo": "permissions.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 523,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/test-alert.tsx",
+   "directorio": "iphone/app",
+   "archivo": "test-alert.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 528,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/_layout.tsx",
+   "directorio": "iphone/app",
+   "archivo": "_layout.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 512,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/(tabs)/contacts.tsx",
+   "directorio": "iphone/app/(tabs)",
+   "archivo": "contacts.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 528,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/(tabs)/index.tsx",
+   "directorio": "iphone/app/(tabs)",
+   "archivo": "index.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 516,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/(tabs)/settings.tsx",
+   "directorio": "iphone/app/(tabs)",
+   "archivo": "settings.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 536,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/(tabs)/_layout.tsx",
+   "directorio": "iphone/app/(tabs)",
+   "archivo": "_layout.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 515,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "iphone/app/contacts/[id].tsx",
+   "directorio": "iphone/app/contacts",
+   "archivo": "[id].tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 527,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "plugins/withDaVoiceMaven.js",
+   "directorio": "plugins",
+   "archivo": "withDaVoiceMaven.js",
+   "extension": ".js",
+   "tamano_bytes": 856,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "plugins/withManifestConflictFix.js",
+   "directorio": "plugins",
+   "archivo": "withManifestConflictFix.js",
+   "extension": ".js",
+   "tamano_bytes": 742,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "Pruebas/check_ios.py",
+   "directorio": "Pruebas",
+   "archivo": "check_ios.py",
+   "extension": ".py",
+   "tamano_bytes": 2648,
+   "categoria": "Codigo fuente (Python)"
+  },
+  {
+   "ruta": "public/manifest.json",
+   "directorio": "public",
+   "archivo": "manifest.json",
+   "extension": ".json",
+   "tamano_bytes": 1263,
+   "categoria": "Configuracion"
+  },
+  {
+   "ruta": "public/sw.js",
+   "directorio": "public",
+   "archivo": "sw.js",
+   "extension": ".js",
+   "tamano_bytes": 3110,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "public/icons/apple-touch-icon.png",
+   "directorio": "public/icons",
+   "archivo": "apple-touch-icon.png",
+   "extension": ".png",
+   "tamano_bytes": 30968,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "public/icons/icon-192.png",
+   "directorio": "public/icons",
+   "archivo": "icon-192.png",
+   "extension": ".png",
+   "tamano_bytes": 35135,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "public/icons/icon-512.png",
+   "directorio": "public/icons",
+   "archivo": "icon-512.png",
+   "extension": ".png",
+   "tamano_bytes": 193794,
+   "categoria": "Recursos/Medios/Artefacto"
+  },
+  {
+   "ruta": "Publicar/README.md",
+   "directorio": "Publicar",
+   "archivo": "README.md",
+   "extension": ".md",
+   "tamano_bytes": 2155,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/config/release.env.example.ps1",
+   "directorio": "Publicar/config",
+   "archivo": "release.env.example.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 758,
+   "categoria": "Configuracion (sensible)"
+  },
+  {
+   "ruta": "Publicar/config/release.env.ps1",
+   "directorio": "Publicar/config",
+   "archivo": "release.env.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 770,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "Publicar/play-console/01_Checklist.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "01_Checklist.md",
+   "extension": ".md",
+   "tamano_bytes": 1162,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/02_Tutorial_Paso_A_Paso.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "02_Tutorial_Paso_A_Paso.md",
+   "extension": ".md",
+   "tamano_bytes": 2077,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/03_Datos_De_La_App.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "03_Datos_De_La_App.md",
+   "extension": ".md",
+   "tamano_bytes": 1052,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/04_Data_Safety_Base.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "04_Data_Safety_Base.md",
+   "extension": ".md",
+   "tamano_bytes": 1283,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/05_Notas_De_Release.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "05_Notas_De_Release.md",
+   "extension": ".md",
+   "tamano_bytes": 1011,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/06_Politica_De_Privacidad_Base.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "06_Politica_De_Privacidad_Base.md",
+   "extension": ".md",
+   "tamano_bytes": 3138,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/play-console/07_Textos_Play_Store.md",
+   "directorio": "Publicar/play-console",
+   "archivo": "07_Textos_Play_Store.md",
+   "extension": ".md",
+   "tamano_bytes": 764,
+   "categoria": "Documentacion"
+  },
+  {
+   "ruta": "Publicar/scripts/Build-PlayInternalTesting.ps1",
+   "directorio": "Publicar/scripts",
+   "archivo": "Build-PlayInternalTesting.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 5167,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "Publicar/scripts/Export-PublicacionBundle.ps1",
+   "directorio": "Publicar/scripts",
+   "archivo": "Export-PublicacionBundle.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 6671,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "Publicar/scripts/Initialize-PlayReleaseConfig.ps1",
+   "directorio": "Publicar/scripts",
+   "archivo": "Initialize-PlayReleaseConfig.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 2137,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "Publicar/scripts/New-AndroidReleaseKeystore.ps1",
+   "directorio": "Publicar/scripts",
+   "archivo": "New-AndroidReleaseKeystore.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 1669,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "scripts/deploy-ghpages.ps1",
+   "directorio": "scripts",
+   "archivo": "deploy-ghpages.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 3930,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "scripts/New-AndroidInstallQr.ps1",
+   "directorio": "scripts",
+   "archivo": "New-AndroidInstallQr.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 7691,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "scripts/New-AndroidReleaseKeystore.ps1",
+   "directorio": "scripts",
+   "archivo": "New-AndroidReleaseKeystore.ps1",
+   "extension": ".ps1",
+   "tamano_bytes": 6126,
+   "categoria": "Script automatizacion"
+  },
+  {
+   "ruta": "scripts/patch-import-meta.js",
+   "directorio": "scripts",
+   "archivo": "patch-import-meta.js",
+   "extension": ".js",
+   "tamano_bytes": 8766,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "scripts/patch-web-html.js",
+   "directorio": "scripts",
+   "archivo": "patch-web-html.js",
+   "extension": ".js",
+   "tamano_bytes": 1305,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "scripts/serve.js",
+   "directorio": "scripts",
+   "archivo": "serve.js",
+   "extension": ".js",
+   "tamano_bytes": 1869,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/M3Button.tsx",
+   "directorio": "src/components",
+   "archivo": "M3Button.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 1748,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/PaymentModal.tsx",
+   "directorio": "src/components",
+   "archivo": "PaymentModal.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 18903,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/PaymentOverdueModal.tsx",
+   "directorio": "src/components",
+   "archivo": "PaymentOverdueModal.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 7862,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/PaymentTicket.tsx",
+   "directorio": "src/components",
+   "archivo": "PaymentTicket.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 12002,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/TrialExpiredModal.tsx",
+   "directorio": "src/components",
+   "archivo": "TrialExpiredModal.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 4348,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/components/WebModeBanner.tsx",
+   "directorio": "src/components",
+   "archivo": "WebModeBanner.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 5147,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/constants.ts",
+   "directorio": "src/config",
+   "archivo": "constants.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1756,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/features.ts",
+   "directorio": "src/config",
+   "archivo": "features.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7470,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/firebase.ts",
+   "directorio": "src/config",
+   "archivo": "firebase.ts",
+   "extension": ".ts",
+   "tamano_bytes": 15695,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/porcupine.ts",
+   "directorio": "src/config",
+   "archivo": "porcupine.ts",
+   "extension": ".ts",
+   "tamano_bytes": 870,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/sentry.ts",
+   "directorio": "src/config",
+   "archivo": "sentry.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1563,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/Theme.ts",
+   "directorio": "src/config",
+   "archivo": "Theme.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2105,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/config/webBanner.ts",
+   "directorio": "src/config",
+   "archivo": "webBanner.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1485,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/hooks/useAccessibility.ts",
+   "directorio": "src/hooks",
+   "archivo": "useAccessibility.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1396,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/hooks/useAlert.ts",
+   "directorio": "src/hooks",
+   "archivo": "useAlert.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2318,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/hooks/useContacts.ts",
+   "directorio": "src/hooks",
+   "archivo": "useContacts.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3430,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AccesoRegistroService.ts",
+   "directorio": "src/services",
+   "archivo": "AccesoRegistroService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2532,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AccountService.ts",
+   "directorio": "src/services",
+   "archivo": "AccountService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3418,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AlertQueue.ts",
+   "directorio": "src/services",
+   "archivo": "AlertQueue.ts",
+   "extension": ".ts",
+   "tamano_bytes": 4242,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AlertService.ts",
+   "directorio": "src/services",
+   "archivo": "AlertService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 11810,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AlertStateMachine.ts",
+   "directorio": "src/services",
+   "archivo": "AlertStateMachine.ts",
+   "extension": ".ts",
+   "tamano_bytes": 6990,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AudioAlertApiService.ts",
+   "directorio": "src/services",
+   "archivo": "AudioAlertApiService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7049,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/AudioRecordingService.ts",
+   "directorio": "src/services",
+   "archivo": "AudioRecordingService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7159,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/ContactsService.ts",
+   "directorio": "src/services",
+   "archivo": "ContactsService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 11350,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/DeviceDiagnostic.ts",
+   "directorio": "src/services",
+   "archivo": "DeviceDiagnostic.ts",
+   "extension": ".ts",
+   "tamano_bytes": 4256,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/DeviceService.ts",
+   "directorio": "src/services",
+   "archivo": "DeviceService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7000,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/IAProcessingService.ts",
+   "directorio": "src/services",
+   "archivo": "IAProcessingService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2951,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/LocationApiClient.ts",
+   "directorio": "src/services",
+   "archivo": "LocationApiClient.ts",
+   "extension": ".ts",
+   "tamano_bytes": 4150,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/LocationService.ts",
+   "directorio": "src/services",
+   "archivo": "LocationService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 9078,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/NotificationService.ts",
+   "directorio": "src/services",
+   "archivo": "NotificationService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2654,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/PaymentService.ts",
+   "directorio": "src/services",
+   "archivo": "PaymentService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7726,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/PermissionsService.ts",
+   "directorio": "src/services",
+   "archivo": "PermissionsService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 4129,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/PrivacyService.ts",
+   "directorio": "src/services",
+   "archivo": "PrivacyService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 6635,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/PythonAnywhereSync.ts",
+   "directorio": "src/services",
+   "archivo": "PythonAnywhereSync.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3793,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/SubscriptionService.ts",
+   "directorio": "src/services",
+   "archivo": "SubscriptionService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2314,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/TrialService.ts",
+   "directorio": "src/services",
+   "archivo": "TrialService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 5954,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/WakeWordService.ts",
+   "directorio": "src/services",
+   "archivo": "WakeWordService.ts",
+   "extension": ".ts",
+   "tamano_bytes": 23013,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/__tests__/AlertQueue.test.ts",
+   "directorio": "src/services/__tests__",
+   "archivo": "AlertQueue.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 5693,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/__tests__/AlertService.test.ts",
+   "directorio": "src/services/__tests__",
+   "archivo": "AlertService.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 9880,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/__tests__/AlertStateMachine.test.ts",
+   "directorio": "src/services/__tests__",
+   "archivo": "AlertStateMachine.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 8260,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/__tests__/LocationService.test.ts",
+   "directorio": "src/services/__tests__",
+   "archivo": "LocationService.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 9601,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/services/__tests__/PaymentService.test.ts",
+   "directorio": "src/services/__tests__",
+   "archivo": "PaymentService.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 7703,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/shims/web-empty.js",
+   "directorio": "src/shims",
+   "archivo": "web-empty.js",
+   "extension": ".js",
+   "tamano_bytes": 1291,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/shims/web-rn-screens.js",
+   "directorio": "src/shims",
+   "archivo": "web-rn-screens.js",
+   "extension": ".js",
+   "tamano_bytes": 1928,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/shims/web-turbo-modules.js",
+   "directorio": "src/shims",
+   "archivo": "web-turbo-modules.js",
+   "extension": ".js",
+   "tamano_bytes": 2718,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/stores/useContactsStore.ts",
+   "directorio": "src/stores",
+   "archivo": "useContactsStore.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1473,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/stores/useGuardStore.ts",
+   "directorio": "src/stores",
+   "archivo": "useGuardStore.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3264,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/stores/useSettingsStore.ts",
+   "directorio": "src/stores",
+   "archivo": "useSettingsStore.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2195,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/theme/Button.tsx",
+   "directorio": "src/theme",
+   "archivo": "Button.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 4362,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/theme/Card.tsx",
+   "directorio": "src/theme",
+   "archivo": "Card.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 2410,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/theme/Icon.tsx",
+   "directorio": "src/theme",
+   "archivo": "Icon.tsx",
+   "extension": ".tsx",
+   "tamano_bytes": 1146,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/theme/index.ts",
+   "directorio": "src/theme",
+   "archivo": "index.ts",
+   "extension": ".ts",
+   "tamano_bytes": 657,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/theme/tokens.ts",
+   "directorio": "src/theme",
+   "archivo": "tokens.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3082,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/Alert.ts",
+   "directorio": "src/types",
+   "archivo": "Alert.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1934,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/Contact.ts",
+   "directorio": "src/types",
+   "archivo": "Contact.ts",
+   "extension": ".ts",
+   "tamano_bytes": 763,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/IAAnalysis.ts",
+   "directorio": "src/types",
+   "archivo": "IAAnalysis.ts",
+   "extension": ".ts",
+   "tamano_bytes": 860,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/Location.ts",
+   "directorio": "src/types",
+   "archivo": "Location.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2282,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/react-native-wakeword.d.ts",
+   "directorio": "src/types",
+   "archivo": "react-native-wakeword.d.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1335,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/types/Settings.ts",
+   "directorio": "src/types",
+   "archivo": "Settings.ts",
+   "extension": ".ts",
+   "tamano_bytes": 870,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/utils/formatPhone.ts",
+   "directorio": "src/utils",
+   "archivo": "formatPhone.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1135,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/utils/googleMapsLink.ts",
+   "directorio": "src/utils",
+   "archivo": "googleMapsLink.ts",
+   "extension": ".ts",
+   "tamano_bytes": 330,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/utils/MessageFormatter.ts",
+   "directorio": "src/utils",
+   "archivo": "MessageFormatter.ts",
+   "extension": ".ts",
+   "tamano_bytes": 1762,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/utils/triggerWords.ts",
+   "directorio": "src/utils",
+   "archivo": "triggerWords.ts",
+   "extension": ".ts",
+   "tamano_bytes": 2198,
+   "categoria": "Codigo fuente (JS/TS)"
+  },
+  {
+   "ruta": "src/utils/__tests__/MessageFormatter.test.ts",
+   "directorio": "src/utils/__tests__",
+   "archivo": "MessageFormatter.test.ts",
+   "extension": ".ts",
+   "tamano_bytes": 3340,
+   "categoria": "Codigo fuente (JS/TS)"
+  }
+ ]
+}

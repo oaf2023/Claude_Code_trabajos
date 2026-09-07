@@ -1,0 +1,1 @@
+OK parrafos=128 tablas=5 archivo=C:\Claude_Code_trabajos\_toolcheck\prueba_out.docx

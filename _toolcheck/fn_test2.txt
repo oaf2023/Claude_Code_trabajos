@@ -1,0 +1,62 @@
+✔ acepta una firma correcta dentro de la ventana (7.6282ms)
+✔ rechaza cuando el secreto no coincide (0.3584ms)
+✖ rechaza una firma manipulada (v1 alterado) (1.6268ms)
+✔ rechaza un ts fuera de la ventana anti-replay (0.2464ms)
+✔ rechaza cabecera sin ts o sin v1 (0.1773ms)
+✔ rechaza cuando faltan x-request-id o data.id (0.19ms)
+✔ rechaza cuando no hay secreto configurado (0.3395ms)
+✔ parsearCabeceraFirma descompone ts y v1 (2.0443ms)
+✔ firmaDentroDeVentana valida el rango (0.1913ms)
+✖ comparación de firmas en tiempo constante (0.4482ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 8
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.5161
+
+✖ failing tests:
+
+test at lib\__tests__\mpSignature.test.js:59:22
+✖ rechaza una firma manipulada (v1 alterado) (1.6268ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (C:\Claude_Code_trabajos\safealert\functions\lib\__tests__\mpSignature.test.js:71:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at lib\__tests__\mpSignature.test.js:144:22
+✖ comparación de firmas en tiempo constante (0.4482ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (C:\Claude_Code_trabajos\safealert\functions\lib\__tests__\mpSignature.test.js:146:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

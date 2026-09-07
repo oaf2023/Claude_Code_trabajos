@@ -1,0 +1,1814 @@
+[
+ {
+  "archivo": "App.tsx",
+  "linea": 4,
+  "nombre": "App",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag10.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag11.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag12.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag13.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag14.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag15.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag16.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag17.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag2.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag3.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag4.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag5.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag6.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag7.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag8.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "diag9.mjs",
+  "linea": 1,
+  "nombre": "run",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "fix-pwa-build.js",
+  "linea": 25,
+  "nombre": "walk",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "fix-pwa-build.js",
+  "linea": 34,
+  "nombre": "fixBundle",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "fix-pwa-build.js",
+  "linea": 54,
+  "nombre": "fixHtml",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/App.tsx",
+  "linea": 23,
+  "nombre": "RequiereAuth",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/App.tsx",
+  "linea": 27,
+  "nombre": "App",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Alerta.tsx",
+  "linea": 12,
+  "nombre": "ErrorAlerta",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Alerta.tsx",
+  "linea": 20,
+  "nombre": "Spinner",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Badges.tsx",
+  "linea": 29,
+  "nombre": "BadgeEstadoSuscripcion",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Badges.tsx",
+  "linea": 37,
+  "nombre": "BadgeConsentimiento",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Badges.tsx",
+  "linea": 45,
+  "nombre": "BadgeOrigen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/KpiCard.tsx",
+  "linea": 19,
+  "nombre": "KpiCard",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Layout.tsx",
+  "linea": 24,
+  "nombre": "Layout",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Layout.tsx",
+  "linea": 31,
+  "nombre": "cargar",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/components/Layout.tsx",
+  "linea": 51,
+  "nombre": "cerrarSesion",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Admin.tsx",
+  "linea": 17,
+  "nombre": "Admin",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Admin.tsx",
+  "linea": 38,
+  "nombre": "guardarConfig",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Admin.tsx",
+  "linea": 50,
+  "nombre": "ejecutarPurga",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Dashboard.tsx",
+  "linea": 37,
+  "nombre": "Dashboard",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Login.tsx",
+  "linea": 17,
+  "nombre": "Login",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Login.tsx",
+  "linea": 24,
+  "nombre": "ingresar",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/PagoSimulado.tsx",
+  "linea": 29,
+  "nombre": "PagoSimulado",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/PagoSimulado.tsx",
+  "linea": 74,
+  "nombre": "generar",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/UsuarioDetalle.tsx",
+  "linea": 30,
+  "nombre": "UsuarioDetalle",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "admin/src/pages/Usuarios.tsx",
+  "linea": 22,
+  "nombre": "Usuarios",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/+html.tsx",
+  "linea": 30,
+  "nombre": "Root",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/bienvenida.tsx",
+  "linea": 34,
+  "nombre": "BienvenidaScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/bienvenida.tsx",
+  "linea": 60,
+  "nombre": "continuarPaso1",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/bienvenida.tsx",
+  "linea": 85,
+  "nombre": "continuarPaso2",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/bienvenida.tsx",
+  "linea": 107,
+  "nombre": "tomarFoto",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/bienvenida.tsx",
+  "linea": 142,
+  "nombre": "finalizar",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/como-funciona.tsx",
+  "linea": 40,
+  "nombre": "Paso",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/como-funciona.tsx",
+  "linea": 70,
+  "nombre": "ComoFuncionaScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/permissions.tsx",
+  "linea": 51,
+  "nombre": "PermissionsScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/permissions.tsx",
+  "linea": 56,
+  "nombre": "refresh",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/permissions.tsx",
+  "linea": 120,
+  "nombre": "statusColor",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/permissions.tsx",
+  "linea": 133,
+  "nombre": "statusLabel",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/test-alert.tsx",
+  "linea": 16,
+  "nombre": "TestAlertScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/test-alert.tsx",
+  "linea": 21,
+  "nombre": "handleTest",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/_layout.tsx",
+  "linea": 50,
+  "nombre": "runWhenIdle",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/_layout.tsx",
+  "linea": 75,
+  "nombre": "RootLayout",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/_layout.tsx",
+  "linea": 151,
+  "nombre": "verificarPrueba",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/_layout.tsx",
+  "linea": 249,
+  "nombre": "bootstrapNotifications",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/contacts.tsx",
+  "linea": 32,
+  "nombre": "ContactItem",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/contacts.tsx",
+  "linea": 119,
+  "nombre": "sortContactsForDisplay",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/contacts.tsx",
+  "linea": 129,
+  "nombre": "ContactsScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/contacts.tsx",
+  "linea": 145,
+  "nombre": "handleDelete",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/history.tsx",
+  "linea": 30,
+  "nombre": "statusConfig",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/history.tsx",
+  "linea": 40,
+  "nombre": "AlertHistoryItem",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/history.tsx",
+  "linea": 93,
+  "nombre": "HistoryScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 48,
+  "nombre": "resolveGuardIcon",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 60,
+  "nombre": "ProtectionBadge",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 75,
+  "nombre": "HomeScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 139,
+  "nombre": "dismissAlertFeedback",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 154,
+  "nombre": "toggleBlackScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 156,
+  "nombre": "toggleGuard",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/index.tsx",
+  "linea": 183,
+  "nombre": "handlePanicButton",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 46,
+  "nombre": "SettingsScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 68,
+  "nombre": "addKeyword",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 97,
+  "nombre": "removeKeyword",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 112,
+  "nombre": "saveMessageTemplate",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 117,
+  "nombre": "toggleDailyReminder",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/settings.tsx",
+  "linea": 136,
+  "nombre": "updateReminderHour",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/_layout.tsx",
+  "linea": 17,
+  "nombre": "TabIcon",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/(tabs)/_layout.tsx",
+  "linea": 34,
+  "nombre": "TabsLayout",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/contacts/[id].tsx",
+  "linea": 50,
+  "nombre": "AddEditContactScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/contacts/[id].tsx",
+  "linea": 118,
+  "nombre": "handleSave",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/contacts/[id].tsx",
+  "linea": 137,
+  "nombre": "performActualSave",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/contacts/[id].tsx",
+  "linea": 165,
+  "nombre": "handlePaymentSuccess",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "app/ubicacion/manual.tsx",
+  "linea": 20,
+  "nombre": "UbicacionManualScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 62,
+  "nombre": "create_app",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 138,
+  "nombre": "_rate_limit",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 182,
+  "nombre": "obtener_ip_cliente",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 196,
+  "nombre": "_es_ip_privada",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 209,
+  "nombre": "consultar",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 215,
+  "nombre": "consultar",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 246,
+  "nombre": "__init__",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 249,
+  "nombre": "consultar",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 284,
+  "nombre": "__init__",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 288,
+  "nombre": "consultar",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 303,
+  "nombre": "get_db",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 313,
+  "nombre": "close_db",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 318,
+  "nombre": "get_tel_db",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 328,
+  "nombre": "close_tel_db",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 337,
+  "nombre": "_create_tables",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 496,
+  "nombre": "_crear_indices_ubicaciones",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 516,
+  "nombre": "_migrate_add_device_columns",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 523,
+  "nombre": "_create_tel_tables",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 548,
+  "nombre": "_crear_periodo_prueba_si_no_existe",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 565,
+  "nombre": "require_internal_key",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 567,
+  "nombre": "wrapper",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 576,
+  "nombre": "require_admin_key",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 578,
+  "nombre": "wrapper",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 587,
+  "nombre": "require_firebase_auth",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 590,
+  "nombre": "wrapper",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 605,
+  "nombre": "verify_mp_signature",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 630,
+  "nombre": "validar_coordenadas",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 638,
+  "nombre": "validar_origen",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 641,
+  "nombre": "validar_permiso",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 649,
+  "nombre": "health",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 654,
+  "nombre": "register_user",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 678,
+  "nombre": "user_status",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 701,
+  "nombre": "confirm_payment",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 713,
+  "nombre": "mp_webhook",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 733,
+  "nombre": "_handle_preapproval_event",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 747,
+  "nombre": "link_preapproval",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 786,
+  "nombre": "crear_ticket",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 831,
+  "nombre": "upload_security_recording",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 864,
+  "nombre": "tel_agregar_contacto",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 890,
+  "nombre": "tel_borrar_contacto",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 907,
+  "nombre": "tel_estado_prueba",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 936,
+  "nombre": "registrar_acceso",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 982,
+  "nombre": "registrar_ubicacion",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1064,
+  "nombre": "registrar_ubicacion_manual",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1101,
+  "nombre": "registrar_consentimiento",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1133,
+  "nombre": "revocar_consentimiento",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1166,
+  "nombre": "historial_ubicaciones",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1188,
+  "nombre": "ultima_ubicacion",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1209,
+  "nombre": "ubicaciones_mapa",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1241,
+  "nombre": "detalle_ubicacion",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1248,
+  "nombre": "normalizar_mac",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1263,
+  "nombre": "admin_usuarios",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1325,
+  "nombre": "admin_pago_simulado",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1416,
+  "nombre": "admin_stats",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1500,
+  "nombre": "estado_sistema",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1526,
+  "nombre": "historial_consentimientos",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1542,
+  "nombre": "historial_accesos",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1562,
+  "nombre": "ejecutar_purga_retencion",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 1579,
+  "nombre": "purga_retencion",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 34,
+  "nombre": "_fake_verify_id_token",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 50,
+  "nombre": "setUpClass",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 58,
+  "nombre": "setUp",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 80,
+  "nombre": "test_admin_usuarios_requiere_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 84,
+  "nombre": "test_admin_usuarios_con_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 97,
+  "nombre": "test_admin_usuarios_busqueda",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 104,
+  "nombre": "test_admin_usuarios_limite",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 117,
+  "nombre": "test_admin_usuarios_por_mac",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 125,
+  "nombre": "test_admin_usuarios_por_mac_sin_formato",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 133,
+  "nombre": "test_admin_usuarios_por_mac_sin_resultados",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 144,
+  "nombre": "test_pago_simulado_requiere_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 151,
+  "nombre": "test_pago_simulado_por_mac",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 166,
+  "nombre": "test_pago_simulado_anual_por_device_id",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 177,
+  "nombre": "test_pago_simulado_ticket_correlativo",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 193,
+  "nombre": "test_pago_simulado_mac_inexistente",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 201,
+  "nombre": "test_pago_simulado_plan_invalido",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 209,
+  "nombre": "test_pago_simulado_requiere_mac_o_device",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 221,
+  "nombre": "test_admin_stats_requiere_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 225,
+  "nombre": "test_admin_stats_con_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 240,
+  "nombre": "test_admin_stats_sin_datos",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 254,
+  "nombre": "test_consentimientos_requiere_clave_admin",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 258,
+  "nombre": "test_consentimientos_con_clave",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 278,
+  "nombre": "test_estado_publico",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 289,
+  "nombre": "test_ticket_create_requiere_clave_interna",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 298,
+  "nombre": "test_ticket_create_ok",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 312,
+  "nombre": "test_ticket_create_correlativo",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 324,
+  "nombre": "test_ticket_create_plan_invalido",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 334,
+  "nombre": "test_link_preapproval_requiere_clave_interna",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 342,
+  "nombre": "test_link_preapproval_ok",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 351,
+  "nombre": "test_link_preapproval_crea_usuario_si_falta",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 365,
+  "nombre": "test_link_preapproval_requiere_datos",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 375,
+  "nombre": "test_rate_limit_bloquea_despues_del_maximo",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 398,
+  "nombre": "test_rate_limit_permite_despues_de_vencer",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 421,
+  "nombre": "test_rate_limit_endpoint_devuelve_429",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "functions/src/createPaymentOrder.ts",
+  "linea": 51,
+  "nombre": "_linkPreapprovalToDevice",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 75,
+  "nombre": "claimEvent",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 121,
+  "nombre": "createTwilioClient",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 146,
+  "nombre": "sendNotification",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "Pruebas/check_ios.py",
+  "linea": 16,
+  "nombre": "verificar_xcode",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "Pruebas/check_ios.py",
+  "linea": 24,
+  "nombre": "check_component",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "Pruebas/check_ios.py",
+  "linea": 32,
+  "nombre": "ejecucion_concurrente",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "Pruebas/check_ios.py",
+  "linea": 36,
+  "nombre": "worker",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "Pruebas/check_ios.py",
+  "linea": 49,
+  "nombre": "main",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "src/components/M3Button.tsx",
+  "linea": 28,
+  "nombre": "mapVariant",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 94,
+  "nombre": "handleDevBypass",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 115,
+  "nombre": "pad",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 143,
+  "nombre": "handleGeneratePayment",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 187,
+  "nombre": "handleOpenBrowser",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 215,
+  "nombre": "handleConfirmPayment",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 261,
+  "nombre": "handleClose",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentOverdueModal.tsx",
+  "linea": 83,
+  "nombre": "handleClose",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentOverdueModal.tsx",
+  "linea": 104,
+  "nombre": "handlePay",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 52,
+  "nombre": "formatAmount",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 67,
+  "nombre": "planLabel",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 83,
+  "nombre": "handleShare",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/components/WebModeBanner.tsx",
+  "linea": 19,
+  "nombre": "WebModeBanner",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/features.ts",
+  "linea": 47,
+  "nombre": "readBooleanEnv",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/features.ts",
+  "linea": 70,
+  "nombre": "readStringEnv",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/features.ts",
+  "linea": 93,
+  "nombre": "readNumberEnv",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/features.ts",
+  "linea": 181,
+  "nombre": "buildAlertAudioStoragePath",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 172,
+  "nombre": "isAndroidNativeRuntime",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 187,
+  "nombre": "getWebApp",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 195,
+  "nombre": "getWebDb",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 209,
+  "nombre": "getWebStorage",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 217,
+  "nombre": "getWebFunctions",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 225,
+  "nombre": "getWebAuth",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 266,
+  "nombre": "buildWebQuery",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 361,
+  "nombre": "auth",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 387,
+  "nombre": "firestore",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 415,
+  "nombre": "storage",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 437,
+  "nombre": "functions",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 455,
+  "nombre": "ensureAuthenticated",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 498,
+  "nombre": "getIdToken",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 517,
+  "nombre": "userDoc",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 519,
+  "nombre": "contactsCol",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 521,
+  "nombre": "alertsCol",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 523,
+  "nombre": "settingsDoc",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAccessibility.ts",
+  "linea": 17,
+  "nombre": "useAccessibility",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAccessibility.ts",
+  "linea": 33,
+  "nombre": "a11nProps",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAlert.ts",
+  "linea": 26,
+  "nombre": "useAlert",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAlert.ts",
+  "linea": 33,
+  "nombre": "triggerManual",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAlert.ts",
+  "linea": 42,
+  "nombre": "triggerTest",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useAlert.ts",
+  "linea": 51,
+  "nombre": "cancelCountdown",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 19,
+  "nombre": "resolveUserId",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 29,
+  "nombre": "useContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 41,
+  "nombre": "bootstrapSubscription",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 68,
+  "nombre": "addContact",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 73,
+  "nombre": "updateContact",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 78,
+  "nombre": "removeContact",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 83,
+  "nombre": "toggleContact",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/hooks/useContacts.ts",
+  "linea": 88,
+  "nombre": "prioritizeContact",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AccesoRegistroService.ts",
+  "linea": 16,
+  "nombre": "detectarDispositivo",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AccesoRegistroService.ts",
+  "linea": 26,
+  "nombre": "detectarNavegador",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AccountService.ts",
+  "linea": 14,
+  "nombre": "getAuth",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertQueue.ts",
+  "linea": 35,
+  "nombre": "getBackoffDelay",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertService.ts",
+  "linea": 44,
+  "nombre": "stopAlertWatcher",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertService.ts",
+  "linea": 63,
+  "nombre": "startAlertWatcher",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertService.ts",
+  "linea": 101,
+  "nombre": "getActiveContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertService.ts",
+  "linea": 116,
+  "nombre": "buildAlertContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertService.ts",
+  "linea": 140,
+  "nombre": "recoverIncompleteAlerts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 99,
+  "nombre": "isValidTransition",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 207,
+  "nombre": "buildContactDeliveries",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 221,
+  "nombre": "hasPendingDeliveries",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 227,
+  "nombre": "getCompletedCount",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 231,
+  "nombre": "canRetry",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AudioAlertApiService.ts",
+  "linea": 46,
+  "nombre": "normalizeMatches",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/AudioAlertApiService.ts",
+  "linea": 50,
+  "nombre": "resolveMatchedKeyword",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/ContactsService.ts",
+  "linea": 29,
+  "nombre": "hydrateAndSortContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/ContactsService.ts",
+  "linea": 53,
+  "nombre": "getNormalizedContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/ContactsService.ts",
+  "linea": 63,
+  "nombre": "getNextPriority",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/ContactsService.ts",
+  "linea": 83,
+  "nombre": "assertUniquePhone",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 32,
+  "nombre": "hasNetwork",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 47,
+  "nombre": "hasLocationPermission",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 60,
+  "nombre": "hasNotificationPermission",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 69,
+  "nombre": "hasMicrophonePermission",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 82,
+  "nombre": "hasLowBattery",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceService.ts",
+  "linea": 35,
+  "nombre": "generateUUID",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceService.ts",
+  "linea": 66,
+  "nombre": "getDeviceId",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceService.ts",
+  "linea": 114,
+  "nombre": "getMacAddress",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceService.ts",
+  "linea": 138,
+  "nombre": "getDeviceUniqueId",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/DeviceService.ts",
+  "linea": 160,
+  "nombre": "isEmulator",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/LocationApiClient.ts",
+  "linea": 20,
+  "nombre": "getAuthHeaders",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/LocationService.ts",
+  "linea": 28,
+  "nombre": "isAndroidEmulator",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/LocationService.ts",
+  "linea": 42,
+  "nombre": "shouldUseDevelopmentLocationFallback",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/LocationService.ts",
+  "linea": 46,
+  "nombre": "buildEmergencyFallbackLocation",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/LocationService.ts",
+  "linea": 60,
+  "nombre": "mapPermissionStatus",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 50,
+  "nombre": "registerDevice",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 96,
+  "nombre": "checkSubscription",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 132,
+  "nombre": "confirmPayment",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 168,
+  "nombre": "createTicket",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/PermissionsService.ts",
+  "linea": 41,
+  "nombre": "mapResult",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/TrialService.ts",
+  "linea": 26,
+  "nombre": "buildHeaders",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 46,
+  "nombre": "loadWakeWordModule",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 69,
+  "nombre": "normalizeDetectedKeyword",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 91,
+  "nombre": "isRecoverableNativeWakeWordError",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/__tests__/AlertQueue.test.ts",
+  "linea": 25,
+  "nombre": "makeAlert",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/services/__tests__/PaymentService.test.ts",
+  "linea": 30,
+  "nombre": "mockResponse",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 14,
+  "nombre": "ScreenComponent",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 18,
+  "nombre": "ScreenContainer",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 22,
+  "nombre": "NativeScreen",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 26,
+  "nombre": "NativeScreenNavigationContainer",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 30,
+  "nombre": "ScreenStack",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-rn-screens.js",
+  "linea": 34,
+  "nombre": "ScreenStackHeaderConfig",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/shims/web-turbo-modules.js",
+  "linea": 13,
+  "nombre": "createStub",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/stores/useContactsStore.ts",
+  "linea": 4,
+  "nombre": "sortContacts",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/theme/Button.tsx",
+  "linea": 87,
+  "nombre": "Button",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/theme/Card.tsx",
+  "linea": 58,
+  "nombre": "Card",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/theme/Icon.tsx",
+  "linea": 26,
+  "nombre": "Icon",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/types/react-native-wakeword.d.ts",
+  "linea": 29,
+  "nombre": "createKeyWordRNBridgeInstance",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/formatPhone.ts",
+  "linea": 7,
+  "nombre": "toE164",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/formatPhone.ts",
+  "linea": 22,
+  "nombre": "isValidPhone",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/formatPhone.ts",
+  "linea": 28,
+  "nombre": "formatDisplayPhone",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/googleMapsLink.ts",
+  "linea": 1,
+  "nombre": "buildMapsLink",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/googleMapsLink.ts",
+  "linea": 5,
+  "nombre": "buildMapsLinkFromCoords",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/triggerWords.ts",
+  "linea": 24,
+  "nombre": "normalizeTriggerWord",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/utils/triggerWords.ts",
+  "linea": 40,
+  "nombre": "buildVisibleTriggerWords",
+  "lenguaje": "TypeScript/JS"
+ }
+]

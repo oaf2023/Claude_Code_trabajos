@@ -1,0 +1,7 @@
+OK ANEXO_B_APP_IPHONE.docx (parrafos=831 tablas=36)
+OK ANEXO_C_BACKEND_FLASK_CLOUD_RUN.docx (parrafos=1549 tablas=34)
+OK ANEXO_D_CLOUD_FUNCTIONS_FIREBASE.docx (parrafos=1115 tablas=43)
+OK ANEXO_E_PANEL_ADMIN_WEB.docx (parrafos=2513 tablas=98)
+OK ANEXO_F_CONFIG_SCRIPTS_WEB_PUBLICACION.docx (parrafos=2481 tablas=119)
+OK ANEXO_G_DOCUMENTACION_EXISTENTE.docx (parrafos=358 tablas=1)
+Anexos generados; archivos md procesados: 110

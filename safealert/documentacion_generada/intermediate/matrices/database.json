@@ -1,0 +1,1000 @@
+[
+ {
+  "tabla": "ubicaciones_usuario",
+  "archivo": "backend/sql/001_ubicaciones_consentimientos_accesos.sql",
+  "columnas": [
+   {
+    "campo": "id",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "usuario_id",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "sesion_id",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "device_id_app",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "fecha_hora_servidor",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "(datetime('now'))",
+    "descripcion": ""
+   },
+   {
+    "campo": "fecha_hora_dispositivo",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "latitud",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "longitud",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "precision_metros",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "altitud_metros",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "velocidad_metros_segundo",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "rumbo_grados",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "origen",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "permiso_ubicacion",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pais_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "codigo_pais_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "provincia_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ciudad_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "codigo_postal_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "latitud_ip",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "longitud_ip",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "precision_ip_km",
+    "tipo": "REAL",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "proveedor",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "operador_movil_estimado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "asn",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_vpn",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_proxy",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_hosting",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "metodo_http",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ruta_consultada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pagina_consultada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "referer",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "codigo_respuesta",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "user_agent",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "navegador_aproximado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "sistema_operativo_aproximado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "tipo_dispositivo",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "idioma",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "idiomas",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "zona_horaria",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "offset_utc_minutos",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pantalla_ancho",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pantalla_alto",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ventana_ancho",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ventana_alto",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "profundidad_color",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "direccion_estimada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "direccion_confirmada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "proveedor_geocodificacion",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "observaciones",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "metadatos",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "creado_en",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "(datetime('now'))",
+    "descripcion": ""
+   }
+  ]
+ },
+ {
+  "tabla": "consentimientos_usuario",
+  "archivo": "backend/sql/001_ubicaciones_consentimientos_accesos.sql",
+  "columnas": [
+   {
+    "campo": "id",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "usuario_id",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "sesion_id",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "tipo_permiso",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "estado",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "texto_mostrado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "version_politica",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "fecha_hora",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "(datetime('now'))",
+    "descripcion": ""
+   },
+   {
+    "campo": "ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "user_agent",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   }
+  ]
+ },
+ {
+  "tabla": "accesos_tecnicos",
+  "archivo": "backend/sql/001_ubicaciones_consentimientos_accesos.sql",
+  "columnas": [
+   {
+    "campo": "id",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "usuario_id",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "sesion_id",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "device_id_app",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "fecha_hora",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "(datetime('now'))",
+    "descripcion": ""
+   },
+   {
+    "campo": "ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "metodo_http",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ruta_consultada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pagina_consultada",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "endpoint",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "codigo_respuesta",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "user_agent",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "referer",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "navegador_aproximado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "sistema_operativo_aproximado",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "tipo_dispositivo",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "idioma",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "idiomas",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "zona_horaria",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "offset_utc_minutos",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pantalla_ancho",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pantalla_alto",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ventana_ancho",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ventana_alto",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "profundidad_color",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "pais_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "provincia_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "ciudad_ip",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "proveedor",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "asn",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_vpn",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_proxy",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "posible_hosting",
+    "tipo": "INTEGER",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "0",
+    "descripcion": ""
+   },
+   {
+    "campo": "metodo_autenticacion",
+    "tipo": "TEXT",
+    "null": "SI",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "",
+    "descripcion": ""
+   },
+   {
+    "campo": "creado_en",
+    "tipo": "TEXT",
+    "null": "NO",
+    "pk": "PK",
+    "auto": false,
+    "unique": false,
+    "default": "(datetime('now'))",
+    "descripcion": ""
+   }
+  ]
+ }
+]

@@ -1,0 +1,18 @@
+✔ acepta una firma correcta dentro de la ventana (2.9876ms)
+✔ rechaza cuando el secreto no coincide (0.3942ms)
+✔ rechaza una firma manipulada (v1 alterado) (0.352ms)
+✔ rechaza un ts fuera de la ventana anti-replay (0.2318ms)
+✔ rechaza cabecera sin ts o sin v1 (0.2151ms)
+✔ rechaza cuando faltan x-request-id o data.id (0.5861ms)
+✔ rechaza cuando no hay secreto configurado (0.4069ms)
+✔ parsearCabeceraFirma descompone ts y v1 (2.7364ms)
+✔ firmaDentroDeVentana valida el rango (0.642ms)
+✔ comparación de firmas en tiempo constante (0.9411ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 175.2655

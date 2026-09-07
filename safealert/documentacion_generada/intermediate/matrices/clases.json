@@ -1,0 +1,44 @@
+[
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 207,
+  "nombre": "ProveedorGeolocalizacionIP",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 212,
+  "nombre": "IPApiProvider",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 243,
+  "nombre": "ProveedorIPRegistry",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/flask_app.py",
+  "linea": 281,
+  "nombre": "GeoIPService",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "backend/test_admin_endpoints.py",
+  "linea": 46,
+  "nombre": "AdminEndpointsTestCase",
+  "lenguaje": "Python"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 106,
+  "nombre": "WakeWordServiceClass",
+  "lenguaje": "TypeScript/JS"
+ },
+ {
+  "archivo": "src/types/react-native-wakeword.d.ts",
+  "linea": 12,
+  "nombre": "KeyWordRNBridgeInstance",
+  "lenguaje": "TypeScript/JS"
+ }
+]

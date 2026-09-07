@@ -1,0 +1,1 @@
+python-docx OK 1.2.0

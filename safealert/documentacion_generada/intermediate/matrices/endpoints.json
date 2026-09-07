@@ -1,0 +1,240 @@
+[
+ {
+  "metodo": "GET",
+  "ruta": "/api/health",
+  "funcion": "health",
+  "archivo": "backend/flask_app.py",
+  "linea": 648
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/users/register",
+  "funcion": "register_user",
+  "archivo": "backend/flask_app.py",
+  "linea": 652
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/users/status/<device_id>",
+  "funcion": "user_status",
+  "archivo": "backend/flask_app.py",
+  "linea": 676
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/payments/confirm",
+  "funcion": "confirm_payment",
+  "archivo": "backend/flask_app.py",
+  "linea": 699
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/payments/webhook",
+  "funcion": "mp_webhook",
+  "archivo": "backend/flask_app.py",
+  "linea": 712
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/internal/link-preapproval",
+  "funcion": "link_preapproval",
+  "archivo": "backend/flask_app.py",
+  "linea": 745
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/tickets/create",
+  "funcion": "crear_ticket",
+  "archivo": "backend/flask_app.py",
+  "linea": 784
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/security/upload-recording",
+  "funcion": "upload_security_recording",
+  "archivo": "backend/flask_app.py",
+  "linea": 830
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/tel/contacto",
+  "funcion": "tel_agregar_contacto",
+  "archivo": "backend/flask_app.py",
+  "linea": 863
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/tel/contacto/borrar",
+  "funcion": "tel_borrar_contacto",
+  "archivo": "backend/flask_app.py",
+  "linea": 889
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/tel/prueba/<device_id>",
+  "funcion": "tel_estado_prueba",
+  "archivo": "backend/flask_app.py",
+  "linea": 906
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/accesos",
+  "funcion": "registrar_acceso",
+  "archivo": "backend/flask_app.py",
+  "linea": 935
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/ubicaciones",
+  "funcion": "registrar_ubicacion",
+  "archivo": "backend/flask_app.py",
+  "linea": 981
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/ubicaciones/manual",
+  "funcion": "registrar_ubicacion_manual",
+  "archivo": "backend/flask_app.py",
+  "linea": 1063
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/consentimientos",
+  "funcion": "registrar_consentimiento",
+  "archivo": "backend/flask_app.py",
+  "linea": 1100
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/consentimientos/revocar",
+  "funcion": "revocar_consentimiento",
+  "archivo": "backend/flask_app.py",
+  "linea": 1132
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubicaciones/usuario/<usuario_id>",
+  "funcion": "historial_ubicaciones",
+  "archivo": "backend/flask_app.py",
+  "linea": 1164
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubicaciones/ultima/<usuario_id>",
+  "funcion": "ultima_ubicacion",
+  "archivo": "backend/flask_app.py",
+  "linea": 1186
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubicaciones/mapa",
+  "funcion": "ubicaciones_mapa",
+  "archivo": "backend/flask_app.py",
+  "linea": 1207
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubicaciones/<int:id>",
+  "funcion": "detalle_ubicacion",
+  "archivo": "backend/flask_app.py",
+  "linea": 1239
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/admin/usuarios",
+  "funcion": "admin_usuarios",
+  "archivo": "backend/flask_app.py",
+  "linea": 1261
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/admin/pagos/simular",
+  "funcion": "admin_pago_simulado",
+  "archivo": "backend/flask_app.py",
+  "linea": 1323
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/admin/stats",
+  "funcion": "admin_stats",
+  "archivo": "backend/flask_app.py",
+  "linea": 1414
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/estado",
+  "funcion": "estado_sistema",
+  "archivo": "backend/flask_app.py",
+  "linea": 1499
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/consentimientos/usuario/<usuario_id>",
+  "funcion": "historial_consentimientos",
+  "archivo": "backend/flask_app.py",
+  "linea": 1524
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/accesos/usuario/<usuario_id>",
+  "funcion": "historial_accesos",
+  "archivo": "backend/flask_app.py",
+  "linea": 1540
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/admin/purga",
+  "funcion": "purga_retencion",
+  "archivo": "backend/flask_app.py",
+  "linea": 1577
+ },
+ {
+  "metodo": "onSchedule",
+  "ruta": "cleanupOldAlerts",
+  "funcion": "cleanupOldAlerts",
+  "archivo": "functions/src/cleanupOldAlerts.ts",
+  "linea": 14
+ },
+ {
+  "metodo": "onCall",
+  "ruta": "createPaymentOrder",
+  "funcion": "createPaymentOrder",
+  "archivo": "functions/src/createPaymentOrder.ts",
+  "linea": 87
+ },
+ {
+  "metodo": "onRequest",
+  "ruta": "mpWebhook",
+  "funcion": "mpWebhook",
+  "archivo": "functions/src/mpWebhook.ts",
+  "linea": 18
+ },
+ {
+  "metodo": "onDocumentWritten",
+  "ruta": "sendAlertSMS",
+  "funcion": "sendAlertSMS",
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 199
+ },
+ {
+  "metodo": "onDocumentUpdated",
+  "ruta": "sendAudioFollowUp",
+  "funcion": "sendAudioFollowUp",
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 271
+ },
+ {
+  "metodo": "onDocumentUpdated",
+  "ruta": "sendLocationPulseUpdate",
+  "funcion": "sendLocationPulseUpdate",
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 305
+ },
+ {
+  "metodo": "onDocumentCreated",
+  "ruta": "syncUserToPythonAnywhere",
+  "funcion": "syncUserToPythonAnywhere",
+  "archivo": "functions/src/users.ts",
+  "linea": 22
+ }
+]

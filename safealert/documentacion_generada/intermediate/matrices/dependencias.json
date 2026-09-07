@@ -1,0 +1,562 @@
+[
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@expo/metro-runtime",
+  "version": "~55.0.12",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@expo/vector-icons",
+  "version": "^15.1.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-async-storage/async-storage",
+  "version": "2.2.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-firebase/app",
+  "version": "^23.8.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-firebase/auth",
+  "version": "^23.8.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-firebase/firestore",
+  "version": "^23.8.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-firebase/functions",
+  "version": "^23.8.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@react-native-firebase/storage",
+  "version": "^23.8.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@sentry/react-native",
+  "version": "~7.11.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "eventemitter3",
+  "version": "^5.0.4",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo",
+  "version": "~55.0.6",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-av",
+  "version": "^16.0.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-battery",
+  "version": "~55.0.14",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-camera",
+  "version": "~55.0.11",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-constants",
+  "version": "~55.0.9",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-file-system",
+  "version": "~55.0.11",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-font",
+  "version": "~55.0.4",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-linking",
+  "version": "~55.0.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-localization",
+  "version": "~55.0.16",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-location",
+  "version": "~55.1.4",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-media-library",
+  "version": "~55.0.10",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-notifications",
+  "version": "~55.0.13",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-router",
+  "version": "~55.0.7",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-secure-store",
+  "version": "~55.0.15",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-splash-screen",
+  "version": "~55.0.12",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-status-bar",
+  "version": "~55.0.4",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "expo-task-manager",
+  "version": "~55.0.10",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "firebase",
+  "version": "^12.12.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react",
+  "version": "19.2.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-dom",
+  "version": "19.2.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native",
+  "version": "0.83.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-device-info",
+  "version": "^15.0.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-gesture-handler",
+  "version": "~2.30.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-haptic-feedback",
+  "version": "^2.3.4",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-permissions",
+  "version": "^5.5.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-reanimated",
+  "version": "4.2.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-safe-area-context",
+  "version": "~5.6.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-screens",
+  "version": "~4.23.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-wakeword",
+  "version": "^1.1.82",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-web",
+  "version": "^0.21.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "react-native-worklets",
+  "version": "0.7.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "zod",
+  "version": "^4.3.6",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "zustand",
+  "version": "^5.0.12",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@types/jest",
+  "version": "^29.5.14",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "@types/react",
+  "version": "~19.2.2",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "babel-preset-expo",
+  "version": "~55.0.8",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "jest",
+  "version": "^29.7.0",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "ts-jest",
+  "version": "^29.4.11",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App principal (raiz)",
+  "manifiesto": "package.json",
+  "nombre": "typescript",
+  "version": "~5.9.2",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "react",
+  "version": "^19.2.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "react-dom",
+  "version": "^19.2.8",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "react-router-dom",
+  "version": "^7.18.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "recharts",
+  "version": "^3.10.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "@types/node",
+  "version": "^24.13.3",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "@types/react",
+  "version": "^19.2.17",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "@types/react-dom",
+  "version": "^19.2.3",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "@vitejs/plugin-react",
+  "version": "^6.0.4",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "oxlint",
+  "version": "^1.75.0",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "typescript",
+  "version": "~6.0.2",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Panel admin",
+  "manifiesto": "admin/package.json",
+  "nombre": "vite",
+  "version": "^8.2.0",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "firebase-admin",
+  "version": "^12.0.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "firebase-functions",
+  "version": "^6.0.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "mercadopago",
+  "version": "^2.12.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "twilio",
+  "version": "^5.3.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "zod",
+  "version": "^3.23.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "@types/node",
+  "version": "^20.0.0",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Cloud Functions",
+  "manifiesto": "functions/package.json",
+  "nombre": "typescript",
+  "version": "^5.3.0",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "expo",
+  "version": "~55.0.6",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "expo-router",
+  "version": "~55.0.7",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "firebase",
+  "version": "^12.12.1",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "react",
+  "version": "19.2.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "react-native",
+  "version": "0.83.2",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "react-native-web",
+  "version": "^0.21.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "@types/react",
+  "version": "~19.2.2",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "babel-preset-expo",
+  "version": "~55.0.8",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "App iphone",
+  "manifiesto": "iphone/package.json",
+  "nombre": "typescript",
+  "version": "~5.9.2",
+  "tipo": "desarrollo"
+ },
+ {
+  "origen": "Backend Flask",
+  "manifiesto": "backend/requirements.txt",
+  "nombre": "flask",
+  "version": ">=3.0,<4.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Backend Flask",
+  "manifiesto": "backend/requirements.txt",
+  "nombre": "flask-cors",
+  "version": ">=5.0,<6.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Backend Flask",
+  "manifiesto": "backend/requirements.txt",
+  "nombre": "firebase-admin",
+  "version": ">=6.0,<7.0",
+  "tipo": "produccion"
+ },
+ {
+  "origen": "Backend Flask",
+  "manifiesto": "backend/requirements.txt",
+  "nombre": "python-dotenv",
+  "version": ">=1.0,<2.0",
+  "tipo": "produccion"
+ }
+]

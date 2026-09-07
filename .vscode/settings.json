@@ -2,5 +2,10 @@
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
     "compile-hero.disable-compile-files-on-did-save-code": false,
-    "chat.agent.maxRequests": 150
+    "chat.agent.maxRequests": 150,
+    "remote.forwardPorts": [5800, 4000],
+    "remote.portAttributes": {
+        "5800": { "label": "SafeAlert Web" },
+        "4000": { "label": "Firebase Emulator UI" }
+    }
 }

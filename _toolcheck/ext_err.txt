@@ -1,0 +1,2 @@
+C:\Claude_Code_trabajos\_toolcheck\extraer_datos.py:204: DeprecationWarning: 'maxsplit' is passed as positional argument
+  nombre = re.split(r"[<>=!~;]", linea, 1)[0].strip()

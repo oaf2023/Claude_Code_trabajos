@@ -1,0 +1,512 @@
+[
+ {
+  "archivo": "admin/src/components/Badges.tsx",
+  "linea": 19,
+  "nombre": "Variante",
+  "tipo": "type"
+ },
+ {
+  "archivo": "admin/src/components/KpiCard.tsx",
+  "linea": 12,
+  "nombre": "KpiCardProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "admin/src/pages/PagoSimulado.tsx",
+  "linea": 27,
+  "nombre": "PlanType",
+  "tipo": "type"
+ },
+ {
+  "archivo": "app/como-funciona.tsx",
+  "linea": 22,
+  "nombre": "PasoProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "app/permissions.tsx",
+  "linea": 30,
+  "nombre": "PermissionItem",
+  "tipo": "type"
+ },
+ {
+  "archivo": "functions/src/createPaymentOrder.ts",
+  "linea": 29,
+  "nombre": "PlanType",
+  "tipo": "type"
+ },
+ {
+  "archivo": "functions/src/createPaymentOrder.ts",
+  "linea": 31,
+  "nombre": "PaymentRequest",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "functions/src/sendAlertSMS.ts",
+  "linea": 56,
+  "nombre": "NotificationResult",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/components/M3Button.tsx",
+  "linea": 16,
+  "nombre": "M3ButtonProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/PaymentModal.tsx",
+  "linea": 40,
+  "nombre": "PaymentModalProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/PaymentOverdueModal.tsx",
+  "linea": 32,
+  "nombre": "PaymentOverdueModalProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 26,
+  "nombre": "TicketData",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 35,
+  "nombre": "PaymentTicketProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/PaymentTicket.tsx",
+  "linea": 214,
+  "nombre": "TicketRowProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/components/TrialExpiredModal.tsx",
+  "linea": 25,
+  "nombre": "TrialExpiredModalProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 56,
+  "nombre": "Direction",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 58,
+  "nombre": "AuthUserLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 63,
+  "nombre": "AuthLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 68,
+  "nombre": "FirestoreDocumentSnapshotLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 74,
+  "nombre": "FirestoreQuerySnapshotLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 79,
+  "nombre": "FirestoreDocumentReferenceLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 92,
+  "nombre": "FirestoreQueryLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 103,
+  "nombre": "FirestoreCollectionReferenceLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 109,
+  "nombre": "FirestoreBatchLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 114,
+  "nombre": "FirestoreLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 119,
+  "nombre": "StorageReferenceLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 124,
+  "nombre": "StorageLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/firebase.ts",
+  "linea": 128,
+  "nombre": "FunctionsLike",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/webBanner.ts",
+  "linea": 13,
+  "nombre": "ServerSpec",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/config/webBanner.ts",
+  "linea": 19,
+  "nombre": "WebLimitation",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AlertQueue.ts",
+  "linea": 17,
+  "nombre": "QueuedAlert",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 18,
+  "nombre": "AlertMachineState",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 26,
+  "nombre": "DeliveryStatus",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 28,
+  "nombre": "ContactDelivery",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 38,
+  "nombre": "MachineContext",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 55,
+  "nombre": "MachineState",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AlertStateMachine.ts",
+  "linea": 60,
+  "nombre": "AlertMachineStore",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AudioAlertApiService.ts",
+  "linea": 21,
+  "nombre": "AudioAlertApiDiffMatch",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AudioAlertApiService.ts",
+  "linea": 27,
+  "nombre": "AudioAlertApiResponse",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/AudioAlertApiService.ts",
+  "linea": 38,
+  "nombre": "AudioAlertDetectionResult",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 18,
+  "nombre": "ProtectionLevel",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/DeviceDiagnostic.ts",
+  "linea": 20,
+  "nombre": "DiagnosticResult",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 20,
+  "nombre": "SubscriptionStatus",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 27,
+  "nombre": "PlanType",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PaymentService.ts",
+  "linea": 29,
+  "nombre": "UserStatusResponse",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/PermissionsService.ts",
+  "linea": 22,
+  "nombre": "PermissionKey",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PermissionsService.ts",
+  "linea": 28,
+  "nombre": "PermissionStatus",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PermissionsService.ts",
+  "linea": 34,
+  "nombre": "PermissionsStatus",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/PrivacyService.ts",
+  "linea": 18,
+  "nombre": "ConsentFeature",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PrivacyService.ts",
+  "linea": 20,
+  "nombre": "ConsentRecord",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/PythonAnywhereSync.ts",
+  "linea": 19,
+  "nombre": "UserProfileSync",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/SubscriptionService.ts",
+  "linea": 13,
+  "nombre": "SubscriptionData",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/TrialService.ts",
+  "linea": 33,
+  "nombre": "EstadoPrueba",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 28,
+  "nombre": "WakeWordModule",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/services/WakeWordService.ts",
+  "linea": 29,
+  "nombre": "KeyWordRNBridgeInstance",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/stores/useContactsStore.ts",
+  "linea": 18,
+  "nombre": "ContactsState",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/stores/useGuardStore.ts",
+  "linea": 17,
+  "nombre": "AlertPhase",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/stores/useGuardStore.ts",
+  "linea": 25,
+  "nombre": "GuardState",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/stores/useSettingsStore.ts",
+  "linea": 6,
+  "nombre": "SettingsState",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/theme/Button.tsx",
+  "linea": 25,
+  "nombre": "ButtonVariant",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/theme/Button.tsx",
+  "linea": 27,
+  "nombre": "ButtonProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/theme/Card.tsx",
+  "linea": 15,
+  "nombre": "CardVariant",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/theme/Card.tsx",
+  "linea": 17,
+  "nombre": "CardProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/theme/Icon.tsx",
+  "linea": 17,
+  "nombre": "IconName",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/theme/Icon.tsx",
+  "linea": 19,
+  "nombre": "IconProps",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/theme/tokens.ts",
+  "linea": 111,
+  "nombre": "ColorKey",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/theme/tokens.ts",
+  "linea": 112,
+  "nombre": "SpacingKey",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/theme/tokens.ts",
+  "linea": 113,
+  "nombre": "BorderRadiusKey",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 13,
+  "nombre": "AlertStatus",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 14,
+  "nombre": "SMSStatus",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 16,
+  "nombre": "LocationSource",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 18,
+  "nombre": "PermissionStatusValue",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 26,
+  "nombre": "AlertLocation",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 47,
+  "nombre": "AlertContact",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Alert.ts",
+  "linea": 57,
+  "nombre": "Alert",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Contact.ts",
+  "linea": 11,
+  "nombre": "Contact",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Contact.ts",
+  "linea": 20,
+  "nombre": "ContactFormData",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/IAAnalysis.ts",
+  "linea": 10,
+  "nombre": "UrgencyLevel",
+  "tipo": "type"
+ },
+ {
+  "archivo": "src/types/IAAnalysis.ts",
+  "linea": 12,
+  "nombre": "IAAnalysis",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/IAAnalysis.ts",
+  "linea": 23,
+  "nombre": "IAProcessResult",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Location.ts",
+  "linea": 13,
+  "nombre": "LocationPayload",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Location.ts",
+  "linea": 44,
+  "nombre": "ConsentPayload",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Location.ts",
+  "linea": 53,
+  "nombre": "AccesoPayload",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/types/Settings.ts",
+  "linea": 1,
+  "nombre": "AppSettings",
+  "tipo": "interface"
+ },
+ {
+  "archivo": "src/utils/MessageFormatter.ts",
+  "linea": 11,
+  "nombre": "MessageData",
+  "tipo": "interface"
+ }
+]

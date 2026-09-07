@@ -1,0 +1,84 @@
+Tokens sin reemplazar: ninguno
+[Heading 1] Control de documento
+[Heading 1] Indice de contenido
+[Heading 1] 1. Sobre este documento
+[Heading 2] 1.1. Propósito
+[Heading 2] 1.2. Metodología de la auditoría
+[Heading 2] 1.3. Archivos excluidos del análisis línea por línea
+[Heading 2] 1.4. Convenciones de lectura
+[Heading 1] 2. Informe ejecutivo
+[Heading 2] 2.1. Qué es la aplicación
+[Heading 2] 2.2. Arquitectura en una frase
+[Heading 2] 2.3. Situación actual del proyecto (según el código analizado)
+[Heading 2] 2.4. Fortalezas principales
+[Heading 2] 2.5. Riesgos principales (resumen)
+[Heading 2] 2.6. Alcance de esta documentación
+[Heading 2] 2.7. Lectura recomendada
+[Heading 1] 3. Informe técnico
+[Heading 2] 6.1. Resumen arquitectónico
+[Heading 2] 6.2. Tecnologías principales
+[Heading 2] 6.3. Estructura de directorios (resumen)
+[Heading 2] 6.4. Estado global (Zustand)
+[Heading 2] 6.5. Modelo de datos resumen
+[Heading 2] 6.6. Ciclo de vida de la aplicación (cliente)
+[Heading 2] 6.7. Flujo de datos de una alerta
+[Heading 2] 6.8. Trazabilidad componente a componente
+[Heading 2] 6.9. Arquitectura de pago detectada
+[Heading 2] 6.10. Concurrencia y asincronía
+[Heading 1] 4. Informe funcional
+[Heading 2] 2.1. Qué es SafeAlert
+[Heading 2] 2.2. Usuarios y propósitos
+[Heading 2] 2.3. Flujo principal: alerta SOS
+[Heading 2] 2.4. Flujo de pago y suscripción
+[Heading 2] 2.5. Panel de administración
+[Heading 2] 2.6. Pantallas principales de la app móvil
+[Heading 2] 2.7. Privacidad y consentimiento
+[Heading 1] 5. Matrices, índices y diccionario de datos
+[Heading 2] 7.1. Matriz de directorios (resumen de archivos relevantes)
+[Heading 2] 7.2. Índice de funciones
+[Heading 2] 7.3. Índice de clases
+[Heading 2] 7.4. Índice de interfaces y tipos (TypeScript)
+[Heading 2] 7.5. Índice de endpoints (backend Flask + Cloud Functions)
+[Heading 2] 7.6. Catálogo de variables de entorno
+[Heading 2] 7.7. Dependencias externas
+[Heading 2] 7.8. Diccionario de datos (SQL del backend)
+[Heading 2] 7.9. Ranking de archivos por criticidad
+[Heading 2] 7.10. Perfiles y permisos
+[Heading 1] 6. Seguridad, deuda técnica, riesgos y mejoras
+[Heading 2] 8.1. Resumen de seguridad (perspectiva defensiva)
+[Heading 2] 8.2. Observaciones técnicas agregadas
+[Heading 2] 8.3. Logging y gestión de errores
+[Heading 2] 8.4. Deuda técnica detectada
+[Heading 2] 8.5. Código aparentemente no utilizado (no eliminar sin verificación)
+[Heading 2] 8.6. Matriz de riesgos
+[Heading 2] 8.7. Mejoras recomendadas
+[Heading 2] 8.8. Glosario
+[Heading 1] 7. Instalación, ejecución y operación
+[Heading 2] 5.1. Requisitos previos
+[Heading 2] 5.2. Estructura de instalación del código
+[Heading 2] 5.3. Instalación de la app principal
+[Heading 2] 5.4. Instalación de Cloud Functions
+[Heading 2] 5.5. Instalación del backend Flask
+[Heading 2] 5.6. Instalación del panel admin
+[Heading 2] 5.7. Ejecución de la app en desarrollo
+[Heading 2] 5.8. Despliegue
+[Heading 2] 5.9. Detención
+[Heading 2] 5.10. Operación normal
+[Heading 2] 5.11. Backup y restauración
+[Heading 2] 5.12. Mantenimiento guiado
+[Heading 2] 5.13. Puertos y servicios
+[Heading 1] 8. Guía de usuario y casos de uso
+[Heading 2] 3.1. Empezar (primer uso)
+[Heading 2] 3.2. Añadir contactos de confianza
+[Heading 2] 3.3. Enviar una alerta SOS
+[Heading 2] 3.4. Después de la alerta
+[Heading 2] 3.5. Suscripción y pagos
+[Heading 2] 3.6. Configuración
+[Heading 2] 3.7. Modo incógnito
+[Heading 2] 3.8. Cierre de sesión y borrado de cuenta
+[Heading 2] 4. Casos de uso principales
+[Heading 1] 9. Anexo — Inventario y control de cobertura
+[Heading 2] 9.1. Estadísticas de la auditoría
+[Heading 2] 9.2. Criterio de éxito y validación
+[Heading 2] 9.3. Árbol completo del proyecto (archivos relevantes)
+[Heading 2] 9.4. Control de cambios de esta documentación

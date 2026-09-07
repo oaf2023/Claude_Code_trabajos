@@ -4,12 +4,10 @@
 *                   Los colores ahora se importan desde theme/tokens.
 * Autor           : oafon
 * Fecha           : 2026-06-29
-* Versión         : 2.0.0
+* Versión         : 2.1.0
 * Lenguaje        : TypeScript 5.9
-* Uso             : import { APP_NAME, COLORS, ALERT_COUNTDOWN_SECONDS } from './constants'
+* Uso             : import { APP_NAME, ALERT_COUNTDOWN_SECONDS } from './constants'
 * ============================================================================ */
-
-import { color } from '../theme/tokens';
 
 export const APP_NAME = 'SafeAlert';
 
@@ -24,9 +22,6 @@ export const DEV_FALLBACK_LOCATION = {
   accuracy: 5000,
 };
 
-// Porcupine
-export const PORCUPINE_SENSITIVITY = 0.7;
-
 // Firestore collections
 export const COLLECTION_USERS = 'users';
 export const COLLECTION_CONTACTS = 'contacts';
@@ -36,20 +31,3 @@ export const COLLECTION_SETTINGS = 'settings';
 // SMS message format
 export const SMS_PREFIX = '🚨 AVISO';
 export const SMS_TEST_PREFIX = '🧪 PRUEBA';
-
-// Colores (backward compatibility — usar color tokens directamente)
-export const COLORS = {
-  danger: color.danger,
-  dangerDark: color.dangerDark,
-  dangerLight: color.dangerLight,
-  safe: color.safe,
-  safeLight: color.safeLight,
-  warning: color.warning,
-  warningLight: color.warningLight,
-  neutral: color.neutral500,
-  background: color.background,
-  white: '#FFFFFF',
-  text: color.textPrimary,
-  textMuted: color.textSecondary,
-  border: color.border,
-};

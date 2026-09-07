@@ -1,0 +1,332 @@
+[
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_WAKE_WORD",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_AUDIO_GUARD",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_WAKE_WORD_LICENSE",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_API_URL",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_API_KEY",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_LANGUAGE",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_THRESHOLD",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_GUARD_CHUNK_MS",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_PAYMENTS",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_PAYMENTS_DEMO",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_API_URL",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_SYNC_SECRET",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_SENTRY_DSN",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_INTERNAL_KEY",
+  "archivo": ".env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_WAKE_WORD",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_AUDIO_GUARD",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_PAYMENTS",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_PAYMENTS_DEMO",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENABLE_BACKGROUND_LOCATION",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_API_URL",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_API_KEY",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_INTERNAL_KEY",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_PA_SYNC_SECRET",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_API_URL",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_AUDIO_ALERT_API_KEY",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_WAKE_WORD_LICENSE",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_SENTRY_DSN",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "EXPO_PUBLIC_ENVIRONMENT",
+  "archivo": ".env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "VITE_API_URL",
+  "archivo": "admin/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "VITE_ADMIN_KEY",
+  "archivo": "admin/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "SAFEALERT_DB_PATH",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "SAFEALERT_TEL_DB_PATH",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "SAFEALERT_INTERNAL_KEY",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "SAFEALERT_ADMIN_API_KEY",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "AUDIO_ALERT_API_KEY",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "MP_WEBHOOK_SECRET",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "IPREGISTRY_API_KEY",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "RETENCION_ACCESOS_DIAS",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "RETENCION_UBICACIONES_DIAS",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "RETENCION_CONSENTIMIENTOS_DIAS",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "RETENCION_LOGS_DIAS",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "PROXY_CONFIANZA",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "FLASK_DEBUG",
+  "archivo": "backend/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "SAFEALERT_DB_PATH",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "SAFEALERT_TEL_DB_PATH",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "SAFEALERT_INTERNAL_KEY",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "SAFEALERT_ADMIN_API_KEY",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "AUDIO_ALERT_API_KEY",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "MP_WEBHOOK_SECRET",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "IPREGISTRY_API_KEY",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "RETENCION_ACCESOS_DIAS",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "RETENCION_UBICACIONES_DIAS",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "RETENCION_CONSENTIMIENTOS_DIAS",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "RETENCION_LOGS_DIAS",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "PROXY_CONFIANZA",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "FLASK_DEBUG",
+  "archivo": "backend/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "MP_ACCESS_TOKEN",
+  "archivo": "functions/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "PAYMENTS_ENABLED",
+  "archivo": "functions/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "PA_API_URL",
+  "archivo": "functions/.env",
+  "valor_real_presente": true
+ },
+ {
+  "variable": "TWILIO_ACCOUNT_SID",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "TWILIO_AUTH_TOKEN",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "TWILIO_PHONE_NUMBER",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "MP_ACCESS_TOKEN",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "PAYMENTS_ENABLED",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ },
+ {
+  "variable": "PA_API_URL",
+  "archivo": "functions/.env.example",
+  "valor_real_presente": false
+ }
+]

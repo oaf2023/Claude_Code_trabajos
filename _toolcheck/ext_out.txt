@@ -1,0 +1,10 @@
+{
+  "funciones_detectadas": 302,
+  "clases_detectadas": 7,
+  "tipos_interfaces_detectadas": 85,
+  "endpoints_flask": 0,
+  "endpoints_cloud_functions": 0,
+  "dependencias_manifest": 80,
+  "tablas_sql": 3,
+  "variables_entorno": 66
+}
